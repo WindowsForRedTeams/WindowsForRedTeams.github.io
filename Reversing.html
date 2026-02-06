@@ -1,0 +1,493 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Appendix X: Reversing the _DEBUG_OBJECT with WinDBG - Windows Offensive Techniques for Authorized Red Teams</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="src/mdbook-admonish.css">
+        <link rel="stylesheet" href="src/custom.css">
+        <link rel="stylesheet" href="./mdbook-admonish.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Windows Offensive Techniques for Authorized Red Teams</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="appendix-x-reversing-the-_debug_object-with-windbg"><a class="header" href="#appendix-x-reversing-the-_debug_object-with-windbg">Appendix X: Reversing the <code>_DEBUG_OBJECT</code> with WinDBG</a></h1>
+<h2 id="introduction"><a class="header" href="#introduction">Introduction</a></h2>
+<p>The <code>_DEBUG_OBJECT</code> is a kernel object that represents a debugging session between a debugger and one or more "debuggee" processes. It is used to track which processes are being debugger, queue debug events (i.e., breakpoints, exceptions, thread creation, module loads, etc.), and act as a communication bridge between the debugger and the target process.</p>
+<div id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
+<div class="admonition-title">
+<div id="admonition-note-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note"></a>
+</div>
+<div>
+<p>Windows developers use two main functions to interact with <code>_DEBUG_OBJECT</code> objects:</p>
+<ul>
+<li>
+<p><code>NtCreateDebugObject</code>: A low-level Native API that the Windows kernel uses to instantiate a new Debug Object in kernel memory.</p>
+<pre><code class="language-C">NTSTATUS NtCreateDebugObject(
+	[out] PHANDLE DebugObjectHandle,
+	[in] ACCESS_MASK DesiredAccess,
+	[in] POBJECT_ATTRIBUTES ObjectAttributes,
+	[in] ULONG Flags
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>NtCreateDebugObject</code> function's parameters:
+<ul>
+<li><code>DebugObjectHandle</code>: A pointer to a variable that receives a handle to the newly created object.</li>
+<li><code>DesiredAccess</code>: A btimask that tells the OBject Manager exactly what actions the caller intends to perform on the Debug Object.
+<ul>
+<li><code>DEBUG_OBJECT_WAIT_STATE_CHANGE</code> (0x0001): Allows the debugger to call <code>NtWaitForDebugEvent</code> to queue events (breakpoints, exceptions, etc.)</li>
+<li><code>DEBUG_OBJECT_ADD_REMOVE_PROCESS</code> (0x0002): Allows the debugger to attach to/detach from a target process.</li>
+<li><code>DEBUG_OBJECT_SET_ATTRIBUTES</code> (0x0004): Allows the debugger to modify object flags, such as the <code>KillProcessOnExit</code> behavior.</li>
+<li><code>DEBUG_ALL_ACCESS</code> (0x000F): A combination of all specific rights plus standard rights (i.e., <code>Synchronize</code>, <code>Read</code>, <code>Control</code>, etc.) (See <code>Privilege Escalation Techniques with Malware</code> -&gt; DuplicateTokenEx() for more details on Standard/Generic  rights.)</li>
+</ul>
+</li>
+<li><code>ObjectAttributes</code>: A pointer to a structure that defines the object's name and security descriptor.</li>
+<li><code>Flags</code>: Only supports one flag value, for <code>DEBUG_KILL_ON_CLOSE</code>(0x1), which automatically terminates all debugged processes if the created debug object handle is closed.</li>
+</ul>
+</li>
+<li><code>NtCreateDebugObject</code> returns an <code>NTSTATUS</code> object, (0x0) upon success, failure otherwise (i.e., <code>Access Denied</code>).</li>
+</ul>
+</li>
+<li>
+<p><code>NtDebugActiveProcess</code>: Attaches a given debugging object to a target process.</p>
+<pre><code class="language-C">NTSTATUS NtDebugActiveProcess(
+	[in] HANDLE DebugObjectHandle,
+	[in] HANDLE ProcessHandle
+);
+</code></pre>
+<ul>
+<li>Here is a breakdown of the <code>NtDebugActiveProcess</code> function's parameters:</li>
+<li><code>DebugObjectHandle</code>: A handle to the <code>_DEBUG_OBJECT</code> object which will be attached to the target process.</li>
+<li><code>ProcessHandle</code>: A handle to the target process, which is to be debugged</li>
+<li><code>NtDebugActiceProcess</code> returns an <code>NTSTATUS</code> object, (0x0) upon success, failure otherwise (i.e., <code>Port already set</code>).</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p><code>_DEBUG_OBJECT</code> is an internal kernel object, and its structure is not publicly documented. However, it is visible via symbols in publicly documented code. We can use a debugger, such as <code>WinDbg</code> to discern the structure of the object in memory. Our objective in this section is to use <code>WinDbg</code> to reveal important structural details about the <code>_DEBUG_OBJECT</code> structure in memory and reverse-engineer a <code>C</code> style <code>struct</code> using the gathered information.</p>
+<h2 id="procedure"><a class="header" href="#procedure">Procedure</a></h2>
+<h3 id="requirements"><a class="header" href="#requirements">Requirements</a></h3>
+<ul>
+<li>A Windows Machine (Physical or Virtual)</li>
+<li>Administrative Privileges</li>
+<li>WinDbg Installed</li>
+</ul>
+<h3 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h3>
+<ul>
+<li>We will need to enable kernel debugging on the system, which is disabled by default. Use the following commands to enable kernel debugging on the local kernel:
+<pre><code class="language-Powershell">bcdedit /debug on
+bcdedit /dbgsettings local
+</code></pre>
+Then reboot the system so the changes are put into effect.</li>
+</ul>
+<h3 id="instructions"><a class="header" href="#instructions">Instructions</a></h3>
+<h3 id="step-1-setting-up-your-debugging-environment"><a class="header" href="#step-1-setting-up-your-debugging-environment">Step 1: Setting Up Your Debugging Environment</a></h3>
+<p>As stated, <code>_DEBUG_OBJECT</code> is a kernel object. As such, we will need to start two debugging sessions: one arbitrary process which runs for the sole purpose of instantiating a <code>_DEBUG_OBJECT</code> which we will analyze, and a kernel debugging session so that we may analyze kernel memory and actually discern the form of the <code>_DEBUG_OBJECT</code>.</p>
+<p>First, let's start out kernel debugging session. Open <code>WinDbg</code> and navigate to <code>File</code> -&gt; <code>Start debugging</code> -&gt; <code>Attach to kernel</code> -&gt; <code>Local</code>. Select <code>Ok</code> to start debugging the local kernel:
+<img src="img/windbg_file.png" alt="image" /></p>
+<blockquote>
+<p><code>File</code></p>
+</blockquote>
+<p><img src="img/start_krnl_dbg.png" alt="image" /></p>
+<blockquote>
+<p><code>Start debugging</code> -&gt; <code>Attach to kernel</code> -&gt; <code>Local</code> -&gt; <code>Ok</code></p>
+</blockquote>
+<p>This requires elevated privileges, so allow the program to make changes to the device when prompted. This should reveal the <code>WinDbg</code> command interface and prompt:
+<img src="img/krnl_interface.png" alt="image" /></p>
+<p>If the prompt is some variant of <code>lkd</code>, you have successfully opened a kernel debugging session!</p>
+<p>Next, open another, seperate instance of <code>WinDbg</code>, navigate to <code>File</code> -&gt; <code>Start debugging</code> -&gt; <code>Launch executable</code>. This will open a <code>File Explorer</code> window, where you will be asked to select which executable to launch. For our demonstration, we will be using <code>C:\Windows\System32\notepad.exe</code>:
+<img src="img/exec_launch.png" alt="image" /></p>
+<p>Similarly, this should reveal a command interface and prompt to debug <code>notepad.exe</code> (or whichever other executable you selected). Now, navigate back to the kernel debugging session an type the following command:</p>
+<pre><code class="language-Powershell">lkd&gt; !process 0 1 notepad.exe
+</code></pre>
+<p>This will reveal whether or not our application is actually running on the system and whether or not it is open as a debuggable process:
+<img src="img/krnl_debug_active.png" alt="image" /></p>
+<blockquote>
+<p>Command interface after running our command</p>
+</blockquote>
+<p>This reveals some important information about our process. Take note of your:</p>
+<ul>
+<li><code>PROCESS</code>: <code>ffff808f13e570c0</code></li>
+<li><code>Image</code>: <code>notepad.exe</code></li>
+<li><code>DebugPort</code>: <code>ffff808f1162dae0</code></li>
+</ul>
+<p>The <code>PROCESS</code> value tells us where in kernel memory the <code>EPROCESS</code> object that correlates to the process can be found. The <code>Image</code> value tells us the name of the executable that was loaded into memory for execution, and the <code>DebugPort</code> value tells us where in memory the <code>_DEBUG_OBJECT</code> structure can be found. And with that, we have successfully set up our debugging environment, allowing us to move forward with discerning the structure of <code>_DEBUG_OBJECT</code>.</p>
+<h3 id="step-2-dumping-the-raw-bytes"><a class="header" href="#step-2-dumping-the-raw-bytes">Step 2: Dumping the Raw Bytes</a></h3>
+<p>Now that we know where the <code>DEBUG_OBJECT</code> is, we need to get the actual bytes that make up the structure to discern any of its structural details. First, we need to determine how much space the structure occupies in memory:</p>
+<pre><code class="language-Powershell">lkd&gt; !pool ffff808f1162dae0     # Pass Your Unique DebugPort Value
+</code></pre>
+<p>Running this command will reveal information about a number of related memory regions. The one we are looking for should be marked with an asterisk (<code>*</code>) and a tag <code>*Debu</code>:
+<img src="img/dbg_obj_size.png" alt="image" /></p>
+<p>This reveals that the <code>_DEBUG_OBJECT</code> is <code>0xd0</code> (<code>208d</code>) bytes large. To dump the raw bytes that occupy the entire memory space, we can use the following command:</p>
+<pre><code class="language-Powershell">lkd&gt; dq ffff808f1162dae0 L1A
+</code></pre>
+<ul>
+<li>Where:
+<ul>
+<li><code>dq</code>: Dump-Quadword. Displays the memory as 64-bit (8-byte) hexadecimal values. Since pointer and header values are 8-bytes wide on x64 systems, this is essential.</li>
+<li><code>ffff808f1162dae0</code>: The address of <code>_DEBUG_OBJECT</code>, the starting memory address we want to inspect.</li>
+<li><code>L1A</code>: The length of the dump we want to analyze.
+<ul>
+<li><code>L</code>: Length</li>
+<li><code>1A</code>: A hexadecimal value (<code>26d</code>) denoting the number of quad-words we want to dump.
+<ul>
+<li>Since the size of <code>_DEBUG_OBJECT</code> is <code>208d</code>, divide that by 8 to reveal the number of quad-words needed to dump the entire object, then convert that number to hexadecimal, <code>0x1a</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="img/dbg_obj_dump.png" alt="image" /></p>
+<blockquote>
+<p><code>_DEBUG_OBJECT</code> Data Dump</p>
+</blockquote>
+<p>Let's reorganize this info so it is more useful:</p>
+<pre><code class="language-bash">Base = ffff808f1162dae0
+
+Offset    Value
+-----------------------------------
++00       00000001`00060000
++08       ffff808f`1162dae8
+
++10       ffff808f`1162dae8
++18       00000000`00000001
+
++20       00000000`00000000
++28       00000000`00000002
+
++30       00000000`00060001
++38       ffff808f`1162db18
+
++40       ffff808f`1162db18
++48       00000000`00000000
+
++50       ffffac8a`d8823d50
++58       ffffac8a`d8823d50
+
++60       00000000`00000006
++68       00000000`00000000
+
++70       74696157`020d0000
++78       00000000`00000000
+
++80       000000c8`00000000
++88       00000000`00000000
+
++90       00000000`00000000
++98       00000000`00000000
+
++A0       00000000`00008001
++A8       00000000`00000001
+
++B0       00000000`00000000
++B8       00000000`00080030
+
++C0       fffff805`80c27d80
++C8       00000000`00000000
+</code></pre>
+<div id="admonition-note-1" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-1-title">
+<div class="admonition-title">
+<div id="admonition-note-1-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-1"></a>
+</div>
+<div>
+<p>There are a few things to consider before we move forward. First, online sources show that security researchers have discerned different forms for the <code>_DEBUG_OBJECT</code> structure over time, with different versions of Windows. For instance, consider these three resources:</p>
+<ul>
+<li><a href="https://www.openrce.org/articles/full_view/26">OpenRCE: Kernel User-Mode Debugging</a> - Published 2007</li>
+<li><a href="https://shhoya.github.io/windows_dbgprocess.html">Shh0ya Security Lab: Debugging Process</a> - Published 2021</li>
+<li><a href="https://github.com/hfiref0x/KDU/blob/master/Source/Shared/ntos/ntos.h">hfiref0x: Kernel Driver Utility</a> - Published 2025</li>
+</ul>
+<blockquote>
+<p>I cannot guarantee the availability of any of these resources. If any of these links are dead, use an internet archive (i.e., archive.org) to try recovering the page.</p>
+</blockquote>
+<p>While none of these resources are authoritative, they can be correlated to known security researchers with other published works, which can be analyzed to measure the reliablility of the work they produce. Each publication exists for a different reason, but each document contains some reversed version of the <code>_DEBUG_OBJECT</code> structure for some version of Windows, and they share certain elements in common. We can use these resources, and other similar sources, as guides for our own reversing process.</p>
+<p>Second, the <code>dt nt!_&lt;STRUCTURE&gt; &lt;START_ADDRESS&gt;</code> command can be used to observe whether a given memory range could contain a particular structure. For instance, <code>dt nt!_LIST_ENTRY ffffffff'fffffff0</code> could be used to determine if the 16-bytes (<code>0x10</code>) starting from <code>ffffffff'fffffff0</code> <strong>COULD</strong> be a <code>_LIST_ENTRY</code> structure, but this is no guarantee. We can use the Vergilius Project to identify the size and attributes of relevant data structures.</p>
+<p>Finally, certain data structures demonstrate particular behaviors in memory that stand out. For instance, consider the <code>_LIST_ENTRY</code> data structure:</p>
+<pre><code class="language-C">//0x10 bytes (sizeof)
+struct _LIST_ENTRY
+{
+    struct _LIST_ENTRY* Flink;                                              //0x0
+    struct _LIST_ENTRY* Blink;                                              //0x8
+};
+</code></pre>
+<blockquote>
+<p>SOURCE: <a href="https://www.vergiliusproject.com/kernels/x64/windows-11/25h2/_LIST_ENTRY">Vergilius Project: Windows 11 25H2</a></p>
+</blockquote>
+<p>A <code>_LIST_ENTRY</code> is a node in a doubly-linked list. If that list only contains a single node, the <strong>Forward Link</strong> (<code>Flink</code>) and <strong>Backward Link</strong> (<code>Blink</code>) will point to the memory address of the node itself. In a data dump, this will appear as a pointer, <code>ffffffff'fffffff0</code> at the memory address it points to, <code>ffffffff'fffffff0</code>, followed by the same pointer value in the succeeding memory address, <code>ffffffff'fffffff8</code>.</p>
+<p>Similarly, you can recognize potentially legible strings in a data dump, as the Hex ASCII values for A-Z are 0x41-0x5a and the Hex ASCII values for a-z are 0x61-0x7a. Consecutive bytes containing these values, likely ending with <code>0x00</code> bytes are potential strings. Also, look for <strong>LFCR</strong> (Line-Feed/Carriage-Return) characters (<code>0x0a</code>, <code>0x0d</code>), and spaces (<code>0x20</code>). Remember to consider the endian-ness of the data when decoding strings.</p>
+</div>
+</div>
+<p>Now, looking at the 3 resources identified previously, we can see that they share certain common elements. First and foremost, they each start with the following structure:</p>
+<pre><code class="language-C">struct _DEBUG_OBJECT
+{
+  _KEVENT EventPresent;
+  _FAST_MUTEX Mutex;
+  _LIST_ENTRY EventList;
+  [...trunc...]
+}
+</code></pre>
+<p>This is good information, because it implies that across Windows versions, this part of the <code>_DEBUG_OBJECT</code> remains consistent across versions. Let's take a deeper look. Referencing the Vergilius Project, we can identify the following:</p>
+<pre><code class="language-C">//0x18 bytes (sizeof)
+struct _KEVENT
+{
+    struct _DISPATCHER_HEADER Header;                                       //0x0
+};
+</code></pre>
+<blockquote>
+<p>SOURCE: <a href="https://www.vergiliusproject.com/kernels/x64/windows-11/25h2/_KEVENT">Vergilius Project: Windows 11 25H2</a></p>
+</blockquote>
+<pre><code class="language-C">//0x38 bytes (sizeof)
+struct _FAST_MUTEX
+{
+    LONG Count;                                                             //0x0
+    VOID* Owner;                                                            //0x8
+    ULONG Contention;                                                       //0x10
+    struct _KEVENT Event;                                                   //0x18
+    ULONG OldIrql;                                                          //0x30
+};
+</code></pre>
+<blockquote>
+<p>SOURCE: <a href="https://www.vergiliusproject.com/kernels/x64/windows-11/25h2/_FAST_MUTEX">Vergilius Project: Windows 11 25H2</a></p>
+</blockquote>
+<p>If we include a <code>_LIST_ENTRY</code> following the <code>_FAST_MUTEX</code> structure, that is a total of <strong>96</strong> bytes (0x60). So let's consider the first <code>0x60</code> bytes of our data dump:</p>
+<pre><code class="language-bash">Base = ffff808f1162dae0
+
+Offset    Value
+-----------------------------------
++00       00000001`00060000
++08       ffff808f`1162dae8
+
++10       ffff808f`1162dae8
++18       00000000`00000001
+
++20       00000000`00000000
++28       00000000`00000002
+
++30       00000000`00060001
++38       ffff808f`1162db18
+
++40       ffff808f`1162db18
++48       00000000`00000000
+
++50       ffffac8a`d8823d50
++58       ffffac8a`d8823d50
+</code></pre>
+<p>According to our prediction, first <code>0x10</code> bytes should make up a <code>_KEVENT</code> object</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="Command.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="Command.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Introduction to Red Teaming - Windows Offensive Techniques for Authorized Red Teams</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="src/mdbook-admonish.css">
+        <link rel="stylesheet" href="src/custom.css">
+        <link rel="stylesheet" href="./mdbook-admonish.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Windows Offensive Techniques for Authorized Red Teams</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="introduction-to-red-teaming"><a class="header" href="#introduction-to-red-teaming">Introduction to Red Teaming</a></h1>
+<p>During the Cold War in the 1960s, the <strong>RAND Corporation</strong>, who was working with the U.S. military, simulated wargames between the U.S. and the Soviets. The Soviet units were the red team and the American units were blue. Out of this, sprang our modern practice of Red Team Operations. While modern cybersecurity red teams do not have a focus on war time activities, their practice of emulating the tactics, techniques, and procedures (<strong>TTP</strong>) of their cyber adversaries is rooted in the same principles.</p>
+<p>There are two main types of red team operations:</p>
+<ul>
+<li><strong>Adversary Eumlation</strong>: The goal of these operations is to emulate a specific threat by leveraging their known TTPs. It is narrow in scope and aims to enhance an organizations defences against a specific threat.</li>
+<li><strong>Adversary Simulation</strong>: The goal of these operations is to simulate a hypothetical threat by leveraging unknown or unique TTPs. This is very broad in scope and enhances defences against a range of threats.</li>
+</ul>
+<p>Whether it is Adversary Emulation or Simulation, the goal of the Red Team is to test the abilities of a <strong>Blue Team</strong>, or the defensive team that protects an organization from malicious cyber activity. This can be measured in:</p>
+<ul>
+<li><strong>Time to Detect</strong>: The time between the inciting antagonistic event and the initial response from the blue team.</li>
+<li><strong>Time to Mitigate</strong>: The time between the inciting antagonistic event and the restoration of the organization's systems/domain to ideal conditions.</li>
+</ul>
+<p><strong>Threat Intelligence</strong> (TI) describes evidence-based knowledge of the mechanisms, context, and implications of attacks from threat actors. Using TI helps an organization identify emerging threats and their mitigations, frame testing scenarios, and analyze their own environments to identify patterns of TTPs and <strong>Indicators of Compromise</strong>. TI-related data has been standardized in many common formats, including:</p>
+<ul>
+<li><code>CAPEC</code>: Common Attack Pattern Enumeration and Classification</li>
+<li><code>CybOX</code>: Cyber Observables</li>
+<li><code>Microsoft Interflow</code></li>
+<li><code>STIX</code>: Structured Thread Information</li>
+<li><code>TAXII</code>: Trusted Automated eXchange of Indicator Information</li>
+</ul>
+<p><strong>Red Team Operators</strong> can use TI to research the TTPs of known <strong>Advanced Persistent Threats</strong>, in order to understand how they work and to perform Adversarial Emulation under realistic conditions.</p>
+<p>There are a number of frameworks that try to map out the steps taken by an adversary when attacking a domain:</p>
+<ul>
+<li>
+<p><strong>Cyber Kill Chain</strong>: First published by <a href="https://www.lockheedmartin.com/content/dam/lockheed-martin/rms/documents/cyber/LM-White-Paper-Intel-Driven-Defense.pdf">Lockheed Martin</a> in 2011, the Cyber Kill Chain breaks the attack lifecycle down into 7 simple steps:</p>
+<ul>
+<li><code>Reconnaissance</code>: The adversary scouts their target to find potential attack vectors.</li>
+<li><code>Weaponization</code>: The adversary develops a malicious payload</li>
+<li><code>Delivery</code>: The adversary develops a means of delivering the payload to the identified target.</li>
+<li><code>Exploitation</code>: The adversary initializes the attack by delivering the weaponized payload.</li>
+<li><code>Installation</code>: The payload is persistently installed on target systems</li>
+<li><code>Command &amp; Control</code>: The adversary establishes a means of controlling the compromised targets.</li>
+<li><code>Actions on Objectives</code>: The adversary achieves their operational goals.</li>
+</ul>
+</li>
+<li>
+<p><strong>Targeted Attack Lifecycle</strong>: The Cyber Kill Chain lacked verbosity, so in 2013, <a href="https://cloud.google.com/security/resources/insights/targeted-attack-lifecycle">Mandiant</a> published the <strong>Targeted Attack Lifecycle</strong>.</p>
+<ul>
+<li><code>Initial Reconnaissance</code>: The adversary researches the target's systems and employees to develop a methodology for intrusion.</li>
+<li><code>Initial Compromise</code>: The malicious code is executed on one or more targets via the attack vector planned in Phase 1.</li>
+<li><code>Establish Foothold</code>: The adversary maintains continued control over a compromised system by installing persistent backdoors.</li>
+<li><code>Escalate Privileges</code>: The adversary exploits system vulnerabilities or misconfigurations to obtain local admin access to compromised systems.</li>
+<li><code>Internal Reconnaissance</code>: Adversaries explore the target's internal infrastructure and environment .</li>
+<li><code>Move Laterally</code>: The adversary uses credentials obtained during phase 4 to compromise additional systems</li>
+<li><code>Maintain Presence</code>: The adversary maintains highly privileged access to domains and systems</li>
+<li><code>Complete Mission</code>: The adversary accomplishes their operational objective.</li>
+</ul>
+</li>
+</ul>
+<p>One additional fact about the Targeted Attack Lifecycle is that, unlike the Cyber Kill Chain, it is non-linear, and many phases are repeated throughout the engagement, like so:
+<img src="https://hackmd.io/_uploads/HygtEKq0eg.png" alt="image" /></p>
+<blockquote>
+<p>Source: <a href="https://www.gstatic.com/bricks/image/eedab7cf-6618-4699-aa52-9c67e4428f8d.png">https://www.gstatic.com/bricks/image/eedab7cf-6618-4699-aa52-9c67e4428f8d.png</a></p>
+</blockquote>
+<ul>
+<li>Other Attack Lifecycles include:
+<ul>
+<li><a href="https://attack.mitre.org">MITRE ATT&amp;CK</a></li>
+<li><a href="https://www.ecb.europa.eu/pub/pdf/other/ecb.tiber_eu_framework.en.pdf">TIBER‑EU (Threat Intelligence‑Based Ethical Red teaming)</a></li>
+<li><a href="https://www.unifiedkillchain.com/assets/The-Unified-Kill-Chain.pdf">The Unified Killchain</a></li>
+<li><a href="https://www.threatintel.academy/wp-content/uploads/2020/07/diamond_summary.pdf">The Diamond Model of Intrusion Analysis</a></li>
+</ul>
+</li>
+</ul>
+<p>Over the course of this book, we will focus on building a fundamental understanding of just how malicious actors walk through these steps and how OffSec professionals use this knowledge to test the defenses of potentially vulnerable organizations.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="Foreword.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="Laws.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="Foreword.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="Laws.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
