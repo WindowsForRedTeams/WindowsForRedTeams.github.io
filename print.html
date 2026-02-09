@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Windows Offensive Techniques for Authorized Red Teams</title>
+        <title>The Red Teamers Bible</title>
         <meta name="robots" content="noindex">
 
 
@@ -127,7 +127,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Windows Offensive Techniques for Authorized Red Teams</h1>
+                    <h1 class="menu-title">The Red Teamers Bible</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -159,8 +159,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="mit-license"><a class="header" href="#mit-license">MIT License</a></h1>
-<p><img src="img/RedTeamingBible.png" alt="img" /></p>
+                        <p><img src="img/RedTeamingBible.png" alt="img" /></p>
+<h1 id="mit-license"><a class="header" href="#mit-license">MIT License</a></h1>
 <p>Copyright (c) 2026</p>
 <p>The Red Teamers Bible © 2026 by Jaden Andrews is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International.</p>
 <p>You are free to:</p>
@@ -177,7 +177,7 @@
 <p>No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.</p>
 <p>No warranties are given. The work is provided “as is,” without any express or implied warranty. The licensor shall not be liable for any damages arising from the use of this work.</p>
 <p>To view a copy of this license, visit:
-https://creativecommons.org/licenses/by-nc-sa/4.0/</p>
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">https://creativecommons.org/licenses/by-nc-sa/4.0/</a></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="foreword"><a class="header" href="#foreword">Foreword</a></h1>
 <p>History has proven that computer vulnerabilities persist, in spite of the intentions of the engineers and developers who create the products where these vulnerabilities are identified. It is my intention, in creating this book, that people become familiar with the methods and techniques used by malicious actors in order to exploit these vulnerabilities for malicious purposes.</p>
 <p>Despite my intentions, I am aware that the knowledge contained within this body of work can be used by anyone to serve their individual interests, whether they seek to positively or negatively impact society at large. But in the wise words of Jon Erickson, the hacker ethic is <strong>"the appreciation of logic as an art form and the promotion of the free flow of information, surmounting conventional boundaries and restrictions for the simple goal of better understanding the world"</strong>. As I understand it, the methods and techniques used by malicious hackers to exploit computer vulnerabilities are principles of the natural world's function and it is in the interest of any ethical hacker to find ways to defend against any malicious actor who may seek to take advantage of these functions.</p>
@@ -6931,6 +6931,103 @@ should all be considered threats as well. Question who has visibility into your 
 </ul>
 <p>Countermeasures should be measurable for performance and effectiveness. It is best practice to automate infrastructure deployment usinc Infrastructure as Code (IaC) templates with OpSec constrains built-in.</p>
 <h2 id="using-opsec-with-c2-frameworks"><a class="header" href="#using-opsec-with-c2-frameworks">Using OpSec with C2 Frameworks</a></h2>
+<ul>
+<li>Beacon Object Files</li>
+<li>Modules</li>
+<li>Plugins</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="understanding-active-directory"><a class="header" href="#understanding-active-directory">Understanding Active Directory</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="appendix-a-virtual-addresses-page-tables-and-page-table-entries"><a class="header" href="#appendix-a-virtual-addresses-page-tables-and-page-table-entries">Appendix A: Virtual Addresses, Page Tables, and Page Table Entries</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="appendix-b-manually-writing-shellcode-for-windows"><a class="header" href="#appendix-b-manually-writing-shellcode-for-windows">Appendix B: Manually Writing Shellcode for Windows</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="appendix-c-a-primer-on-kerberos"><a class="header" href="#appendix-c-a-primer-on-kerberos">Appendix C: A Primer on Kerberos</a></h1>
+<h2 id="how-it-works"><a class="header" href="#how-it-works">How it Works</a></h2>
+<p><strong>Kerberos</strong> replaces the <strong>New Technology LAN Manager</strong> (<code>NTLM</code>) as the default domain authentication protocol since Windows 2000. It works on a system of <strong>ticets</strong>, where principals (users and computers) are authenticated by a central, trusted server, granting them access to services without needing to provide their password over and over again. Kerberos doesn't require that end services know the principal's password. It assumes that there is no transport encryption on the network and that packets can be read/modified/replayed. Therefore, it relies on shared-secret cryptography to establish a trust relationship with clients.</p>
+<p>The <strong>Key Distribution Center</strong> (<code>KDC</code>) is the trusted source for kerberos authentication that consists of three sub components:</p>
+<ul>
+<li>A database of all principals and their associated secrets (i.e., password hashed)</li>
+<li>An <strong>Authentication Server</strong> (<code>AS</code>)</li>
+<li>A <strong>Ticket Granting Server</strong> (<code>TGS</code>)</li>
+</ul>
+<div id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
+<div class="admonition-title">
+<div id="admonition-note-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="Kerberos.html#admonition-note"></a>
+</div>
+<div>
+<p>In a Windows domain, it's the domain controllers that act as the KDC, as every principal and their password hashes are stored in <strong>Active Directory</strong>.</p>
+</div>
+</div>
+<p>A <strong>Ticket Granting Ticket</strong> (<code>TGT</code>) is provided to a principal after their identity has been verified by the <code>AS</code>. It is used in lieu of a principal having to provide their password every time they want to use a service. Each service can be identified by a forest unique <strong>Service Principal Name</strong> (<code>SPN</code>), which should be in the following format:</p>
+<pre><code class="language-C">&lt;service class&gt;/&lt;host&gt;:&lt;port&gt;/&lt;service name&gt;
+</code></pre>
+<p>The <strong><service class></strong> describes the general type of the service. For instance, whether it is a <code>SqlServer</code>, <code>www</code> for a web server, or <code>ldap</code> for a <strong>Lightweight Database Access Protocol</strong> server. The <strong><host>:<port></strong> is simply the <strong>FQDNS</strong> or <strong>NetBios</strong> name, followed by the port that the server is running on. Finally, the <strong><service name></strong> is an optional distinguished name, objectGUID, or DNS Name that helps to further distinguish a service within a domain/forest. It can be ommitted for host-based services.</p>
+<p>A <strong>service ticket</strong> is a component returned from the <strong>TGS</strong> in response to a request to access a service using kerberos authentication. A TGT is sent to the KDC as evidence that their identity has been verified.</p>
+<p>A <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/21181737-74fd-492c-bfbd-0322993a9061"><strong>Privileged Attribute Certificate</strong></a> is a structure that can be attached to a ticket, which contains additional information about a principal. When a ticket is issued from a Windows Domain Controller, it will populate the <strong>PAC</strong> with information about the principal from Active Directory. This can include their:</p>
+<ul>
+<li><strong>Resource ID</strong> (<code>RID</code>)</li>
+<li><strong>Domain Group Membership</strong></li>
+<li><strong>User Account Control</strong> Information</li>
+</ul>
+<p>When presenting a service ticket to a service, the service is able to inspect the PAC to determine the user's privileges without having to query it from AD.</p>
+<p><img src="img/kerberos.png" alt="image" /></p>
+<blockquote>
+<p><strong>Kerberos Authentication</strong> Overview</p>
+</blockquote>
+<p>Basically, Kerberos Authentication can be broken up into 3 phases:</p>
+<h3 id="phase-1-authentication"><a class="header" href="#phase-1-authentication">Phase 1: Authentication</a></h3>
+<ol>
+<li>
+<p><strong>AS-REQ</strong> (Authentication Service Request)
+The Client sends a message to the KDC saying, "I am User X, and I want to log in." This request is partially encrypted using a hash of the user's password.</p>
+</li>
+<li>
+<p><strong>AS-REP</strong> (Authentication Service Response)
+The KDC verifies the user's identity. If successful, it sends back a TGT. The TGT is encrypted with the KDC's own secret key (so the client cannot tamper with it). The client now has proof of identity that it can use for the rest of the session.</p>
+</li>
+</ol>
+<h3 id="phase-2-authorization"><a class="header" href="#phase-2-authorization">Phase 2: Authorization</a></h3>
+<ol start="3">
+<li>
+<p><strong>TGS-REQ</strong> (Ticket Granting Service Request)
+At this point, the Client wants to access a specific Service. It sends the TGT back to the KDC, authenticating itself and requesting access to that specific Service.</p>
+</li>
+<li>
+<p><strong>TGS-REP</strong> (Ticket Granting Service Response)
+The KDC validates the TGT. If valid, it issues a Service Ticket. This ticket is encrypted using the Service's secret key. The Client cannot read it, but the Service will be able to.</p>
+</li>
+</ol>
+<h3 id="phase-3-service-access"><a class="header" href="#phase-3-service-access">Phase 3: Service Access</a></h3>
+<ol start="5">
+<li><strong>AP-REQ</strong> (Application Request)
+The client sends the Service Ticket to the Service to request access. The Service decrypts the ticket using its own secret key to verify the user's identity.</li>
+</ol>
+<p>5.5 <strong>Optional PAC Validation</strong>
+The Service asks the KDC to verify the PAC in order to ensure it's authenticity and prevent privilege escalation attacks using forged PAC.</p>
+<ol start="6">
+<li><strong>AP-REP</strong> (Application Response)
+The Service confirms the connection to the Client. This completes the Mutual Authentication. The Client knows the Service is real, and the Service knows the Client is real, establishing the connection.</li>
+</ol>
+<h2 id="delegation"><a class="header" href="#delegation">Delegation</a></h2>
+<p>Sometimes, services need to act on behalf or a user to interact with other back end resources. <strong>Delegation</strong> describes the method used to facilitate this type of interaction. There are two types. When <strong>Unconstrained Delegation</strong> is implemented, the server receives the ticket, extracts the user's TGT, and caches it in its memory (<code>LSASS</code>). The server can now use that TGT to impersonate the user to any service on the network. If an attacker compromises a server with Unconstrained Delegation, they can dump the memory to steal the TGTs of any administrator who connects to it (i.e., a Domain Admin performs maintenance on the box -&gt; Attacker steads DA TGT -&gt; Attacker owns the domain). This is considered highly insecure today.
+The more secure method, <strong>Constrained Delegation</strong>, was introduced in Windows Server 2003 to fix the security risks of Unconstrained Delegation. The service is strictly limited in where it can send the user's credentials. The Domain Admin specifies exactly which SPNs the middle-tier server is allowed to access on behalf of the user.</p>
+<p>When a user authenticates to a service with <strong>Constrained Delegation</strong> enabled, the user gets a Kerberos TGT and the Service receives a forwardable ticket. With this, the service can request service tickets from allowed SPNs.</p>
+<p>Services with Constrained Delegation enabled can implements additional extensions. For instance, <strong>S4U2Self</strong> (<code>Service-for-User-to-Self</code>) allows the configured service to ask for a ticket to itself on behalf of the client, even if the user did not authenticate using Kerberos. Essentially, this allows services to grant trusted users access to to themselves by performing a <strong>Protocol Transition</strong>, converting a non Kerberos authentication into a valid Kerberos ticket. Another example is <strong>S4U2Proxy</strong>, which allows the service to use a <code>S4U2Self</code> ticket to access another service as the user. On services with <strong>Constrained Delegation</strong> enabled, the KDC will verify whether the <code>S4U2Proxy</code> service is allowed to delegate users to the requested service and whether the provided ticket is authentic. If it is, a new ticket is granted allowing the original service to act as a proxy for the authenticated user on the secondary service.</p>
+<h2 id="attacking-kerberos"><a class="header" href="#attacking-kerberos">Attacking Kerberos</a></h2>
+<p>Attackers may attempt to exploit Kerberos to impersonate legitimate users within a domain. Here, we will review a few of those techniques and if possible, how they are mitigated.</p>
+<h3 id="silver-tickets"><a class="header" href="#silver-tickets">Silver Tickets</a></h3>
+<p>A <strong>Silver Ticket</strong> is a forged <strong>Service Ticket</strong>. This allows an attacker to authenticate directly to a given service, without authenticating with the *<em>Domain Controller</em></p>
+<h2 id="additional-resources"><a class="header" href="#additional-resources">Additional Resources</a></h2>
+<p>More information about <strong>Kerberos</strong> can be found <a href="https://learn.microsoft.com/en-us/windows/win32/ad/mutual-authentication-using-kerberos">here</a>.
+To Learn more about <strong>Delegation</strong>, visit this link <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu/3bff5864-8135-400e-bdd9-33b552051d94">here</a>.
+You can find thread intelligence on attacking kerberos, visit the following links on Mitre:</p>
+<ul>
+<li><a href="https://attack.mitre.org/techniques/T1558/002/">Silver Tickets</a></li>
+<li><a href="https://attack.mitre.org/techniques/T1558/001/">Golden Tickets</a></li>
+<li><a href="https://attack.mitre.org/techniques/T1558/003/">Kerberoasting</a></li>
+</ul>
+<p>More information on Diamond and Sapphire Tickets can be found <a href="https://unit42.paloaltonetworks.com/next-gen-kerberos-attacks/">here</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="appendix-x-reversing-the-_debug_object-with-windbg"><a class="header" href="#appendix-x-reversing-the-_debug_object-with-windbg">Appendix X: Reversing the <code>_DEBUG_OBJECT</code> with WinDBG</a></h1>
 <h2 id="introduction-2"><a class="header" href="#introduction-2">Introduction</a></h2>
 <p>The <code>_DEBUG_OBJECT</code> is a kernel object that represents a debugging session between a debugger and one or more "debuggee" processes. It is used to track which processes are being debugger, queue debug events (i.e., breakpoints, exceptions, thread creation, module loads, etc.), and act as a communication bridge between the debugger and the target process.</p>
