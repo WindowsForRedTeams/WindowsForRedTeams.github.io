@@ -185,7 +185,8 @@
 <p>A <strong>service ticket</strong> is a component returned from the <strong>TGS</strong> in response to a request to access a service using kerberos authentication. A TGT is sent to the KDC as evidence that their identity has been verified.</p>
 <p>A <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/21181737-74fd-492c-bfbd-0322993a9061"><strong>Privileged Attribute Certificate</strong></a> is a structure that can be attached to a ticket, which contains additional information about a principal. When a ticket is issued from a Windows Domain Controller, it will populate the <strong>PAC</strong> with information about the principal from Active Directory. This can include their:</p>
 <ul>
-<li><strong>Resource ID</strong> (<code>RID</code>)</li>
+<li><strong>Relative Identifiers</strong> (<code>RID</code>)</li>
+<li><strong>Security Identifiers</strong> (<code>SID</code>)</li>
 <li><strong>Domain Group Membership</strong></li>
 <li><strong>User Account Control</strong> Information</li>
 </ul>
@@ -202,7 +203,7 @@
 The Client sends a message to the KDC saying, "I am User X, and I want to log in." This request is partially encrypted using a hash of the user's password.</p>
 </li>
 <li>
-<p><strong>AS-REP</strong> (Authentication Service Response)
+<p><strong>AS-REP</strong> (Authentication Service Replay)
 The KDC verifies the user's identity. If successful, it sends back a TGT. The TGT is encrypted with the KDC's own secret key (so the client cannot tamper with it). The client now has proof of identity that it can use for the rest of the session.</p>
 </li>
 </ol>
@@ -213,7 +214,7 @@ The KDC verifies the user's identity. If successful, it sends back a TGT. The TG
 At this point, the Client wants to access a specific Service. It sends the TGT back to the KDC, authenticating itself and requesting access to that specific Service.</p>
 </li>
 <li>
-<p><strong>TGS-REP</strong> (Ticket Granting Service Response)
+<p><strong>TGS-REP</strong> (Ticket Granting Service Replay)
 The KDC validates the TGT. If valid, it issues a Service Ticket. This ticket is encrypted using the Service's secret key. The Client cannot read it, but the Service will be able to.</p>
 </li>
 </ol>
@@ -225,22 +226,53 @@ The client sends the Service Ticket to the Service to request access. The Servic
 <p>5.5 <strong>Optional PAC Validation</strong>
 The Service asks the KDC to verify the PAC in order to ensure it's authenticity and prevent privilege escalation attacks using forged PAC.</p>
 <ol start="6">
-<li><strong>AP-REP</strong> (Application Response)
+<li><strong>AP-REP</strong> (Application Replay)
 The Service confirms the connection to the Client. This completes the Mutual Authentication. The Client knows the Service is real, and the Service knows the Client is real, establishing the connection.</li>
 </ol>
 <h2 id="delegation"><a class="header" href="#delegation">Delegation</a></h2>
 <p>Sometimes, services need to act on behalf or a user to interact with other back end resources. <strong>Delegation</strong> describes the method used to facilitate this type of interaction. There are two types. When <strong>Unconstrained Delegation</strong> is implemented, the server receives the ticket, extracts the user's TGT, and caches it in its memory (<code>LSASS</code>). The server can now use that TGT to impersonate the user to any service on the network. If an attacker compromises a server with Unconstrained Delegation, they can dump the memory to steal the TGTs of any administrator who connects to it (i.e., a Domain Admin performs maintenance on the box -&gt; Attacker steads DA TGT -&gt; Attacker owns the domain). This is considered highly insecure today.
 The more secure method, <strong>Constrained Delegation</strong>, was introduced in Windows Server 2003 to fix the security risks of Unconstrained Delegation. The service is strictly limited in where it can send the user's credentials. The Domain Admin specifies exactly which SPNs the middle-tier server is allowed to access on behalf of the user.</p>
 <p>When a user authenticates to a service with <strong>Constrained Delegation</strong> enabled, the user gets a Kerberos TGT and the Service receives a forwardable ticket. With this, the service can request service tickets from allowed SPNs.</p>
-<p>Services with Constrained Delegation enabled can implements additional extensions. For instance, <strong>S4U2Self</strong> (<code>Service-for-User-to-Self</code>) allows the configured service to ask for a ticket to itself on behalf of the client, even if the user did not authenticate using Kerberos. Essentially, this allows services to grant trusted users access to to themselves by performing a <strong>Protocol Transition</strong>, converting a non Kerberos authentication into a valid Kerberos ticket. Another example is <strong>S4U2Proxy</strong>, which allows the service to use a <code>S4U2Self</code> ticket to access another service as the user. On services with <strong>Constrained Delegation</strong> enabled, the KDC will verify whether the <code>S4U2Proxy</code> service is allowed to delegate users to the requested service and whether the provided ticket is authentic. If it is, a new ticket is granted allowing the original service to act as a proxy for the authenticated user on the secondary service.</p>
+<p>Services with Constrained Delegation enabled can implements additional extensions. For instance, <strong>S4U2Self</strong> (<code>Service-for-User-to-Self</code>) allows the configured service to ask for a ticket to itself on behalf of the client, even if the user did not authenticate using Kerberos. Essentially, this allows services to grant trusted users access to to themselves by performing a <strong>Protocol Transition</strong>, converting a non Kerberos authentication into a valid Kerberos ticket. Another example is <strong>S4U2Proxy</strong> (<code>Service-for-User-To-Proxy</code>), which allows the service to use a <code>S4U2Self</code> ticket to access another service as the user. On services with <strong>Constrained Delegation</strong> enabled, the KDC will verify whether the <code>S4U2Proxy</code> service is allowed to delegate users to the requested service and whether the provided ticket is authentic. If it is, a new ticket is granted allowing the original service to act as a proxy for the authenticated user on the secondary service. Finally, <strong>U2U</strong> (<code>User-to-User</code>)</p>
 <h2 id="attacking-kerberos"><a class="header" href="#attacking-kerberos">Attacking Kerberos</a></h2>
-<p>Attackers may attempt to exploit Kerberos to impersonate legitimate users within a domain. Here, we will review a few of those techniques and if possible, how they are mitigated.</p>
+<p>Attackers may attempt to exploit Kerberos to impersonate legitimate users, move laterally, elevate priviliges and establish persistence within a domain. Here, we will review a few techniques which accomplish this end, and where possible, discuss how they are mitigated.</p>
+<h3 id="kerberoasting"><a class="header" href="#kerberoasting">Kerberoasting</a></h3>
+<h3 id="pass-the-hash"><a class="header" href="#pass-the-hash">Pass-the-Hash</a></h3>
+<h3 id="pass-the-ticket"><a class="header" href="#pass-the-ticket">Pass-the-Ticket</a></h3>
 <h3 id="silver-tickets"><a class="header" href="#silver-tickets">Silver Tickets</a></h3>
-<p>A <strong>Silver Ticket</strong> is a forged <strong>Service Ticket</strong>. This allows an attacker to authenticate directly to a given service, without authenticating with the *<em>Domain Controller</em></p>
+<p>A <strong>Silver Ticket</strong> is a forged <strong>Service Ticket</strong>. This allows an attacker to authenticate directly to a given service, without authenticating with the <strong>Domain Controller</strong>. The attacker needs the password hash (<code>NTLM</code> hash or <code>AES</code> key) of the <strong>Service Account</strong> responsible for launching the target service. This grants access only to the target service, so it is pretty limited. However it can be very difficult to detect because the KDC is never contacted.</p>
+<p>In plaintext, service tickets resemble the following form:</p>
+<pre><code class="language-C">EncTicketPart:
+  flags:                  forwardable renewable pre_authent name-canonicalize renewable_ok
+  key:                    enctype: 18 (aes256-cts-hmac-sha1-96)
+                          key value: [32-byte AES key bytes, e.g. 0xF7A2...]
+  crealm:                 CONTOSO.COM
+  cname:                  [type: NT-PRINCIPAL, name: 'jsmith']
+  transited:              (empty or path of realms if cross-realm)
+  authtime:               2026-02-09 18:45:12Z
+  starttime:              2026-02-09 18:45:12Z
+  endtime:                2026-02-10 04:45:12Z
+  renew-till:             2026-02-16 18:45:12Z (if renewable)
+  caddr:                  (optional: client IP addresses)
+  authorization-data:     [usually contains the Privilege Attribute Certificate / PAC]
+                          - PAC_VERSION
+                          - PAC_CLIENT_INFO (user SID, logon time)
+                          - PAC_PRIVSVR_CHECKSUM
+                          - PAC_KDC_CHECKSUM
+                          - PAC_CREDENTIALS_INFO (if delegation)
+                          - Group memberships, resource groups, extra SIDs, etc.
+</code></pre>
+<blockquote>
+<p>Structure of Kerberos Tickets, as defined by <a href="https://datatracker.ietf.org/doc/html/rfc4120">RFC4120</a></p>
+</blockquote>
+<p>A Silver Ticket modifies the <code>PAC</code> inside the ticket to impersonate a specific user type within the context of the target service, then uses the service's hash/key to encrypt the forged packet. If the timestamps, encryption, and PAC are all valid, the service trusts the ticket and grants the attacker access. Persistence can be granted if the lifetime of the forged ticket is extended (i.e., <code>10 years</code>), and its <code>Renewable</code> value is set to <code>True</code>.</p>
+<h3 id="golden-tickets"><a class="header" href="#golden-tickets">Golden Tickets</a></h3>
+<h3 id="diamond-tickets"><a class="header" href="#diamond-tickets">Diamond Tickets</a></h3>
+<h3 id="sapphire-tickets"><a class="header" href="#sapphire-tickets">Sapphire Tickets</a></h3>
 <h2 id="additional-resources"><a class="header" href="#additional-resources">Additional Resources</a></h2>
-<p>More information about <strong>Kerberos</strong> can be found <a href="https://learn.microsoft.com/en-us/windows/win32/ad/mutual-authentication-using-kerberos">here</a>.
-To Learn more about <strong>Delegation</strong>, visit this link <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu/3bff5864-8135-400e-bdd9-33b552051d94">here</a>.
-You can find thread intelligence on attacking kerberos, visit the following links on Mitre:</p>
+<p>More information about <strong>Kerberos</strong> can be found from <a href="https://learn.microsoft.com/en-us/windows/win32/ad/mutual-authentication-using-kerberos">Microsoft</a>, <a href="https://kerberos.org/software/tutorial.html">Kerberos</a>, or the <a href="https://datatracker.ietf.org/doc/html/rfc4120">IETF</a>.</p>
+<p>To Learn more about <strong>Delegation</strong>, visit this link <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu/3bff5864-8135-400e-bdd9-33b552051d94">here</a>.</p>
+<p>You can find thread intelligence on attacking kerberos, visit the following links on Mitre:</p>
 <ul>
 <li><a href="https://attack.mitre.org/techniques/T1558/002/">Silver Tickets</a></li>
 <li><a href="https://attack.mitre.org/techniques/T1558/001/">Golden Tickets</a></li>
