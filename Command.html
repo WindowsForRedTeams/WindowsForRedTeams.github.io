@@ -202,7 +202,7 @@
 <p>The <strong>HAVOC</strong> C2 Client</p>
 </blockquote>
 <h3 id="c2-agents"><a class="header" href="#c2-agents">C2 Agents</a></h3>
-<p><strong>C2 Agents</strong> are small pieces of software installed on compromised systems that connect the infected device back to the C2 Server and carries out the attacker's commands. Once a system is infected, the agent calls back to the C2 server. This can happen through encrypted web traffic (i.e. <code>HTTPS</code>), DNS Tunneling, or other covert channels. The agent waits for instructions and then executes commands. They are designed to be stealthy. Often, they mimic legitimate processes (i.e., <code>svchost.exe</code>) or use fileless malware techniques to stay under the radar. Sometimes, they are referred to as <code>C2 Implants</code> or <code>bots</code> depending on the C2 framework you are using.</p>
+<p><strong>C2 Agents</strong> are small pieces of software installed on compromised systems that connect the infected device back to the C2 Server and carries out the attacker's commands. Once a system is infected, the agent calls back to the C2 server. This can happen through encrypted web traffic (i.e. <code>HTTPS</code>), DNS Tunneling, or other covert channels. The agent waits for instructions and then executes commands. They are designed to be stealthy. Often, they mimic legitimate processes (i.e., <code>svchost.exe</code>) or use fileless malware techniques to stay under the radar. Sometimes, they are referred to as <strong>Implants</strong> or <strong>bots</strong> depending on the C2 framework you are using.</p>
 <p><img src="img/c2_agent.png" alt="image" /></p>
 <blockquote>
 <p>The <strong>HAVOC</strong> <code>demon.x64.exe</code> C2 Agent Executing On a Target System</p>
@@ -261,125 +261,9 @@ These techniques hinder signature-based detection tools, as they cannot keep up 
 A <strong>heartbeat</strong> is a specialized form of beacon, which simply confirms that the agent is still running on the target. It contains minimal or no data, and is often used when no tasks are queued. In many frameworks, every beacon implicitly acts as a heartbeat. Heartbeats help operators distinguish between dormant but healthy agents and disconnected or terminated agents.</p>
 </blockquote>
 <p><strong>Jitter</strong> introduces random variation into beacon or heartbeat timing. Instead of beaconing over an exact interval (i.e., every <code>60</code> seconds), jitter modifies the delay so that it is more random (i.e., <code>60</code> seconds ± <code>20%</code>). Jitter is important because fixed intervals are very easy to detect. Jitter makes traffic appear more human or application-like, making C2 operations more difficult to detect.</p>
-<p>Advanced frameworks (like <strong>Cobalt Strike</strong>) implement <strong>Malleable Profiles</strong>, which allow operators to customimze how the C2 traffic appears on the network, granting them the ability to make it appear more like normal network traffic and evade detection. These are small programs that define provide a template describing C2 beacon should look. For instance, here is an example of a Malleable C2 Profile designed to disguise beacon traffic as <code>GMail</code> traffic on a network. It was published by <strong>BC-Security</strong>, a group of cybersecurity engineers and offensive security enthusiasts that actively maintain and update Powershell Empire in their spare time ;-). Credit to <code>@ChrisTruncer</code> for authoring this profile:</p>
-<pre><code># Make requests look like GMail web requests
-#
-# Author: @ChrisTruncer
-
-https-certificate {
-	set CN       "gmail.com";
-	set O        "Google GMail";
-	set C        "US";
-	set L        "Mountain View";
-	set OU       "Google Mail";
-	set ST       "CA";
-	set validity "365";
-}
-
-set sleeptime "60000";
-set pipename "interprocess_##";
-set spawnto "userinit.exe";
-set jitter "15";
-set dns_idle "8.8.4.4";
-
-http-get {
-	set uri "/_/scs/mail-static/_/js/";
-	client {
-
-		metadata {
-			base64;
-			prepend "OSID=";
-			header "Cookie";
-		}
-
-		header "Accept" "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-		header "Accept-Language" "en-US,en;q=0.5";
-		header "Accept-Encoding" "gzip, deflate";
-		header "DNT" "1";
-	}
-
-	server {
-		header "X-Content-Type-Options" "nosniff";
-		header "X-Frame-Options" "SAMEORIGIN";
-		header "Cache-Control" "public, max-age=31536000";
-		header "X-XSS-Protection" "1; mode=block";
-		header "Server" "GSE";
-		header "Alternate-Protocol" "443:quic,p=1";
-
-		output{
-			prepend "try(";
-			prepend "O(L.Oa(),\"sy580\")";
-			prepend "N(L.Oa(),\"sy580\");P(L.Oa(),\"sy580\");";
-			prepend ")catch(e)(_DumpException(e))";
-			prepend "try(";
-			prepend "O(L.Oa(),\"sy558\");";
-			prepend "N(L.Oa(),\"sy558\");P(L.Oa(),\"sy558\");";
-			prepend ")catch(e)(_DumpException(e))";
-			prepend "try(";
-
-			append "var f2=function(a)(a=a.wa;return\"application/chromium-bookmark-folder\"==a||\"application/chromium-root-folder\"==a||\"application/vnd.google-apps.folder\"==a||\"application/vnd.google-apps.photoalbum\"==a||\"application/vnd.google-apps.rollupphotoalbum\"==a)";
-			append ",g2=function(a)(return a.ra),s8d=function(a)(return a?hb(a,function(a)(return new UP(a)):[]),h2=function(a)(switch(a)(case \"all\":case \"docs-images\":case \"docs-images-and-videos\":case \"docs-videos\":case \"documents\":case \"drawings\":case \"folders\":case \"forms\":case \"pdfs\":case \"presentations\":case \"sites\":case \"spreadsheets\":case \"tables\":return!0)return!1); O(L.Oa(),\"sy588\")";
-
-			print;
-
-		}
-	}
-}
-
-http-post {
-	set uri "/mail/u/0/";
-	client {
-		parameter "ui" "d3244c4707";
-		parameter "hop" "6928632";
-		parameter "start" "0";
-		header "Content-Type" "application/x-www-form-urlencoded;charset=utf-8";
-
-		id {
-			base64;
-			prepend "OSID=";
-			header "Cookie";
-        }
-
-		output{
-			base64;
-			print;
-		}
-	}
-
-	server {
-		header "X-Content-Type-Options" "nosniff";
-		header "X-Frame-Options" "SAMEORIGIN";
-		header "Cache-Control" "no-cache, no-store, max-age=0, must-revalidate";
-		header "X-XSS-Protection" "1; mode=block";
-		header "Server" "GSE";
-
-		output {
-
-			prepend "[[[\"apm\",\"";
-
-			append "\"]";
-			append ",[\"ci\",[]";
-			append "]";
-			append ",[\"cm\",[]";
-			append ",[]";
-			append "]";
-			append "],'dbb8796a80d45e1f']";
-
-			print;
-		}
-
-	}
-}
-</code></pre>
-<blockquote>
-<p>Source: <a href="https://github.com/BC-SECURITY/Malleable-C2-Profiles/blob/master/Normal/reddit.profile">BC-Security GitHub</a></p>
-</blockquote>
-<!--
-Breakdown how what this Malleable Profile is doing
-Show how Malleable Profile traffic appears on the network using Wireshark
--->
-<p>A description of the syntax of the Malleable C2 Profile language can be found <a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_profile-language.htm?__hstc=173638140.5572de669d16511e7a7369de9b5a24a7.1769794321624.1769794321624.1769797138410.2&amp;__hssc=173638140.2.1769797138410&amp;__hsfp=d4fbe0704d25aa0908150659cafc510a&amp;_gl=1*1s3xxag*_gcl_au*NjI1OTE0NjQ1LjE3Njk3OTQzMTU.*_ga*MTA0ODgwNTE1OC4xNzY5Nzk0MzE3*_ga_HNS2ZVG55R*czE3Njk3OTcxMzMkbzIkZzEkdDE3Njk3OTcxNTEkajQyJGwwJGgw#_Toc65482837">here</a>.</p>
-<p>C2 Frameworks are important because they offer a continuous, secure, and manageable connection between the attacker and their targeted systems. We will review this subject in more technical depth in the chapters that follow.</p>
+<p><strong>Beacon Object Files</strong> are lightweight, compiled C object files which extend the functionality of C2 Agents by running directly within the memory of an existing agent process. They can perform additional tasks, such as reconnaissance, credential dumping, privilege escalation, and lateral movement. Because they run entirely in memory, they do not create alerts due to process creations, they leave behind minimal artifacts, and they do not require all the parts of a full executable so they are incredibly stealthy.</p>
+<p>Advanced frameworks (like <strong>Cobalt Strike</strong>) implement <strong>Malleable Profiles</strong>, which allow operators to customimze how the C2 traffic appears on the network, granting them the ability to make it appear more like normal network traffic and evade detection. These are small programs that provide a template describing how a C2 beacon should look. For instance, <a href="https://github.com/BC-SECURITY/Malleable-C2-Profiles/blob/master/Normal/reddit.profile">this</a> is an example of a Malleable C2 Profile designed to disguise beacon traffic as <code>GMail</code> traffic on a network. It was published by <strong>BC-Security</strong>, a group of cybersecurity engineers and offensive security enthusiasts that actively maintain and update Powershell Empire in their spare time ;-). Credit to <code>@ChrisTruncer</code> for authoring this profile. A description of the syntax of the Malleable C2 Profile language can be found <a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_profile-language.htm?__hstc=173638140.5572de669d16511e7a7369de9b5a24a7.1769794321624.1769794321624.1769797138410.2&amp;__hssc=173638140.2.1769797138410&amp;__hsfp=d4fbe0704d25aa0908150659cafc510a&amp;_gl=1*1s3xxag*_gcl_au*NjI1OTE0NjQ1LjE3Njk3OTQzMTU.*_ga*MTA0ODgwNTE1OC4xNzY5Nzk0MzE3*_ga_HNS2ZVG55R*czE3Njk3OTcxMzMkbzIkZzEkdDE3Njk3OTcxNTEkajQyJGwwJGgw#_Toc65482837">here</a>.</p>
+<p>C2 Frameworks are important because they offer a continuous, secure, and manageable connection between the attacker and their targeted systems. We will review this them in more technical depth in the chapters that follow.</p>
 <h2 id="operations-security"><a class="header" href="#operations-security">Operations Security</a></h2>
 <p><strong>Operations Security</strong> (OpSec) is a process that identifies critical information to determine if friently actions can be observed by enemy intelligence, determines if information obtained by adversaries could be interpreted to be useful to them, and executes selected measures that eliminate or reduce adversary exploitation of friendly critical information. It is a term derived from the United States Military, stemming back to the Vietnam War Operation, Codename:<strong><a href="https://www.nsa.gov/portals/75/documents/news-features/declassified-documents/cryptologic-histories/purple_dragon.pdf">Purple Dragon</a></strong>, that was later adopted by the intelligence and security communities. As it relates to red teams, they do not want the blue team to "connect the dots". Each time the red team interacts with their target organization, it leaves behind a "dot". With enough dots, the blue team can identify red team tools and infrastrucutre, then prevent or mitigate attacks after they are fully realized. This can be especially frustrating if the blue team connects the dots before the red team knows it. The red team can keep the blue team from connecting the dots by either not leaving any, or only leaving dots that are not associated with one another.</p>
 <div id="admonition-basic-red-team-opsec-checklist" class="admonition admonish-warning" role="note" aria-labelledby="admonition-basic-red-team-opsec-checklist-title">
@@ -587,14 +471,9 @@ should all be considered threats as well. Question who has visibility into your 
 <li>Isolated, single-use domains and redirectors</li>
 <li>Domain Fronting</li>
 </ul>
-<p>Countermeasures should be measurable for performance and effectiveness. It is best practice to automate infrastructure deployment usinc Infrastructure as Code (IaC) templates with OpSec constrains built-in.</p>
-<h2 id="using-opsec-with-c2-frameworks"><a class="header" href="#using-opsec-with-c2-frameworks">Using OpSec with C2 Frameworks</a></h2>
-<ul>
-<li>Beacon Object Files</li>
-<li>Modules</li>
-<li>Plugins</li>
-<li>Kits</li>
-</ul>
+<p>Counter-activities should be measurable for performance and effectiveness. It is best practice to automate infrastructure deployment usinc Infrastructure as Code (IaC) templates with OpSec constrains built-in.</p>
+<h2 id="conclusion"><a class="header" href="#conclusion">Conclusion</a></h2>
+<p>Command and Control Frameworks and Operations Security are the lifeblood of modern Red Team operations. C2 Infrastructure provide the technical means to coordinate operators, manage compromised systems, and execute post-exploitation activities, while OpSec ensures that these capabilities can be exercised without premature detection, attribution, or disruption. Ultimately, C2 frameworks and OpSec are interdependent pillars of modern red teaming. When wielded responsibly—with disciplined customization, continuous threat modeling, and adherence to the formal OpSec cycle—they enable red teams to deliver high-fidelity, valuable assessments that genuinely strengthen defenses. By mastering these elements, operators not only emulate advanced persistent threats effectively but also uphold the ethical responsibility to minimize unintended exposure, protect client environments, and contribute meaningfully to organizational resilience in an ever-evolving threat landscape. As red teaming evolves, so too must our commitment to stealth, adaptability, and uncompromising OpSec.</p>
 
                     </main>
 
