@@ -2990,7 +2990,8 @@ Here is a breakdown of the function's parameters:
 </code></pre>
 <p>Where:</p>
 <ul>
-<li><code>execve</code>: A powerful system call used on Unix-like operating systems to execute a new program by replacing the current process with a new one without creating a new process ID (PID). The new process completely overwrites the existing process code, data, and stack. From the perspective of the operating system, the process's PID remains the same, but the program it is running changes entirely. Included in <code>&lt;unistd.h&gt;</code>.
+<li>
+<p><code>execve</code>: A powerful system call used on Unix-like operating systems to execute a new program by replacing the current process with a new one without creating a new process ID (PID). The new process completely overwrites the existing process code, data, and stack. From the perspective of the operating system, the process's PID remains the same, but the program it is running changes entirely. Included in <code>&lt;unistd.h&gt;</code>.</p>
 <pre><code class="language-C">int execve(const char *pathname, char *const argv[], char *const envp[]);
 </code></pre>
 <ul>
@@ -3857,15 +3858,24 @@ When a relative module path is given, a function will search for the appropriate
 <a class="admonition-anchor-link" href="Essentials.html#admonition-note-4"></a>
 </div>
 <div>
-<p><strong>How it Works</strong>: <em>Dll Hijacking</em>
-<strong>Dll Hijacking</strong> is pretty basic in practice, being broken into 3 distinct steps:</p>
+<p><strong>How it Works</strong>:</p>
+<p><strong>Dll Hijacking</strong> is pretty basic in practice, being broken into 3 distinct steps:</p>
 <ol>
-<li><strong>Identify the Vulnerable Application</strong>: The attacker identifies a legitimate application (often a signed system utility or a third-party tool) that attempts to load a DLL using an insecure method.</li>
-<li><strong>Exploiting the Search Order</strong>: When the application starts, Windows begins searching a defined sequence of directories for the missing DLL, which often includes locations that a low-privileged user may have write access to, such as:
-_ The directory from which the application was loaded
-_ The current working directory * Directories listed in the user's <code>PATH</code> environment variable
-The attacker places a malicious DLL file, renamed to the exact filename of the DLL the application is searching for, into one of these less-secure high priority locations.</li>
-<li><strong>Hijacking</strong>: When the legitimate application runs, the operating system finds the malicious DLL in the high-priority directory first and loads it, executing the attacker's code.</li>
+<li>
+<p><strong>Identify the Vulnerable Application</strong>: The attacker identifies a legitimate application (often a signed system utility or a third-party tool) that attempts to load a DLL using an insecure method.</p>
+</li>
+<li>
+<p><strong>Exploiting the Search Order</strong>: When the application starts, Windows begins searching a defined sequence of directories for the missing DLL, which often includes locations that a low-privileged user may have write access to, such as:</p>
+<ul>
+<li>The directory from which the application was loaded</li>
+<li>The current working directory</li>
+<li>Directories listed in the user's <code>PATH</code> environment variable</li>
+</ul>
+<p>The attacker places a malicious DLL file, renamed to the exact filename of the DLL the application is searching for, into one of these less-secure high priority locations.</p>
+</li>
+<li>
+<p><strong>Hijacking</strong>: When the legitimate application runs, the operating system finds the malicious DLL in the high-priority directory first and loads it, executing the attacker's code.</p>
+</li>
 </ol>
 </div>
 </div>
@@ -6432,6 +6442,21 @@ int main (int argc, char** argv){
 <h2 id="path-interception"><a class="header" href="#path-interception">Path Interception</a></h2>
 <p><strong>Path Interception</strong> is a vulnerability that occurs when an executable can be placed in a location which allows it to highjack the execution path of another, intended application. When the target program is executed with an elevated security context, this can result in privilege escalation. There are 3 variations of this vulnerability that we will review here: The <strong><code>PATH</code> Environment Variable</strong>, <strong>Search Order Highjacking</strong>, and <strong>Unquoted Paths</strong>.</p>
 <h3 id="path-environment-variable"><a class="header" href="#path-environment-variable"><a href="https://attack.mitre.org/techniques/T1574/007/">Path Environment Variable</a></a></h3>
+<p>The <code>PATH</code> environment variable contains a list of directories, which Windows uses to resolve the locations of common programs. For instance, <code>schtasks</code>, the program we use to enumerate scheduled tasks, exists at <code>C:\Windows\System32\schtasks.exe</code>. When you run <code>schtasks</code> at the Command line, the OS searches each directory, in order until it comes across <code>schtasks.exe</code> in <code>%SystemRoot%\system32</code>.</p>
+<div id="admonition-note-5" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-5-title">
+<div class="admonition-title">
+<div id="admonition-note-5-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="Escalation.html#admonition-note-5"></a>
+</div>
+<div>
+<p>Verify this by running:</p>
+<pre><code class="language-C">$ reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Path
+</code></pre>
+</div>
+</div>
+<p>System processes use the <code>Path</code> variable found at <code>HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\Path</code>, or the Machine Path. User processes search the Machine Path, then search through the User Path, found at <code>HKCU\Environment\Path</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="malware-detection-evasion-techniques"><a class="header" href="#malware-detection-evasion-techniques">Malware Detection Evasion Techniques</a></h1>
 <p>Modern Computer Systems come preloaded with a number of security mechanisms to combat the basic methods of exploitation, privilege escalation, and persistence we have reviewed so far. Without modification, these techniques would immediately be identified and mitigated before the attacker could perform any part of their operation. But although they likely won't work on their own, with some additional consideration these techniques can still be useful for exploiting weaknesses in security systems. In this section, we will review some methods for writing strong malware payloads that avoid detection and circumvent many of the obstacles that would otherwise prevent a payload from ever executing on a secure system.</p>
 <h2 id="anti-debugging-tricks"><a class="header" href="#anti-debugging-tricks">Anti-Debugging Tricks</a></h2>
@@ -6500,6 +6525,83 @@ int main (int argc, char** argv){
 </ul>
 </li>
 </ul>
+<p>Malware developers may want their programs to behave differently if a debugger is active. For instance, consider the following program:</p>
+<pre><code class="language-C">// debugger_here.c
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;windows.h&gt;
+
+bool hack(){
+  MessageBox(NULL, "You Have Been Hacked!", "&gt;;-)", MB_OK);
+}
+
+int main(){
+  if(IsDebuggerPresent()){
+    MessageBox(NULL, "debugger detected! exiting...\n", "RUNNING IN DEBUGGER", MB_OK);
+    return 1;
+  }
+  hack();
+  return 0;
+}
+</code></pre>
+<p>After compiling the program, it can be run on a Windows system like any other program:
+<img src="img/debugger_exp_run_nrml.png" alt="image" /></p>
+<p>We can see that when it runs, the <code>hack()</code> function is executed and a <code>MessageBox</code> shows the message <code>You Have Been Hacked!</code>. However, if it is launched in a debugger, a different message is shown:
+<img src="img/debugger_exp_run_dbg.png" alt="image" /></p>
+<p>So, depending on the context that the program is running in, it will demonstrate different behaviors. This technique is usesful for malicious program that want to avoid being dynamically analyzed.</p>
+<h3 id="detecting-breakpoints"><a class="header" href="#detecting-breakpoints">Detecting Breakpoints</a></h3>
+<p>Software debuggers allow operators to set <strong>breakpoints</strong>, which are places within a program where the debugger will pause execution, allowing analysts to observe the programs state. When a software breakpoint is set at a particular memory address, the debugger reads the first instruction byte of the target, saves it in an internal lookup table, then replaces it with the value <code>0xCC</code>, the <code>INT 3</code> x86 instruction, designed to throw a <code>EXCEPTION_BREAKPOINT</code>. When the debuggee program is executed, it eventually encounters the interrupt instruction. Now, the program doesn't know that it has encountered a breakpoint, it just knows that it hit a software interrupt. The CPU throws the interrupt and the kernel verifies that the program is being debugged. Then, it pauses execution of the target thread and sends a <code>DEBUG_EVENT</code> to the debugger. When execution is resumed, the original bytes are retrieved from the internal lookup table and replaced to the location set by the breakpoint.</p>
+<p>A basic way to determine whether a debugger has set breakpoints during execution is to calculate a <strong>checksum</strong> for the targeted region before the program is compiled. A checksum is a value which helps measure whether any minor changes have been made to a data set. Passing the data through a function produces a relatively unique number. In the event any minor changes are made to the data, the resulting checksum value will be different, indicating some form of data corruption.</p>
+<p>By isolating the region within the code where the checksum should be applied, it can be pre-calculated, then hardcoded into the program. The checksum recalculation should occur before any critical sections within the program, where breakpoints should not be allowed.</p>
+<p>Here is an example:</p>
+<pre><code class="language-C">// breakpoints.exe
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+
+DWORD CalcFuncChecksum(PUCHAR funcBegin, PUCHAR funcEnd) {
+  DWORD chksm = 0;
+  for (; funcBegin &lt; funcEnd; ++funcBegin) {
+    chksm += *funcBegin;
+  }
+  return chksm;
+}
+
+VOID Debuggee() {
+  int x;
+  long y;
+  char name[20];
+  union location{
+    int list_num;
+    long longitude;
+    char str_name[20];
+  };
+}
+
+VOID DebuggeeEnd() {};
+
+DWORD checksum = 0x741;
+
+int main() {
+  DWORD recalc = CalcFuncChecksum((PUCHAR)Debuggee, (PUCHAR)DebuggeeEnd);
+  if (checksum != recalc) {
+    char str[20];
+    snprintf(str, sizeof(str), "%d", recalc);
+    MessageBox(NULL, "Debugger!", str, MB_OK);
+    return -1;
+  }
+  MessageBox(NULL, "I Hate Being Debugged!", "&gt;:-(", MB_OK);
+  return 0;
+}
+</code></pre>
+<p>First, we define a function <code>CalcFuncChecksum</code>, which calculates a checksum value for all the data between two memory addresses. In this case, the protected code is within the <code>Debuggee</code> function. <code>DebuggeeEnd</code> is created as an in scope address we can refer to as the end of our <code>Debuggee</code> function. Since the checksum value is not known until the program is run at least once, call <code>CalcFuncChecksum</code> in <code>main</code>, set the return value equal to some <code>DWORD</code>, and print it to stdout using <code>printf</code>. This value should be set equal to <code>checksum</code>. Everytime the program runs, it should start by calculating the checksum for the protected region and comparing it to the hardcoded <code>checksum</code> value. This makes it that much harder for the program to be dynamically analyzed.</p>
+<p><img src="img/breakpoints_exp_run_nrml.png" alt="image" /></p>
+<blockquote>
+<p>Normal execution of <code>breakpoints.exe</code></p>
+</blockquote>
+<p><img src="img/breakpoints_exp_run_dbg.png" alt="image" /></p>
+<blockquote>
+<p>Debugger execution of <code>breakpoints.exe</code> with breakpoints set</p>
+</blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="introduction-to-c2-frameworks-and-operations-security"><a class="header" href="#introduction-to-c2-frameworks-and-operations-security">Introduction to C2 Frameworks and Operations Security</a></h1>
 <p>Established Red Teams typically have documented procedures, toolsets, and frameworks to run repeatable engagements. <strong>Command &amp; Control</strong> Frameworks provide centralized orchestration. Operation leaders can assign roles, distribute tasks and resources, collect telemetry, and enforce OPSEC and governance controls across the team. In this section, we will review the general structure of C2 Frameworks and establish the foundational properties of operational security in red teaming engagements.</p>
 <h2 id="command-and-control-frameworks"><a class="header" href="#command-and-control-frameworks">Command and Control Frameworks</a></h2>
@@ -6819,6 +6921,7 @@ should all be considered threats as well. Question who has visibility into your 
 <div style="break-before: page; page-break-before: always;"></div><h1 id="understanding-active-directory"><a class="header" href="#understanding-active-directory">Understanding Active Directory</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="metasploit-framework"><a class="header" href="#metasploit-framework">Metasploit Framework</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="havoc-framework"><a class="header" href="#havoc-framework">Havoc Framework</a></h1>
+<p><strong>Havoc</strong> is a free, open-source C2 Framework used by pentesters, red teams, and security researchers because it is</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sliver-framework"><a class="header" href="#sliver-framework">Sliver Framework</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="empire-framework"><a class="header" href="#empire-framework">Empire Framework</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="cobalt-strike-framework"><a class="header" href="#cobalt-strike-framework">Cobalt Strike Framework</a></h1>
@@ -6826,6 +6929,23 @@ should all be considered threats as well. Question who has visibility into your 
 <div style="break-before: page; page-break-before: always;"></div><h1 id="malware-case-studies"><a class="header" href="#malware-case-studies">Malware Case Studies</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="appendix-a-virtual-addresses-page-tables-and-page-table-entries"><a class="header" href="#appendix-a-virtual-addresses-page-tables-and-page-table-entries">Appendix A: Virtual Addresses, Page Tables, and Page Table Entries</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="appendix-b-manually-writing-shellcode-for-windows"><a class="header" href="#appendix-b-manually-writing-shellcode-for-windows">Appendix B: Manually Writing Shellcode for Windows</a></h1>
+<p><strong>Shellcode</strong> describes a type of program, which only exists to be loaded into memory and then executed. Traditionally, hackers used shellcode to create shell sessions on a target machine, but now it is common for shellcode programs to do much more specific tasks, like Credential Dumping and performing Lateral Movement. It is important to note, that unlike regular executables, shellcode does not inherently contains sections and there are no instructions for managing a language runtime. Shellcode instructions are written in machine code, so they are interpreted directly by the CPU. Shellcode is typically executed in one of two ways: either by injecting it into a vulnerable service or by being intentionally loaded into memory by a malicious program.</p>
+<p>Writing shellcode for Unix/Linux systems is different from writing it on Windows systems. On linux, writing shellcode can be broken into 3 basic parts:</p>
+<ol>
+<li>Specify the system call number</li>
+<li>Put the system call parameters on the stack/in registers</li>
+<li>Use <code>syscall</code> or <code>int 0x80</code> to execute the system call</li>
+</ol>
+<p>This is repeated as needed to execute different functions. On windows, system call numbers are not made public and even if they are discovered they ay be changed across versions of Windows. Instead, when writing shelcode, we use <strong>Win32 API</strong> calls to achieve our objectives. This process works as follows:</p>
+<ol>
+<li>Obtain the <code>kernel32.dll</code> base address.</li>
+<li>Find the address of the <code>GetProcAddress</code> function.</li>
+<li>Use <code>GetProcAddress</code> to find the address of the <code>LoadLibrary</code> function.</li>
+<li>Use <code>LoadLibrary</code> to load a DLL (such as <code>user32.dll</code>) into memory.</li>
+<li>Use <code>GetProcAddress</code> to find the address of a function (such as MessageBox) from within the loaded library.</li>
+<li>Specify the function parameters.</li>
+<li>Call the function.</li>
+</ol>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="appendix-c-a-primer-on-kerberos"><a class="header" href="#appendix-c-a-primer-on-kerberos">Appendix C: A Primer on Kerberos</a></h1>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How it Works</a></h2>
 <p><strong>Kerberos</strong> replaces the <strong>New Technology LAN Manager</strong> (<code>NTLM</code>) as the default domain authentication protocol since Windows 2000. It works on a system of <strong>ticets</strong>, where principals (users and computers) are authenticated by a central, trusted server, granting them access to services without needing to provide their password over and over again. Kerberos doesn't require that end services know the principal's password. It assumes that there is no transport encryption on the network and that packets can be read/modified/replayed. Therefore, it relies on shared-secret cryptography to establish a trust relationship with clients.</p>
@@ -7247,7 +7367,24 @@ Offset    Value
 +50       ffffac8a`d8823d50
 +58       ffffac8a`d8823d50
 </code></pre>
-<p>According to our prediction, first <code>0x10</code> bytes should make up a <code>_KEVENT</code> object</p>
+<p>According to our prediction, first <code>0x10</code> bytes should make up a <code>_KEVENT</code> object. The <code>_KEVENT</code> object contains a single attribute, <code>Header</code>, which is a <code>_DISPATH_HEADER</code> object:</p>
+<pre><code class="language-C">//0x18 bytes (sizeof)
+struct _DISPATCHER_HEADER
+{
+    union
+    {
+        volatile LONG Lock;                                                 //0x0
+        LONG LockNV;                                                        //0x0
+        [...trunc...]
+    };
+    LONG SignalState;                                                       //0x4
+    struct _LIST_ENTRY WaitListHead;                                        //0x8
+};
+</code></pre>
+<blockquote>
+<p>SOURCE: <a href="https://www.vergiliusproject.com/kernels/x64/windows-11/25h2/_DISPATCHER_HEADER">Vergilius Project: Windows 11 25H2</a></p>
+</blockquote>
+<p><code>_DISPATCHER_HEADER</code> is made up of a number of <code>union</code> structures, so the first <code>4d</code> (0x4) bytes can take on a number of permutations. However, we know that the last <code>20d</code> (0x14) bytes should include a <code>LONG</code> (4 byte integer value) and a <code>_LIST_ENTRY</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="resources"><a class="header" href="#resources">Resources</a></h1>
 <h2 id="managing-memory"><a class="header" href="#managing-memory">Managing Memory</a></h2>
 <ul>

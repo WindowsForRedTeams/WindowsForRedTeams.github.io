@@ -428,7 +428,24 @@ Offset    Value
 +50       ffffac8a`d8823d50
 +58       ffffac8a`d8823d50
 </code></pre>
-<p>According to our prediction, first <code>0x10</code> bytes should make up a <code>_KEVENT</code> object</p>
+<p>According to our prediction, first <code>0x10</code> bytes should make up a <code>_KEVENT</code> object. The <code>_KEVENT</code> object contains a single attribute, <code>Header</code>, which is a <code>_DISPATH_HEADER</code> object:</p>
+<pre><code class="language-C">//0x18 bytes (sizeof)
+struct _DISPATCHER_HEADER
+{
+    union
+    {
+        volatile LONG Lock;                                                 //0x0
+        LONG LockNV;                                                        //0x0
+        [...trunc...]
+    };
+    LONG SignalState;                                                       //0x4
+    struct _LIST_ENTRY WaitListHead;                                        //0x8
+};
+</code></pre>
+<blockquote>
+<p>SOURCE: <a href="https://www.vergiliusproject.com/kernels/x64/windows-11/25h2/_DISPATCHER_HEADER">Vergilius Project: Windows 11 25H2</a></p>
+</blockquote>
+<p><code>_DISPATCHER_HEADER</code> is made up of a number of <code>union</code> structures, so the first <code>4d</code> (0x4) bytes can take on a number of permutations. However, we know that the last <code>20d</code> (0x14) bytes should include a <code>LONG</code> (4 byte integer value) and a <code>_LIST_ENTRY</code>.</p>
 
                     </main>
 

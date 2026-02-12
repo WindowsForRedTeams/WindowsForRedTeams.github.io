@@ -159,6 +159,23 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="appendix-b-manually-writing-shellcode-for-windows"><a class="header" href="#appendix-b-manually-writing-shellcode-for-windows">Appendix B: Manually Writing Shellcode for Windows</a></h1>
+<p><strong>Shellcode</strong> describes a type of program, which only exists to be loaded into memory and then executed. Traditionally, hackers used shellcode to create shell sessions on a target machine, but now it is common for shellcode programs to do much more specific tasks, like Credential Dumping and performing Lateral Movement. It is important to note, that unlike regular executables, shellcode does not inherently contains sections and there are no instructions for managing a language runtime. Shellcode instructions are written in machine code, so they are interpreted directly by the CPU. Shellcode is typically executed in one of two ways: either by injecting it into a vulnerable service or by being intentionally loaded into memory by a malicious program.</p>
+<p>Writing shellcode for Unix/Linux systems is different from writing it on Windows systems. On linux, writing shellcode can be broken into 3 basic parts:</p>
+<ol>
+<li>Specify the system call number</li>
+<li>Put the system call parameters on the stack/in registers</li>
+<li>Use <code>syscall</code> or <code>int 0x80</code> to execute the system call</li>
+</ol>
+<p>This is repeated as needed to execute different functions. On windows, system call numbers are not made public and even if they are discovered they ay be changed across versions of Windows. Instead, when writing shelcode, we use <strong>Win32 API</strong> calls to achieve our objectives. This process works as follows:</p>
+<ol>
+<li>Obtain the <code>kernel32.dll</code> base address.</li>
+<li>Find the address of the <code>GetProcAddress</code> function.</li>
+<li>Use <code>GetProcAddress</code> to find the address of the <code>LoadLibrary</code> function.</li>
+<li>Use <code>LoadLibrary</code> to load a DLL (such as <code>user32.dll</code>) into memory.</li>
+<li>Use <code>GetProcAddress</code> to find the address of a function (such as MessageBox) from within the loaded library.</li>
+<li>Specify the function parameters.</li>
+<li>Call the function.</li>
+</ol>
 
                     </main>
 

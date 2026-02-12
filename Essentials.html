@@ -496,7 +496,8 @@ Here is a breakdown of the function's parameters:
 </code></pre>
 <p>Where:</p>
 <ul>
-<li><code>execve</code>: A powerful system call used on Unix-like operating systems to execute a new program by replacing the current process with a new one without creating a new process ID (PID). The new process completely overwrites the existing process code, data, and stack. From the perspective of the operating system, the process's PID remains the same, but the program it is running changes entirely. Included in <code>&lt;unistd.h&gt;</code>.
+<li>
+<p><code>execve</code>: A powerful system call used on Unix-like operating systems to execute a new program by replacing the current process with a new one without creating a new process ID (PID). The new process completely overwrites the existing process code, data, and stack. From the perspective of the operating system, the process's PID remains the same, but the program it is running changes entirely. Included in <code>&lt;unistd.h&gt;</code>.</p>
 <pre><code class="language-C">int execve(const char *pathname, char *const argv[], char *const envp[]);
 </code></pre>
 <ul>
@@ -1363,15 +1364,24 @@ When a relative module path is given, a function will search for the appropriate
 <a class="admonition-anchor-link" href="#admonition-note-4"></a>
 </div>
 <div>
-<p><strong>How it Works</strong>: <em>Dll Hijacking</em>
-<strong>Dll Hijacking</strong> is pretty basic in practice, being broken into 3 distinct steps:</p>
+<p><strong>How it Works</strong>:</p>
+<p><strong>Dll Hijacking</strong> is pretty basic in practice, being broken into 3 distinct steps:</p>
 <ol>
-<li><strong>Identify the Vulnerable Application</strong>: The attacker identifies a legitimate application (often a signed system utility or a third-party tool) that attempts to load a DLL using an insecure method.</li>
-<li><strong>Exploiting the Search Order</strong>: When the application starts, Windows begins searching a defined sequence of directories for the missing DLL, which often includes locations that a low-privileged user may have write access to, such as:
-_ The directory from which the application was loaded
-_ The current working directory * Directories listed in the user's <code>PATH</code> environment variable
-The attacker places a malicious DLL file, renamed to the exact filename of the DLL the application is searching for, into one of these less-secure high priority locations.</li>
-<li><strong>Hijacking</strong>: When the legitimate application runs, the operating system finds the malicious DLL in the high-priority directory first and loads it, executing the attacker's code.</li>
+<li>
+<p><strong>Identify the Vulnerable Application</strong>: The attacker identifies a legitimate application (often a signed system utility or a third-party tool) that attempts to load a DLL using an insecure method.</p>
+</li>
+<li>
+<p><strong>Exploiting the Search Order</strong>: When the application starts, Windows begins searching a defined sequence of directories for the missing DLL, which often includes locations that a low-privileged user may have write access to, such as:</p>
+<ul>
+<li>The directory from which the application was loaded</li>
+<li>The current working directory</li>
+<li>Directories listed in the user's <code>PATH</code> environment variable</li>
+</ul>
+<p>The attacker places a malicious DLL file, renamed to the exact filename of the DLL the application is searching for, into one of these less-secure high priority locations.</p>
+</li>
+<li>
+<p><strong>Hijacking</strong>: When the legitimate application runs, the operating system finds the malicious DLL in the high-priority directory first and loads it, executing the attacker's code.</p>
+</li>
 </ol>
 </div>
 </div>

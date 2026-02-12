@@ -226,6 +226,83 @@
 </ul>
 </li>
 </ul>
+<p>Malware developers may want their programs to behave differently if a debugger is active. For instance, consider the following program:</p>
+<pre><code class="language-C">// debugger_here.c
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;windows.h&gt;
+
+bool hack(){
+  MessageBox(NULL, "You Have Been Hacked!", "&gt;;-)", MB_OK);
+}
+
+int main(){
+  if(IsDebuggerPresent()){
+    MessageBox(NULL, "debugger detected! exiting...\n", "RUNNING IN DEBUGGER", MB_OK);
+    return 1;
+  }
+  hack();
+  return 0;
+}
+</code></pre>
+<p>After compiling the program, it can be run on a Windows system like any other program:
+<img src="img/debugger_exp_run_nrml.png" alt="image" /></p>
+<p>We can see that when it runs, the <code>hack()</code> function is executed and a <code>MessageBox</code> shows the message <code>You Have Been Hacked!</code>. However, if it is launched in a debugger, a different message is shown:
+<img src="img/debugger_exp_run_dbg.png" alt="image" /></p>
+<p>So, depending on the context that the program is running in, it will demonstrate different behaviors. This technique is usesful for malicious program that want to avoid being dynamically analyzed.</p>
+<h3 id="detecting-breakpoints"><a class="header" href="#detecting-breakpoints">Detecting Breakpoints</a></h3>
+<p>Software debuggers allow operators to set <strong>breakpoints</strong>, which are places within a program where the debugger will pause execution, allowing analysts to observe the programs state. When a software breakpoint is set at a particular memory address, the debugger reads the first instruction byte of the target, saves it in an internal lookup table, then replaces it with the value <code>0xCC</code>, the <code>INT 3</code> x86 instruction, designed to throw a <code>EXCEPTION_BREAKPOINT</code>. When the debuggee program is executed, it eventually encounters the interrupt instruction. Now, the program doesn't know that it has encountered a breakpoint, it just knows that it hit a software interrupt. The CPU throws the interrupt and the kernel verifies that the program is being debugged. Then, it pauses execution of the target thread and sends a <code>DEBUG_EVENT</code> to the debugger. When execution is resumed, the original bytes are retrieved from the internal lookup table and replaced to the location set by the breakpoint.</p>
+<p>A basic way to determine whether a debugger has set breakpoints during execution is to calculate a <strong>checksum</strong> for the targeted region before the program is compiled. A checksum is a value which helps measure whether any minor changes have been made to a data set. Passing the data through a function produces a relatively unique number. In the event any minor changes are made to the data, the resulting checksum value will be different, indicating some form of data corruption.</p>
+<p>By isolating the region within the code where the checksum should be applied, it can be pre-calculated, then hardcoded into the program. The checksum recalculation should occur before any critical sections within the program, where breakpoints should not be allowed.</p>
+<p>Here is an example:</p>
+<pre><code class="language-C">// breakpoints.exe
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+
+DWORD CalcFuncChecksum(PUCHAR funcBegin, PUCHAR funcEnd) {
+  DWORD chksm = 0;
+  for (; funcBegin &lt; funcEnd; ++funcBegin) {
+    chksm += *funcBegin;
+  }
+  return chksm;
+}
+
+VOID Debuggee() {
+  int x;
+  long y;
+  char name[20];
+  union location{
+    int list_num;
+    long longitude;
+    char str_name[20];
+  };
+}
+
+VOID DebuggeeEnd() {};
+
+DWORD checksum = 0x741;
+
+int main() {
+  DWORD recalc = CalcFuncChecksum((PUCHAR)Debuggee, (PUCHAR)DebuggeeEnd);
+  if (checksum != recalc) {
+    char str[20];
+    snprintf(str, sizeof(str), "%d", recalc);
+    MessageBox(NULL, "Debugger!", str, MB_OK);
+    return -1;
+  }
+  MessageBox(NULL, "I Hate Being Debugged!", "&gt;:-(", MB_OK);
+  return 0;
+}
+</code></pre>
+<p>First, we define a function <code>CalcFuncChecksum</code>, which calculates a checksum value for all the data between two memory addresses. In this case, the protected code is within the <code>Debuggee</code> function. <code>DebuggeeEnd</code> is created as an in scope address we can refer to as the end of our <code>Debuggee</code> function. Since the checksum value is not known until the program is run at least once, call <code>CalcFuncChecksum</code> in <code>main</code>, set the return value equal to some <code>DWORD</code>, and print it to stdout using <code>printf</code>. This value should be set equal to <code>checksum</code>. Everytime the program runs, it should start by calculating the checksum for the protected region and comparing it to the hardcoded <code>checksum</code> value. This makes it that much harder for the program to be dynamically analyzed.</p>
+<p><img src="img/breakpoints_exp_run_nrml.png" alt="image" /></p>
+<blockquote>
+<p>Normal execution of <code>breakpoints.exe</code></p>
+</blockquote>
+<p><img src="img/breakpoints_exp_run_dbg.png" alt="image" /></p>
+<blockquote>
+<p>Debugger execution of <code>breakpoints.exe</code> with breakpoints set</p>
+</blockquote>
 
                     </main>
 

@@ -586,6 +586,21 @@ int main (int argc, char** argv){
 <h2 id="path-interception"><a class="header" href="#path-interception">Path Interception</a></h2>
 <p><strong>Path Interception</strong> is a vulnerability that occurs when an executable can be placed in a location which allows it to highjack the execution path of another, intended application. When the target program is executed with an elevated security context, this can result in privilege escalation. There are 3 variations of this vulnerability that we will review here: The <strong><code>PATH</code> Environment Variable</strong>, <strong>Search Order Highjacking</strong>, and <strong>Unquoted Paths</strong>.</p>
 <h3 id="path-environment-variable"><a class="header" href="#path-environment-variable"><a href="https://attack.mitre.org/techniques/T1574/007/">Path Environment Variable</a></a></h3>
+<p>The <code>PATH</code> environment variable contains a list of directories, which Windows uses to resolve the locations of common programs. For instance, <code>schtasks</code>, the program we use to enumerate scheduled tasks, exists at <code>C:\Windows\System32\schtasks.exe</code>. When you run <code>schtasks</code> at the Command line, the OS searches each directory, in order until it comes across <code>schtasks.exe</code> in <code>%SystemRoot%\system32</code>.</p>
+<div id="admonition-note-5" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-5-title">
+<div class="admonition-title">
+<div id="admonition-note-5-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-5"></a>
+</div>
+<div>
+<p>Verify this by running:</p>
+<pre><code class="language-C">$ reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Path
+</code></pre>
+</div>
+</div>
+<p>System processes use the <code>Path</code> variable found at <code>HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\Path</code>, or the Machine Path. User processes search the Machine Path, then search through the User Path, found at <code>HKCU\Environment\Path</code>.</p>
 
                     </main>
 
