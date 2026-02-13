@@ -160,7 +160,7 @@
                     <main>
                         <h1 id="malware-detection-evasion-techniques"><a class="header" href="#malware-detection-evasion-techniques">Malware Detection Evasion Techniques</a></h1>
 <p>Modern Computer Systems come preloaded with a number of security mechanisms to combat the basic methods of exploitation, privilege escalation, and persistence we have reviewed so far. Without modification, these techniques would immediately be identified and mitigated before the attacker could perform any part of their operation. But although they likely won't work on their own, with some additional consideration these techniques can still be useful for exploiting weaknesses in security systems. In this section, we will review some methods for writing strong malware payloads that avoid detection and circumvent many of the obstacles that would otherwise prevent a payload from ever executing on a secure system.</p>
-<h2 id="anti-debugging-tricks"><a class="header" href="#anti-debugging-tricks">Anti-Debugging Tricks</a></h2>
+<h2 id="anti-debugging-techniques"><a class="header" href="#anti-debugging-techniques">Anti-Debugging Techniques</a></h2>
 <p>Preventing malware from being analyzed, or at the very least making analysis extremely difficult, ultimately gives it a quality of ambiguity, so that its functions and mechanisms cannot be determined. There are numerous debugging detection techniques, and here we will review a few as well as some methods for identifying new ones. Although a capable analyst will be capaable of mitigating any of them, introducing complexit at least makes their job a lot harder.</p>
 <h3 id="detecting-debugger-presence"><a class="header" href="#detecting-debugger-presence">Detecting Debugger Presence</a></h3>
 <p>The first step in anti-debugging is determining whether or not the application is being run with a debugger attached. It is possible to ask the operating system using the <code>IsDebuggerPresent</code> function.</p>
@@ -249,7 +249,7 @@ int main(){
 <img src="img/debugger_exp_run_nrml.png" alt="image" /></p>
 <p>We can see that when it runs, the <code>hack()</code> function is executed and a <code>MessageBox</code> shows the message <code>You Have Been Hacked!</code>. However, if it is launched in a debugger, a different message is shown:
 <img src="img/debugger_exp_run_dbg.png" alt="image" /></p>
-<p>So, depending on the context that the program is running in, it will demonstrate different behaviors. This technique is usesful for malicious program that want to avoid being dynamically analyzed.</p>
+<p>So, depending on the context that the program is running in, it will demonstrate different behaviors. This technique is usesful for malicious program that want to avoid being dynamically analyzed. The same principle applies for the <code>CheckRemoteDebuggerPresent</code> API, which checks if a remote (parallel) process is debugging the program.</p>
 <h3 id="detecting-breakpoints"><a class="header" href="#detecting-breakpoints">Detecting Breakpoints</a></h3>
 <p>Software debuggers allow operators to set <strong>breakpoints</strong>, which are places within a program where the debugger will pause execution, allowing analysts to observe the programs state. When a software breakpoint is set at a particular memory address, the debugger reads the first instruction byte of the target, saves it in an internal lookup table, then replaces it with the value <code>0xCC</code>, the <code>INT 3</code> x86 instruction, designed to throw a <code>EXCEPTION_BREAKPOINT</code>. When the debuggee program is executed, it eventually encounters the interrupt instruction. Now, the program doesn't know that it has encountered a breakpoint, it just knows that it hit a software interrupt. The CPU throws the interrupt and the kernel verifies that the program is being debugged. Then, it pauses execution of the target thread and sends a <code>DEBUG_EVENT</code> to the debugger. When execution is resumed, the original bytes are retrieved from the internal lookup table and replaced to the location set by the breakpoint.</p>
 <p>A basic way to determine whether a debugger has set breakpoints during execution is to calculate a <strong>checksum</strong> for the targeted region before the program is compiled. A checksum is a value which helps measure whether any minor changes have been made to a data set. Passing the data through a function produces a relatively unique number. In the event any minor changes are made to the data, the resulting checksum value will be different, indicating some form of data corruption.</p>
@@ -303,6 +303,208 @@ int main() {
 <blockquote>
 <p>Debugger execution of <code>breakpoints.exe</code> with breakpoints set</p>
 </blockquote>
+<h3 id="hiding-a-thread-from-the-debugger"><a class="header" href="#hiding-a-thread-from-the-debugger">Hiding a Thread from the Debugger</a></h3>
+<p><code>NtSetInformationThread</code> is a low-level Windows Native API, responsible for setting various types of information for a given thread.</p>
+<pre><code class="language-C">NTSTATUS NtSetInformationThread(
+  [in] HANDLE          ThreadHandle,
+  [in] THREADINFOCLASS ThreadInformationClass,
+  [in] PVOID           ThreadInformation,
+  [in] ULONG           ThreadInformationLength
+);
+</code></pre>
+<blockquote>
+<p>SOURCE: <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntsetinformationthread">Windows <code>Ntifs.h</code> Documentation</a></p>
+</blockquote>
+<p>Here is a breakdown of the function's parameters:</p>
+<ul>
+<li>
+<p><code>ThreadHandle</code>: A handle to the thread that needs to be modified. It must have <code>THREAD_SET_INFORMATION</code> access rights.</p>
+</li>
+<li>
+<p><code>ThreadInformationClass</code>: An enumerable structure, which tells the kernel what needs to be changed about the thread. This includes:</p>
+<ul>
+<li><code>ThreadPritority</code> (0x00): Sets the scheduling priority, determining how much CPU time the thread receives relative to other threads.</li>
+<li><code>ThreadAffinityMask</code> (0x04): Forces the thread to run only on specific CPU cores.</li>
+<li><code>ThreadImpersonationToken</code> (0x05): Used to assign an <strong>Access Token</strong> to a specific thread, allowing it to act on behalf of another user.</li>
+</ul>
+<p><code>ThreadHideFromDebugger</code> (0x11) is an undocumented value that can be used to force a debugger to stop sending events to the thread (i.e. breakpoints). This may cause crashes if a breakpoint is set within the target thread or if it is the main thread of the debugged process.</p>
+</li>
+<li>
+<p><code>ThreadInformation</code>: A pointer to a buffer that contains the new data that should be set for the thread. Set to <code>NULL</code> for <code>ThreadHideFromDebugger</code>.</p>
+</li>
+<li>
+<p><code>ThreadInformationLength</code>: The size, in bytes of the buffer pointed to by<code>ThreadInformation</code>.</p>
+</li>
+</ul>
+<p>Since <code>NtSetInformationThread</code> is part of the Native API, we must use <code>GetProcAddress</code> to retrieve it from <code>ntdll.dll</code>:</p>
+<pre><code class="language-C">#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+
+typedef NTSTATUS (NTAPI *pNtSetInformationThread)(
+	HANDLE ThreadHandle,
+	ULONG ThreadInformationClass,
+	PVOID ThreadInformation,
+	ULONG ThreadInformationLength
+);
+
+#define ThreadHideFromDebugger 0x11
+
+BOOL HideThread(){
+	HMODULE hNtDll = GetModuleHandleA("ntdll.dll");
+	if (hNtDll == NULL) return FALSE;
+
+	pNtSetInformationThread NtSetInformationThread = (pNtSetInformationThread)GetProcAddress(hNtDll, "NtSetInformationThread");
+
+	if (NtSetInformationThread != NULL){
+		NTSTATUS status = NtSetInformationThread(GetCurrentThread(), ThreadHideFromDebugger, NULL, 0);
+
+		if (status == 0) return TRUE;
+		else return FALSE;
+	}
+}
+
+int main(){
+	if (HideThread()){
+		MessageBox(NULL, "I enjoy playing Hide and Seek", ";)", MB_OK);
+		int x = 0;
+		ULONG y = 0;
+		const char *bfval;
+		union {
+			BOOL real;
+			char name[20];
+			float height;
+		} bigfoot;
+
+		bigfoot.real = FALSE;
+		bfval = (bigfoot.real == TRUE) ? "true" : "false";
+		MessageBox(NULL, bfval, "Is Bigfoot Real?", MB_OK);
+	} else {
+		MessageBox(NULL, "I am not hiding", ":(", MB_OK);
+	}
+}
+</code></pre>
+<p>When we run this program normally, it shows two message boxes:
+<img src="img/hidden_thread_nrml_1.png" alt="image" /></p>
+<blockquote>
+<p>First <code>MessageBox</code> after normal execution</p>
+</blockquote>
+<p><img src="img/hidden_thread_nrml_2.png" alt="image" /></p>
+<blockquote>
+<p>Second <code>MessageBox</code> after normal execution</p>
+</blockquote>
+<p>But, when you open the program in a debugger, while it may appear normal:
+<img src="img/hidden_thread_dbg_1.png" alt="image" /></p>
+<blockquote>
+<p>First <code>MessageBox</code> after debugger execution</p>
+</blockquote>
+<p><img src="img/hidden_thread_dbg_2.png" alt="image" /></p>
+<blockquote>
+<p>Second <code>MessageBox</code> after debugger execution</p>
+</blockquote>
+<p>the debugger never recognizes that the debuggee stops running because it cannot send event messages to the thread. This also means that breakpoints cannot be set within the program after the thread is hidden:
+<img src="img/hidden_thread_dbg_3.png" alt="image" /></p>
+<blockquote>
+<p>Debugger session still running, after <code>hidden.exe</code> finishes executing</p>
+</blockquote>
+<p><img src="img/hidden_thread_dbg_4.png" alt="image" /></p>
+<blockquote>
+<p>Debugger session closes for hidden thread</p>
+</blockquote>
+<h3 id="custom-exception-handling"><a class="header" href="#custom-exception-handling">Custom Exception Handling</a></h3>
+<p>In <a href="./Windows.html">Windows Funamentals</a>, we talked about <strong>Structured Exception Handling</strong>. To refresh, it is a mechanism for gracefully handling exceptions when they occur. On 64 bit systems, the compiler generates static, read-only tables that describe the exception handlers and stack unwinding information for each function. This "unwinding" information comes from the <code>CONTEXT</code> structure, which is used to save the state of a thread during context switching. Basically, when an exception occurs, the kernel captures the current CPU state in a <code>CONTEXT</code> structure. Then, it uses the instruction pointer, <code>Rip</code> as an index to the <code>.pdata</code> section of the binary, which contains an array of <code>RUNTIME_FUNCTION</code> structures:</p>
+<pre><code class="language-C">struct _IMAGE_RUNTIME_FUNCTION_ENTRY
+{
+    ULONG BeginAddress;
+    ULONG EndAddress;
+    union
+    {
+        ULONG UnwindInfoAddress;
+        ULONG UnwindData;
+    };
+};
+</code></pre>
+<blockquote>
+<p>SOURCE: <a href="https://www.vergiliusproject.com/kernels/x64/windows-11/25h2/_IMAGE_RUNTIME_FUNCTION_ENTRY">Vergilius</a></p>
+</blockquote>
+<p>Where:</p>
+<ul>
+<li><code>BeginAddress</code>: The Relative Virtual Address (RVA) of the start of a function.</li>
+<li><code>EndAddress</code>: The RVA of the end of the function.</li>
+<li><code>UnwindData</code>/<code>UnwindInfoAddress</code>: A structure/pointer used to identify the correct index within the <code>.xdata</code> section of the PE binary.</li>
+</ul>
+<p><code>Rsp</code> is used to virtualize the stack. As the OS moves from the crashed function back to the caller, <code>Rsp</code> is updated in the <code>CONTEXT</code> structure to reflect what the stack should look like in the parent function. The <strong>General Purpose Register</strong> (<code>Rax</code>, <code>Rbx</code>, <code>Rcx</code>, etc.) are used to restore the thread to some state after the handler has executed. Finally, the <strong>Hardware Debug Registers</strong> (<code>Dr0</code>-<code>Dr7</code>) can be used to detect whether a hardware exception has occurred. Specifically, if any of <code>Dr0</code>-<code>Dr3</code> contain non-zero values, it means a hardware breakpoint has been set at the given address.</p>
+<p>Unlike software breakpoints, hardware breakpoints do not overwrite any instructions in the code, so they cannot be detected using checksums. We can create a custom exception handler and cause an exception to check the <code>CONTEXT</code> structure and determine whether any hardware breakpoints have been set:</p>
+<pre><code class="language-C">// handler.c
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+
+void Hack(){
+  MessageBox(NULL, "You have reached my secret function! No hardware breakpoints detected!", ";)", MB_OK);
+  ExitProcess(0);
+}
+
+void Test(){
+  printf("Hello, world!");
+}
+
+long WINAPI HWBP(PEXCEPTION_POINTERS pExceptionInfo){
+  PCONTEXT ctx pExceptionInfo-&gt;ContextRecord;
+  if(ctx-&gt;Dr0 != 0 || ctx-&gt;Dr1 != 0 || ctx-&gt;Dr2 != 0 || ctx-&gt;Dr3 != 0){
+    ExitProcess(-1);    // hardware breakpoints detected
+  }
+
+  ctx-&gt;Rip = (DWORD64)Hack;
+
+  return EXCEPTION_CONTINUE_EXECUTION;
+}
+
+int main(){
+  AddVectoredExceptionHandler(1, HWBP);   // registers the custom exception handler
+
+  int* p = NULL;
+  *p = 1337;        // Trigger NULL pointer dereference (CRASH)
+
+  Test();           // Test function. Address to set hardware breakpoint to
+
+  return 0;
+}
+</code></pre>
+<p>If the program executes normally, our hidden <code>Hack</code> function executes as intended. However, if runs within a debugger session that has hardware breakpoints set, it is detected and the session terminates without running <code>Hack</code>.</p>
+<p><img src="img/handler_nrml.png" alt="image" /></p>
+<blockquote>
+<p><code>MessageBox</code> after normal execution</p>
+</blockquote>
+<p><img src="img/handler_hdwr_brkp.png" alt="image" /></p>
+<blockquote>
+<p>Debugger session terminates when hardware breakpoints are set</p>
+</blockquote>
+<div id="admonition-note-1" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-1-title">
+<div class="admonition-title">
+<div id="admonition-note-1-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-1"></a>
+</div>
+<div>
+<p>There are a number of Anti-Debugging techniques that can be used. The few we went over here are just the tip of the iceberg. The following are great resources for discovering additional techniques, that we did not cover.</p>
+<ul>
+<li><a href="https://anti-debug.checkpoint.com">Anti-Debug Encyclopedia</a></li>
+<li><a href="https://www.openrce.org/reference_library/anti_reversing">Anti Reverse Engineering Techniques Database</a></li>
+<li><a href="https://attack.mitre.org/techniques/T1622/">Mitre: Debugger Evasion Technique</a></li>
+</ul>
+</div>
+</div>
+<h2 id="virtual-machine-detection-techniques"><a class="header" href="#virtual-machine-detection-techniques">Virtual Machine Detection Techniques</a></h2>
+<p><strong>Virtual Machines</strong> are the standard, isolated environments used for studying malware. Even <a href="https://www.crowdstrike.com/en-us/cybersecurity-101/exposure-management/honeypots/">honeypots</a> use them to trick hackers into reveal the techniques they use to pwn different types of systems. By detecting VMs, malware can avoid being analyzed by crashing, refusing to unload its payload, or taking benign actions. Again, any capable analyst will be able to discover the use of these techniques, but implementing them makes their job that much harder.</p>
+<h3 id="virtual-machines-in-the-windows-registry"><a class="header" href="#virtual-machines-in-the-windows-registry">Virtual Machines in the Windows Registry</a></h3>
+<p>Popular virtual machines services, including <code>VMWare</code> and <code>VirtualBox</code>, use the Windows Registry to store values that are pertinent to their ability to function. This includes features such as hardware abstraction and driver loading, guest integrations, cloud identification.</p>
+<h3 id="virtual-machines-in-the-file-system"><a class="header" href="#virtual-machines-in-the-file-system">Virtual Machines in the File System</a></h3>
+<h3 id="virtual-machine-hardware-detection"><a class="header" href="#virtual-machine-hardware-detection">Virtual Machine Hardware Detection</a></h3>
+<h3 id="time-based-virtal-machine-evasion"><a class="header" href="#time-based-virtal-machine-evasion">Time-based Virtal Machine Evasion</a></h3>
+<h3 id="user-activity-based-virtual-machine-evasion"><a class="header" href="#user-activity-based-virtual-machine-evasion">User Activity-based Virtual Machine Evasion</a></h3>
+<h2 id="anti-disassembly-techniques"><a class="header" href="#anti-disassembly-techniques">Anti-Disassembly Techniques</a></h2>
+<h2 id="besting-antivirus-engines"><a class="header" href="#besting-antivirus-engines">Besting Antivirus Engines</a></h2>
+<h2 id="common-cryptographic-techniques"><a class="header" href="#common-cryptographic-techniques">Common Cryptographic Techniques</a></h2>
 
                     </main>
 
